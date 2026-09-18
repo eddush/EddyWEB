@@ -3,11 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>EddyWEB | ניהול עדכונים וסקינים</title>
+    <title>EddyWEB | ניהול עדכונים מלאים</title>
     <link rel="stylesheet" href="style.css">
+    <!-- ספריית העיצוב לעורך הטקסט -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
         .admin-container {
-            max-width: 850px;
+            max-width: 900px;
             margin: 30px auto;
             padding: 20px;
             position: relative;
@@ -23,12 +25,12 @@
         }
 
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 15px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
             font-weight: bold;
             color: #5fffe4;
             font-size: 13px;
@@ -37,7 +39,7 @@
         .form-group input,
         .form-group textarea {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             background: #060b0e;
             border: 1px solid #ffffff20;
             color: #fff;
@@ -46,16 +48,16 @@
 
         .item-card {
             background: #121d22;
-            padding: 18px;
+            padding: 20px;
             border-radius: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             border-right: 4px solid #b965ff;
         }
 
         .row-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 15px;
         }
 
         .skin-preview-box {
@@ -77,13 +79,32 @@
             background: #ff4757;
             color: #fff;
             border: 0;
-            padding: 6px 12px;
+            padding: 8px 15px;
             border-radius: 6px;
             cursor: pointer;
+            margin-top: 15px;
         }
 
         .hidden {
             display: none;
+        }
+
+        /* עיצוב מיוחד לעורך הטקסט */
+        .ql-toolbar {
+            background: #e9ffff;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .ql-container {
+            background: #fff;
+            color: #000;
+            border-radius: 0 0 6px 6px;
+            min-height: 200px;
+            font-family: 'Rubik', sans-serif;
+        }
+
+        .editor-wrapper {
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -92,27 +113,31 @@
     <div class="grid"></div>
     <div class="admin-container">
         <div id="login-section" class="login-box">
-            <h3>התחברות למערכת הניהול</h3>
+            <h3>התחברות למערכת</h3>
             <div class="form-group">
                 <input type="password" id="admin-pass" placeholder="הכנס סיסמה...">
             </div>
             <button class="btn primary" onclick="login()">התחבר</button>
-            <p id="login-error" style="color: #ff6b8a;"></p>
+            <p id="login-error" style="color: #ff6b8a; margin-top: 10px;"></p>
         </div>
 
         <div id="editor-section" class="news-editor hidden">
-            <h3>יצירת עדכון/מאמר חדש</h3>
+            <h3>יצירת מאמר Changelog</h3>
             <div id="news-list"></div>
-            <button class="btn" onclick="addNewsItem()">+ הוסף עדכון חדש</button>
+            <button class="btn" onclick="addNewsItem()">+ צור מאמר חדש</button>
             <hr style="border-color: #ffffff10; margin: 20px 0;">
-            <button class="btn primary" onclick="saveNewsToServer()">שמור שינויים בשרת</button>
-            <p id="save-status"></p>
+            <button class="btn primary" onclick="saveNewsToServer()" style="font-size: 16px; padding: 12px 24px;">שמור
+                מאמרים</button>
+            <p id="save-status" style="margin-top: 10px; font-weight: bold;"></p>
         </div>
     </div>
 
+    <!-- ספריית הפעולה לעורך הטקסט -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
         let authToken = '';
         let newsItems = [];
+        let editors = {}; // שמירת העורכים כדי לשלוף מהם את התוכן
 
         async function login() {
             const password = document.getElementById('admin-pass').value;
@@ -123,7 +148,9 @@
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('editor-section').classList.remove('hidden');
                 loadNews();
-            } else { document.getElementById('login-error').textContent = 'סיסמה שגויה'; }
+            } else {
+                document.getElementById('login-error').textContent = 'סיסמה שגויה';
+            }
         }
 
         async function loadNews() {
@@ -134,37 +161,58 @@
 
         function render() {
             const list = document.getElementById('news-list');
-            list.innerHTML = newsItems.map((item, i) => `
-        <div class="item-card">
+            list.innerHTML = '';
+            editors = {}; // איפוס עורכים
+
+            newsItems.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = 'item-card';
+                div.innerHTML = `
           <div class="row-2">
             <div class="form-group">
-              <label>שם כותב המאמר (מיינקרפט Username):</label>
+              <label>שם הכותב במיינקרפט (ליצירת סקין תלת-ממדי):</label>
               <input type="text" value="${item.author || 'Steve'}" oninput="updateAuthor(${i}, this.value)">
             </div>
             <div class="skin-preview-box">
               <img id="skin-preview-${i}" src="https://mc-heads.net/body/${item.author || 'Steve'}/right" alt="Skin Preview">
-              <span style="font-size:12px; color:#8fa0a3;">תצוגת סקין בזמן אמת</span>
             </div>
           </div>
 
           <div class="row-2">
-            <div class="form-group"><label>כותרת (עברית):</label><input type="text" value="${item.title_he || ''}" onchange="updateItem(${i},'title_he',this.value)"></div>
-            <div class="form-group"><label>כותרת (אנגלית):</label><input type="text" value="${item.title_en || ''}" onchange="updateItem(${i},'title_en',this.value)"></div>
+            <div class="form-group"><label>כותרת מאמר (עברית):</label><input type="text" value="${item.title_he || ''}" onchange="updateItem(${i},'title_he',this.value)"></div>
+            <div class="form-group"><label>כותרת מאמר (אנגלית):</label><input type="text" value="${item.title_en || ''}" onchange="updateItem(${i},'title_en',this.value)"></div>
           </div>
 
           <div class="row-2">
-            <div class="form-group"><label>תיאור קצר (עברית):</label><textarea onchange="updateItem(${i},'text_he',this.value)">${item.text_he || ''}</textarea></div>
-            <div class="form-group"><label>תיאור קצר (אנגלית):</label><textarea onchange="updateItem(${i},'text_en',this.value)">${item.text_en || ''}</textarea></div>
+            <div class="form-group"><label>תיאור קצר לדף הבית (עברית):</label><textarea rows="2" onchange="updateItem(${i},'text_he',this.value)">${item.text_he || ''}</textarea></div>
+            <div class="form-group"><label>תיאור קצר לדף הבית (אנגלית):</label><textarea rows="2" onchange="updateItem(${i},'text_en',this.value)">${item.text_en || ''}</textarea></div>
           </div>
 
-          <div class="form-group">
-            <label>תוכן המאמר המלא / Changelog (HTML/פסוקים):</label>
-            <textarea rows="4" placeholder="<h3>שינויים בגרסה:</h3><ul><li>תוקן באג</li></ul>" onchange="updateItem(${i},'content_he',this.value)">${item.content_he || ''}</textarea>
+          <div class="editor-wrapper">
+            <label style="color:#5fffe4; font-weight:bold; margin-bottom:5px; display:block;">תוכן המאמר המלא (עברית):</label>
+            <div id="editor-he-${i}"></div>
+          </div>
+          
+          <div class="editor-wrapper">
+            <label style="color:#5fffe4; font-weight:bold; margin-bottom:5px; display:block;">תוכן המאמר המלא (אנגלית):</label>
+            <div id="editor-en-${i}"></div>
           </div>
 
-          <button class="btn-danger" onclick="deleteItem(${i})">מחק</button>
-        </div>
-      `).join('');
+          <button class="btn-danger" onclick="deleteItem(${i})">מחק מאמר</button>
+        `;
+                list.appendChild(div);
+
+                // אתחול עורך הטקסט לכל שפה
+                const toolbarOptions = [['bold', 'italic', 'underline'], [{ 'header': [2, 3, false] }], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['clean']];
+
+                const quillHe = new Quill(`#editor-he-${i}`, { theme: 'snow', modules: { toolbar: toolbarOptions } });
+                quillHe.root.innerHTML = item.content_he || '';
+
+                const quillEn = new Quill(`#editor-en-${i}`, { theme: 'snow', modules: { toolbar: toolbarOptions } });
+                quillEn.root.innerHTML = item.content_en || '';
+
+                editors[i] = { he: quillHe, en: quillEn };
+            });
         }
 
         function updateItem(i, k, v) { newsItems[i][k] = v; }
@@ -172,7 +220,12 @@
             newsItems[i].author = name;
             document.getElementById(`skin-preview-${i}`).src = `https://mc-heads.net/body/${name}/right`;
         }
-        function deleteItem(i) { newsItems.splice(i, 1); render(); }
+
+        function deleteItem(i) {
+            newsItems.splice(i, 1);
+            render();
+        }
+
         function addNewsItem() {
             const id = 'post-' + Date.now();
             newsItems.push({ id, author: 'Steve', badge_he: 'עדכון', badge_en: 'UPDATE', title_he: '', title_en: '', text_he: '', text_en: '', content_he: '', content_en: '', url: `article.html?id=${id}` });
@@ -182,9 +235,27 @@
         async function saveNewsToServer() {
             const status = document.getElementById('save-status');
             status.textContent = 'שומר...';
-            const res = await fetch('/api/save-news', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: authToken, news: newsItems }) });
+
+            // לפני השמירה, שואבים את תוכן ה-HTML מעורכי הטקסט ומעדכנים את המערך
+            newsItems.forEach((item, i) => {
+                item.content_he = editors[i].he.root.innerHTML;
+                item.content_en = editors[i].en.root.innerHTML;
+            });
+
+            const res = await fetch('/api/save-news', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: authToken, news: newsItems })
+            });
             const data = await res.json();
-            status.textContent = data.success ? '✓ נשמר בהצלחה!' : 'שגיאה בשמירה';
+
+            if (data.success) {
+                status.style.color = '#5fffe4';
+                status.textContent = '✓ המאמרים נשמרו בהצלחה!';
+            } else {
+                status.style.color = '#ff6b8a';
+                status.textContent = 'שגיאה בשמירה';
+            }
         }
     </script>
 </body>
