@@ -66,9 +66,15 @@
             align-items: center;
             justify-content: center;
             background: #060b0e;
-            padding: 5px;
+            padding: 10px;
             border-radius: 8px;
             margin-bottom: 12px;
+        }
+
+        .skin-preview-box img {
+            height: 90px;
+            width: 90px;
+            object-fit: contain;
         }
 
         .btn-danger {
@@ -128,12 +134,10 @@
     </div>
 
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <script src="https://unpkg.com/skinview3d@3.0.0/dist/skinview3d.bundle.js"></script>
     <script>
         let authToken = '';
         let newsItems = [];
         let editors = {};
-        let skinViewers = {};
 
         async function login() {
             const password = document.getElementById('admin-pass').value;
@@ -159,7 +163,6 @@
             const list = document.getElementById('news-list');
             list.innerHTML = '';
             editors = {};
-            skinViewers = {};
 
             newsItems.forEach((item, i) => {
                 const div = document.createElement('div');
@@ -167,11 +170,11 @@
                 div.innerHTML = `
           <div class="row-2">
             <div class="form-group">
-              <label>שם הכותב במיינקרפט (ייוצר דגם 3D):</label>
+              <label>שם הכותב במיינקרפט (סגנון Drops):</label>
               <input type="text" value="${item.author || 'Steve'}" oninput="updateAuthor(${i}, this.value)">
             </div>
             <div class="skin-preview-box">
-              <canvas id="skin-canvas-${i}" style="width: 100px; height: 120px;"></canvas>
+              <img id="skin-preview-${i}" src="https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(item.author || 'Steve')}&fg=87&fl=1" alt="Skin Preview" referrerpolicy="no-referrer">
             </div>
           </div>
 
@@ -204,27 +207,15 @@
         `;
                 list.appendChild(div);
 
-                // אתחול עורכי הטקסט
                 const toolbarOptions = [['bold', 'italic', 'underline'], [{ 'header': [2, 3, false] }], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['clean']];
+
                 const quillHe = new Quill(`#editor-he-${i}`, { theme: 'snow', modules: { toolbar: toolbarOptions } });
                 quillHe.root.innerHTML = item.content_he || '';
+
                 const quillEn = new Quill(`#editor-en-${i}`, { theme: 'snow', modules: { toolbar: toolbarOptions } });
                 quillEn.root.innerHTML = item.content_en || '';
-                editors[i] = { he: quillHe, en: quillEn };
 
-                // אתחול מודל 3D של הסקין
-                const viewer = new skinview3d.SkinViewer({
-                    canvas: document.getElementById(`skin-canvas-${i}`),
-                    width: 100,
-                    height: 120,
-                    skin: `https://mc-heads.net/skin/${encodeURIComponent(item.author || 'Steve')}`
-                });
-                viewer.fov = 70;
-                viewer.zoom = 0.9;
-                viewer.camera.position.x = -15;
-                viewer.camera.position.y = 12;
-                viewer.camera.position.z = 22;
-                skinViewers[i] = viewer;
+                editors[i] = { he: quillHe, en: quillEn };
             });
         }
 
@@ -232,9 +223,7 @@
 
         function updateAuthor(i, name) {
             newsItems[i].author = name;
-            if (skinViewers[i]) {
-                skinViewers[i].loadSkin(`https://mc-heads.net/skin/${encodeURIComponent(name || 'Steve')}`);
-            }
+            document.getElementById(`skin-preview-${i}`).src = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(name || 'Steve')}&fg=87&fl=1`;
         }
 
         function deleteItem(i) {
