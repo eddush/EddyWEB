@@ -1,151 +1,30 @@
-<!doctype html>
-<html lang="he" dir="rtl">
+<script>
+    async function loadArticle() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleId = urlParams.get('id');
+        const isHe = localStorage.getItem('eddy-language') !== 'en';
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EddyWEB | עדכון</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .article-container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 30px;
-            background: linear-gradient(145deg, #0d181d, #0a1115);
-            border: 1px solid #ffffff15;
-            border-radius: 16px;
-            box-shadow: 0 15px 50px #0008;
-            position: relative;
-            z-index: 2;
+        try {
+            const res = await fetch('news.json');
+            const newsList = await res.json();
+            const article = newsList.find(item => item.id === articleId) || newsList[0];
+
+            if (!article) return;
+
+            document.getElementById('article-title').textContent = isHe ? article.title_he : article.title_en;
+            document.getElementById('article-badge').textContent = isHe ? (article.badge_he || 'עדכון') : (article.badge_en || 'UPDATE');
+            document.getElementById('article-body').innerHTML = isHe ? article.content_he : article.content_en;
+
+            const author = article.author || 'Steve';
+            document.getElementById('author-name').textContent = author;
+
+            // שימוש בפרוקסי כדי לעקוף את החסימה של האתר
+            const targetUrl = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(author)}&fg=87&fl=1`;
+            document.getElementById('author-skin-img').src = `https://wsrv.nl/?url=${encodeURIComponent(targetUrl)}`;
+
+        } catch (e) {
+            document.getElementById('article-body').textContent = 'שגיאה בטעינת המודעה.';
         }
-
-        .article-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #ffffff10;
-            padding-bottom: 20px;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .author-box {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: #060b0e;
-            padding: 10px 18px;
-            border-radius: 12px;
-            border: 1px solid #31e7ca33;
-        }
-
-        .author-skin {
-            width: 90px;
-            height: 90px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
-        }
-
-        .author-info h4 {
-            margin: 0;
-            color: #5fffe4;
-            font-size: 14px;
-        }
-
-        .author-info span {
-            color: #8fa0a3;
-            font-size: 12px;
-        }
-
-        .article-content {
-            line-height: 1.8;
-            color: #cde2e5;
-            font-size: 16px;
-        }
-
-        .article-content h2,
-        .article-content h3 {
-            color: #31e7ca;
-            font-family: 'Press Start 2P', monospace;
-            font-size: 16px;
-            margin-top: 25px;
-            border-right: 4px solid #b965ff;
-            padding-right: 10px;
-        }
-
-        .article-content ul,
-        .article-content ol {
-            padding-right: 20px;
-        }
-
-        .article-content li {
-            margin-bottom: 8px;
-        }
-
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #5fffe4;
-            text-decoration: none;
-            font-weight: bold;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="grid"></div>
-    <main class="article-container">
-        <a href="index.html" class="back-btn">→ חזרה לדף הראשי</a>
-
-        <div class="article-header">
-            <div>
-                <span id="article-badge" class="news-date">עדכון</span>
-                <h1 id="article-title" style="margin: 10px 0 0; font-size: 24px;">טוען...</h1>
-            </div>
-            <div class="author-box" id="author-box">
-                <!-- המאפיין referrerpolicy עוקף את חסימת התמונות -->
-                <img id="author-skin-img" class="author-skin" src="" alt="Skin" referrerpolicy="no-referrer">
-                <div class="author-info">
-                    <span>נכתב על ידי:</span>
-                    <h4 id="author-name">-</h4>
-                </div>
-            </div>
-        </div>
-
-        <div id="article-body" class="article-content">
-            <p>טוען את תוכן המאמר...</p>
-        </div>
-    </main>
-
-    <script>
-        async function loadArticle() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const articleId = urlParams.get('id');
-            const isHe = localStorage.getItem('eddy-language') !== 'en';
-
-            try {
-                const res = await fetch('news.json');
-                const newsList = await res.json();
-                const article = newsList.find(item => item.id === articleId) || newsList[0];
-
-                if (!article) return;
-
-                document.getElementById('article-title').textContent = isHe ? article.title_he : article.title_en;
-                document.getElementById('article-badge').textContent = isHe ? (article.badge_he || 'עדכון') : (article.badge_en || 'UPDATE');
-                document.getElementById('article-body').innerHTML = isHe ? article.content_he : article.content_en;
-
-                const author = article.author || 'Steve';
-                document.getElementById('author-name').textContent = author;
-
-                // טעינת קישור ה-Drops עם עקיפת הגנת Hotlinking
-                document.getElementById('author-skin-img').src = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(author)}&fg=87&fl=1`;
-            } catch (e) {
-                document.getElementById('article-body').textContent = 'שגיאה בטעינת המודעה.';
-            }
-        }
-        loadArticle();
-    </script>
-</body>
-
-</html>
+    }
+    loadArticle();
+</script>

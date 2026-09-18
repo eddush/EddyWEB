@@ -167,6 +167,11 @@
             newsItems.forEach((item, i) => {
                 const div = document.createElement('div');
                 div.className = 'item-card';
+
+                // יצירת קישור הפרוקסי לתצוגה המקדימה
+                const targetUrl = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(item.author || 'Steve')}&fg=87&fl=1`;
+                const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(targetUrl)}`;
+
                 div.innerHTML = `
           <div class="row-2">
             <div class="form-group">
@@ -174,7 +179,7 @@
               <input type="text" value="${item.author || 'Steve'}" oninput="updateAuthor(${i}, this.value)">
             </div>
             <div class="skin-preview-box">
-              <img id="skin-preview-${i}" src="https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(item.author || 'Steve')}&fg=87&fl=1" alt="Skin Preview" referrerpolicy="no-referrer">
+              <img id="skin-preview-${i}" src="${proxyUrl}" alt="Skin Preview" crossorigin="anonymous">
             </div>
           </div>
 
@@ -223,7 +228,8 @@
 
         function updateAuthor(i, name) {
             newsItems[i].author = name;
-            document.getElementById(`skin-preview-${i}`).src = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(name || 'Steve')}&fg=87&fl=1`;
+            const targetUrl = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(name || 'Steve')}&fg=87&fl=1`;
+            document.getElementById(`skin-preview-${i}`).src = `https://wsrv.nl/?url=${encodeURIComponent(targetUrl)}`;
         }
 
         function deleteItem(i) {
