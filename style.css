@@ -526,3 +526,56 @@ html[dir="rtl"] nav{direction:rtl}
   .news-card h3{font-size:13px}
   .news-card p{font-size:14px}
 }
+
+/* ===================================================
+   Top Container (Hero + News side-by-side layout)
+   =================================================== */
+.top-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 1180px;
+  margin: 20px auto 40px;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  grid-template-areas: "news hero";
+  gap: 28px;
+  align-items: start;
+}
+
+html[dir="rtl"] .top-container {
+  grid-template-columns: 1fr 360px;
+  grid-template-areas: "hero news";
+}
+
+.top-container .hero {
+  grid-area: hero;
+  margin: 0;
+  padding: 10px 0;
+  max-width: 100%;
+}
+
+.top-container .news-section {
+  grid-area: news;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+.top-container .news-grid {
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+@media(max-width: 900px) {
+  .top-container,
+  html[dir="rtl"] .top-container {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "hero"
+      "news";
+    gap: 24px;
+  }
+}
