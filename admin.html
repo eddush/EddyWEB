@@ -173,7 +173,7 @@
               <input type="text" value="${item.author || 'Steve'}" oninput="updateAuthor(${i}, this.value)">
             </div>
             <div class="skin-preview-box">
-              <img id="skin-preview-${i}" src="https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(item.author || 'Steve')}&fg=87&fl=1" alt="Skin Preview">
+              <img id="skin-preview-${i}" src="https://minotar.net/armor/body/${encodeURIComponent(item.author || 'Steve')}/150.png" alt="Skin Preview">
             </div>
           </div>
 
@@ -221,7 +221,7 @@
         function updateItem(i, k, v) { newsItems[i][k] = v; }
         function updateAuthor(i, name) {
             newsItems[i].author = name;
-            document.getElementById(`skin-preview-${i}`).src = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(name || 'Steve')}&fg=87&fl=1`;
+            document.getElementById(`skin-preview-${i}`).src = `https://minotar.net/armor/body/${encodeURIComponent(name || 'Steve')}/150.png`;
         }
 
         function deleteItem(i) {

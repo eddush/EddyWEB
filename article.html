@@ -136,7 +136,7 @@
 
                 const author = article.author || 'Steve';
                 document.getElementById('author-name').textContent = author;
-                document.getElementById('author-skin-img').src = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(author)}&fg=87&fl=1`;
+                document.getElementById('author-skin-img').src = `https://minotar.net/armor/body/${encodeURIComponent(author)}/150.png`;
             } catch (e) {
                 document.getElementById('article-body').textContent = 'שגיאה בטעינת המודעה.';
             }
