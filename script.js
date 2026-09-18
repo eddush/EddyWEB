@@ -3,28 +3,28 @@ const DISCORD_API='https://eddy-bot-lyvo.onrender.com/api/discord';
 
 const translations={
   en:{
-    navServer:'Server',navDiscord:'Discord',navContact:'Contact',lang:'עברית',
+    navServer:'Server',navDiscord:'Discord',navContact:'Contact',navNews:'News',lang:'עברית',
     badge:'MINECRAFT COMMUNITY',heroTitle:'Welcome to <span>EddyWEB</span>',
     heroText:'The home of our Minecraft community. Join, play, and become part of the community.',
     copy:'Copy IP',copied:'✓ IP copied!',join:'Join Server',statusTitle:'Server Status',
     checking:'Checking...',discordChecking:'Checking member count...',staffChecking:'Checking available staff...',
     discordTitle:'Discord',joinDiscord:'Join Server →',voteTitle:'Vote',
     voteText:'A voting link will be added here soon.',contactTitle:'Contact',
-    contactText:'Have a question or problem? Contact us through Discord.',contactBtn:'Contact Us →',
+    contactText:'Have a question or problem? Contact us through Discord.',contactBtn:'Contact Us →',newsBadge:'NEWS & UPDATES',newsTitle:'Latest News',newsIntro:'Server news, updates, events and important announcements.',newsNew:'NEW',newsWelcome:'Welcome to EddyWEB',newsWelcomeText:'News and server updates will appear here. This is the place to stay up to date with everything happening in the community.',newsUpdate:'UPDATE',newsUpdatesTitle:'Server Updates',newsUpdatesText:'New features, events, maintenance notices and other important server information will be posted here.',
     footer:'Minecraft community • Eddydev.ddns.net',players:(a,b)=>`${a} / ${b} players online`,
     unavailable:'Server is currently unavailable',cannot:'Unable to check',failed:'Status check failed',
     members:n=>`${n.toLocaleString('en-US')} members`,staff:'Available staff:',team:'Team',developers:'Developers',helpers:'Helpers',moderators:'Moderators',
     available:(o,t)=>`${o} / ${t} available`,staffFail:'Unable to check staff availability'
   },
   he:{
-    navServer:'השרת',navDiscord:'Discord',navContact:'צור קשר',lang:'English',
+    navServer:'השרת',navDiscord:'Discord',navContact:'צור קשר',navNews:'חדשות',lang:'English',
     badge:'קהילת MINECRAFT',heroTitle:'ברוכים הבאים ל־<span>EddyWEB</span>',
     heroText:'הבית של קהילת Minecraft שלנו. היכנסו, שחקו והצטרפו לקהילה.',
     copy:'העתק IP',copied:'✓ ה־IP הועתק!',join:'כניסה לשרת',statusTitle:'סטטוס השרת',
     checking:'בודק...',discordChecking:'בודק מספר חברים...',staffChecking:'בודק צוות זמין...',
     discordTitle:'Discord',joinDiscord:'הצטרף לשרת →',voteTitle:'Vote',
     voteText:'קישור להצבעה יתווסף כאן ברגע שתשלח אותו.',contactTitle:'צור קשר',
-    contactText:'יש שאלה או בעיה? פנו אלינו דרך Discord.',contactBtn:'צור קשר →',
+    contactText:'יש שאלה או בעיה? פנו אלינו דרך Discord.',contactBtn:'צור קשר →',newsBadge:'חדשות ועדכונים',newsTitle:'חדשות אחרונות',newsIntro:'חדשות השרת, עדכונים, אירועים והודעות חשובות.',newsNew:'חדש',newsWelcome:'ברוכים הבאים ל־EddyWEB',newsWelcomeText:'כאן יופיעו חדשות ועדכונים של השרת. זה המקום להישאר מעודכנים בכל מה שקורה בקהילה.',newsUpdate:'עדכון',newsUpdatesTitle:'עדכוני השרת',newsUpdatesText:'פיצ׳רים חדשים, אירועים, הודעות תחזוקה ומידע חשוב נוסף יפורסמו כאן.',
     footer:'קהילת Minecraft • Eddydev.ddns.net',players:(a,b)=>`${a} / ${b} שחקנים מחוברים`,
     unavailable:'השרת כרגע לא זמין',cannot:'לא ניתן לבדוק',failed:'בדיקת הסטטוס נכשלה',
     members:n=>`${n.toLocaleString('he-IL')} חברים`,staff:'אנשי צוות זמינים:',team:'צוות',developers:'מתכנתים',helpers:'הלפרים',moderators:'Moderators',
@@ -36,7 +36,7 @@ let language=localStorage.getItem('eddy-language')||'en';
 function t(){return translations[language]}
 function applyLanguage(){
   const x=t(); document.documentElement.lang=language; document.documentElement.dir=language==='he'?'rtl':'ltr';
-  const nav=document.querySelectorAll('nav a'); nav[0].textContent=x.navServer; nav[2].textContent=x.navContact;
+  const nav=document.querySelectorAll('nav a'); nav[0].textContent=x.navServer; nav[2].textContent=x.navContact; nav[3].textContent=x.navNews;
   document.getElementById('lang-toggle').textContent=x.lang;
   document.querySelector('.badge').lastChild.textContent=x.badge;
   document.querySelector('.hero h1').innerHTML=x.heroTitle; document.querySelector('.hero p').textContent=x.heroText;
