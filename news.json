@@ -1,15 +1,15 @@
 [
     {
         "id": "post-1",
-        "author": "Eddy",
+        "author": "Eddy_SH",
         "badge_he": "עדכון",
         "badge_en": "UPDATE",
         "title_he": "עדכון גרסה 1.20 - Changelog",
         "title_en": "Version 1.20 Changelog",
         "text_he": "להלן רשימת השינויים והתיקונים בעדכון החדש של השרת.",
-        "text_en": "Here is the list of changes and fixes in the new update.",
-        "content_he": "<h3>שינויים מרכזיים:</h3><ul><li>תווספו בלוקים חדשים לשרת.</li><li>תוקנו בעיות לאג בפורטלים.</li></ul>",
-        "content_en": "<h3>Key Changes:</h3><ul><li>Added new blocks to the server.</li><li>Fixed portal lag issues.</li></ul>",
+        "text_en": "Here is the list of changes and fixes in the new server update.",
+        "content_he": "<h2>שינויים מרכזיים</h2><ul><li>נוספו בלוקים חדשים.</li><li>תוקנו בעיות לאג בפורטלים.</li></ul>",
+        "content_en": "<h2>Key Changes</h2><ul><li>Added new blocks.</li><li>Fixed portal lag issues.</li></ul>",
         "url": "article.html?id=post-1"
     }
 ]

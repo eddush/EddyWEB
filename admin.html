@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>EddyWEB | ניהול עדכונים מלאים</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EddyWEB | ניהול עדכונים ומאמרים</title>
     <link rel="stylesheet" href="style.css">
-    <!-- ספריית העיצוב לעורך הטקסט -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
         .admin-container {
@@ -44,6 +44,7 @@
             border: 1px solid #ffffff20;
             color: #fff;
             border-radius: 6px;
+            font-family: inherit;
         }
 
         .item-card {
@@ -71,7 +72,7 @@
         }
 
         .skin-preview-box img {
-            height: 70px;
+            height: 80px;
             object-fit: contain;
         }
 
@@ -89,7 +90,6 @@
             display: none;
         }
 
-        /* עיצוב מיוחד לעורך הטקסט */
         .ql-toolbar {
             background: #e9ffff;
             border-radius: 6px 6px 0 0;
@@ -132,12 +132,11 @@
         </div>
     </div>
 
-    <!-- ספריית הפעולה לעורך הטקסט -->
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
         let authToken = '';
         let newsItems = [];
-        let editors = {}; // שמירת העורכים כדי לשלוף מהם את התוכן
+        let editors = {};
 
         async function login() {
             const password = document.getElementById('admin-pass').value;
@@ -162,7 +161,7 @@
         function render() {
             const list = document.getElementById('news-list');
             list.innerHTML = '';
-            editors = {}; // איפוס עורכים
+            editors = {};
 
             newsItems.forEach((item, i) => {
                 const div = document.createElement('div');
@@ -170,17 +169,22 @@
                 div.innerHTML = `
           <div class="row-2">
             <div class="form-group">
-              <label>שם הכותב במיינקרפט (ליצירת סקין תלת-ממדי):</label>
+              <label>שם הכותב במיינקרפט (נוצר אווטאר תלת-ממדי):</label>
               <input type="text" value="${item.author || 'Steve'}" oninput="updateAuthor(${i}, this.value)">
             </div>
             <div class="skin-preview-box">
-              <img id="skin-preview-${i}" src="https://mc-heads.net/body/${item.author || 'Steve'}/right" alt="Skin Preview">
+              <img id="skin-preview-${i}" src="https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(item.author || 'Steve')}&fg=87&fl=1" alt="Skin Preview">
             </div>
           </div>
 
           <div class="row-2">
             <div class="form-group"><label>כותרת מאמר (עברית):</label><input type="text" value="${item.title_he || ''}" onchange="updateItem(${i},'title_he',this.value)"></div>
             <div class="form-group"><label>כותרת מאמר (אנגלית):</label><input type="text" value="${item.title_en || ''}" onchange="updateItem(${i},'title_en',this.value)"></div>
+          </div>
+
+          <div class="row-2">
+            <div class="form-group"><label>תגית (עברית):</label><input type="text" value="${item.badge_he || 'עדכון'}" onchange="updateItem(${i},'badge_he',this.value)"></div>
+            <div class="form-group"><label>תגית (אנגלית):</label><input type="text" value="${item.badge_en || 'UPDATE'}" onchange="updateItem(${i},'badge_en',this.value)"></div>
           </div>
 
           <div class="row-2">
@@ -202,7 +206,6 @@
         `;
                 list.appendChild(div);
 
-                // אתחול עורך הטקסט לכל שפה
                 const toolbarOptions = [['bold', 'italic', 'underline'], [{ 'header': [2, 3, false] }], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['clean']];
 
                 const quillHe = new Quill(`#editor-he-${i}`, { theme: 'snow', modules: { toolbar: toolbarOptions } });
@@ -218,7 +221,7 @@
         function updateItem(i, k, v) { newsItems[i][k] = v; }
         function updateAuthor(i, name) {
             newsItems[i].author = name;
-            document.getElementById(`skin-preview-${i}`).src = `https://mc-heads.net/body/${name}/right`;
+            document.getElementById(`skin-preview-${i}`).src = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(name || 'Steve')}&fg=87&fl=1`;
         }
 
         function deleteItem(i) {
@@ -236,7 +239,6 @@
             const status = document.getElementById('save-status');
             status.textContent = 'שומר...';
 
-            // לפני השמירה, שואבים את תוכן ה-HTML מעורכי הטקסט ומעדכנים את המערך
             newsItems.forEach((item, i) => {
                 item.content_he = editors[i].he.root.innerHTML;
                 item.content_en = editors[i].en.root.innerHTML;

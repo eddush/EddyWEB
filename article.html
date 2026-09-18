@@ -41,7 +41,7 @@
         }
 
         .author-skin {
-            width: 60px;
+            width: 70px;
             height: 90px;
             object-fit: contain;
             filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
@@ -64,6 +64,7 @@
             font-size: 16px;
         }
 
+        .article-content h2,
         .article-content h3 {
             color: #31e7ca;
             font-family: 'Press Start 2P', monospace;
@@ -73,7 +74,8 @@
             padding-right: 10px;
         }
 
-        .article-content ul {
+        .article-content ul,
+        .article-content ol {
             padding-right: 20px;
         }
 
@@ -111,7 +113,7 @@
         </div>
 
         <div id="article-body" class="article-content">
-            <p>טוען את תוכן המודעה...</p>
+            <p>טוען את תוכן המאמר...</p>
         </div>
     </main>
 
@@ -129,13 +131,12 @@
                 if (!article) return;
 
                 document.getElementById('article-title').textContent = isHe ? article.title_he : article.title_en;
-                document.getElementById('article-badge').textContent = isHe ? article.badge_he : article.badge_en;
+                document.getElementById('article-badge').textContent = isHe ? (article.badge_he || 'עדכון') : (article.badge_en || 'UPDATE');
                 document.getElementById('article-body').innerHTML = isHe ? article.content_he : article.content_en;
 
-                // טעינת שם הכותב והסקין תלת-ממדי מ-MC-Heads API
                 const author = article.author || 'Steve';
                 document.getElementById('author-name').textContent = author;
-                document.getElementById('author-skin-img').src = `https://mc-heads.net/body/${author}/right`;
+                document.getElementById('author-skin-img').src = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(author)}&fg=87&fl=1`;
             } catch (e) {
                 document.getElementById('article-body').textContent = 'שגיאה בטעינת המודעה.';
             }
