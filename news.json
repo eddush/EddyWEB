@@ -1,22 +1,15 @@
 [
     {
-        "id": "welcome",
-        "badge_en": "NEW",
-        "badge_he": "חדש",
-        "title_en": "Welcome to EddyWEB",
-        "title_he": "ברוכים הבאים ל־EddyWEB",
-        "text_en": "News and server updates will appear here. Stay up to date with everything happening.",
-        "text_he": "כאן יופיעו חדשות ועדכונים של השרת. זה המקום להישאר מעודכנים בכל מה שקורה בקהילה.",
-        "url": "news/welcome.html"
-    },
-    {
-        "id": "updates",
-        "badge_en": "UPDATE",
+        "id": "post-1",
+        "author": "Eddy",
         "badge_he": "עדכון",
-        "title_en": "Server Updates",
-        "title_he": "עדכוני השרת",
-        "text_en": "New features, events, maintenance notices and important server information.",
-        "text_he": "פיצ׳רים חדשים, אירועים, הודעות תחזוקה ומידע חשוב נוסף יפורסמו כאן.",
-        "url": "news/updates.html"
+        "badge_en": "UPDATE",
+        "title_he": "עדכון גרסה 1.20 - Changelog",
+        "title_en": "Version 1.20 Changelog",
+        "text_he": "להלן רשימת השינויים והתיקונים בעדכון החדש של השרת.",
+        "text_en": "Here is the list of changes and fixes in the new update.",
+        "content_he": "<h3>שינויים מרכזיים:</h3><ul><li>תווספו בלוקים חדשים לשרת.</li><li>תוקנו בעיות לאג בפורטלים.</li></ul>",
+        "content_en": "<h3>Key Changes:</h3><ul><li>Added new blocks to the server.</li><li>Fixed portal lag issues.</li></ul>",
+        "url": "article.html?id=post-1"
     }
 ]
