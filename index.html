@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en" dir="ltr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -7,15 +8,33 @@
   <title>EddyWEB | Minecraft</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div class="grid"></div>
   <div class="pixel-scene" aria-hidden="true">
     <div class="block b1"></div>
     <div class="block b2"></div>
-    <div class="mob steve"><div class="head skin"></div><div class="body shirt"></div><div class="leg"></div></div>
-    <div class="mob creeper"><div class="creeper-head"><i></i><i></i><b></b></div><div class="creeper-body"></div><div class="creeper-leg l1"></div><div class="creeper-leg l2"></div></div>
-    <div class="mob enderman"><div class="end-head"><i></i></div><div class="end-body"></div><div class="end-leg"></div></div>
-    <div class="mob zombie"><div class="z-head"></div><div class="z-body"></div><div class="z-leg"></div></div>
+    <div class="mob steve">
+      <div class="head skin"></div>
+      <div class="body shirt"></div>
+      <div class="leg"></div>
+    </div>
+    <div class="mob creeper">
+      <div class="creeper-head"><i></i><i></i><b></b></div>
+      <div class="creeper-body"></div>
+      <div class="creeper-leg l1"></div>
+      <div class="creeper-leg l2"></div>
+    </div>
+    <div class="mob enderman">
+      <div class="end-head"><i></i></div>
+      <div class="end-body"></div>
+      <div class="end-leg"></div>
+    </div>
+    <div class="mob zombie">
+      <div class="z-head"></div>
+      <div class="z-body"></div>
+      <div class="z-leg"></div>
+    </div>
     <div class="pickaxe">⛏</div>
   </div>
 
@@ -34,12 +53,16 @@
     <div class="top-container">
       <section class="hero">
         <div class="badge">
-          <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z"/></svg>MINECRAFT COMMUNITY
+          <svg viewBox="0 0 24 24">
+            <path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z" />
+          </svg>MINECRAFT COMMUNITY
         </div>
         <h1>Welcome to <span>EddyWEB</span></h1>
         <p>The home of our Minecraft community. Join, play, and become part of the community.</p>
         <div class="ip">
-          <svg viewBox="0 0 24 24"><path d="M7 2h10v4H7zM5 6h14v12H5zM8 18h8v4H8zM8 10h2v2H8zm6 0h2v2h-2z"/></svg>
+          <svg viewBox="0 0 24 24">
+            <path d="M7 2h10v4H7zM5 6h14v12H5zM8 18h8v4H8zM8 10h2v2H8zm6 0h2v2h-2z" />
+          </svg>
           <strong id="ip">Eddydev.ddns.net</strong>
           <button onclick="copyIP()">Copy IP</button>
         </div>
@@ -57,43 +80,42 @@
           <h2>Latest News</h2>
           <p>Server news, updates, events and important announcements.</p>
         </div>
-        <div class="news-grid">
-          <article class="news-card">
-            <div class="news-date">NEW</div>
-            <h3>Welcome to EddyWEB</h3>
-            <p>News and server updates will appear here. This is the place to stay up to date with everything happening in the community.</p>
-          </article>
-          <article class="news-card">
-            <div class="news-date">UPDATE</div>
-            <h3>Server Updates</h3>
-            <p>New features, events, maintenance notices and other important server information will be posted here.</p>
-          </article>
+        <div class="news-grid" id="news-grid">
+          <!-- המודעות ייטענו לכאן באופן אוטומטי מ-news.json -->
         </div>
       </section>
     </div>
 
     <section id="server" class="cards">
       <article class="card">
-        <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7zm0 3v6l4 2 1-2-3-1.5V6z"/></svg></div>
+        <div class="icon"><svg viewBox="0 0 24 24">
+            <path d="M12 3a9 9 0 1 0 9 9h-2a7 7 0 1 1-7-7zm0 3v6l4 2 1-2-3-1.5V6z" />
+          </svg></div>
         <h2>Server Status</h2>
         <p id="status">Checking...</p>
         <small id="players"></small>
       </article>
       <article id="community" class="card">
-        <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4zm4 5h8V7H8zm0 4h5v-2H8z"/></svg></div>
+        <div class="icon"><svg viewBox="0 0 24 24">
+            <path d="M4 4h16v12H8l-4 4zm4 5h8V7H8zm0 4h5v-2H8z" />
+          </svg></div>
         <h2>Discord</h2>
         <p id="discord-members">Checking member count...</p>
         <div id="discord-staff" class="staff-status"><span>Checking available staff...</span></div>
         <a class="textbtn" href="https://discord.gg/zXq9E8FQCS" target="_blank">Join Server →</a>
       </article>
       <article id="vote" class="card">
-        <div class="icon"><svg viewBox="0 0 24 24"><path d="m12 2 3 6 6.6.9-4.8 4.7 1.1 6.6L12 17l-5.9 3.2 1.1-6.6L2.4 8.9 9 8z"/></svg></div>
+        <div class="icon"><svg viewBox="0 0 24 24">
+            <path d="m12 2 3 6 6.6.9-4.8 4.7 1.1 6.6L12 17l-5.9 3.2 1.1-6.6L2.4 8.9 9 8z" />
+          </svg></div>
         <h2>Vote</h2>
         <p>A voting link will be added here soon.</p>
         <a class="textbtn disabled">Vote →</a>
       </article>
       <article id="contact" class="card">
-        <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 5h18v14H3zm2 2v.5l7 5 7-5V7l-7 5-7-5z"/></svg></div>
+        <div class="icon"><svg viewBox="0 0 24 24">
+            <path d="M3 5h18v14H3zm2 2v.5l7 5 7-5V7l-7 5-7-5z" />
+          </svg></div>
         <h2>Contact</h2>
         <p>Have a question or problem? Contact us through Discord.</p>
         <a class="textbtn" href="https://discord.gg/zXq9E8FQCS" target="_blank">Contact Us →</a>
@@ -108,4 +130,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>

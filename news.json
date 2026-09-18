@@ -1,0 +1,22 @@
+[
+    {
+        "id": "welcome",
+        "badge_en": "NEW",
+        "badge_he": "חדש",
+        "title_en": "Welcome to EddyWEB",
+        "title_he": "ברוכים הבאים ל־EddyWEB",
+        "text_en": "News and server updates will appear here. Stay up to date with everything happening.",
+        "text_he": "כאן יופיעו חדשות ועדכונים של השרת. זה המקום להישאר מעודכנים בכל מה שקורה בקהילה.",
+        "url": "news/welcome.html"
+    },
+    {
+        "id": "updates",
+        "badge_en": "UPDATE",
+        "badge_he": "עדכון",
+        "title_en": "Server Updates",
+        "title_he": "עדכוני השרת",
+        "text_en": "New features, events, maintenance notices and important server information.",
+        "text_he": "פיצ׳רים חדשים, אירועים, הודעות תחזוקה ומידע חשוב נוסף יפורסמו כאן.",
+        "url": "news/updates.html"
+    }
+]
