@@ -64,16 +64,11 @@
         .skin-preview-box {
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
             background: #060b0e;
-            padding: 10px;
+            padding: 5px;
             border-radius: 8px;
             margin-bottom: 12px;
-        }
-
-        .skin-preview-box img {
-            height: 80px;
-            object-fit: contain;
         }
 
         .btn-danger {
@@ -133,10 +128,12 @@
     </div>
 
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="https://unpkg.com/skinview3d@3.0.0/dist/skinview3d.bundle.js"></script>
     <script>
         let authToken = '';
         let newsItems = [];
         let editors = {};
+        let skinViewers = {};
 
         async function login() {
             const password = document.getElementById('admin-pass').value;
@@ -162,6 +159,7 @@
             const list = document.getElementById('news-list');
             list.innerHTML = '';
             editors = {};
+            skinViewers = {};
 
             newsItems.forEach((item, i) => {
                 const div = document.createElement('div');
@@ -169,11 +167,11 @@
                 div.innerHTML = `
           <div class="row-2">
             <div class="form-group">
-              <label>שם הכותב במיינקרפט (נוצר אווטאר תלת-ממדי):</label>
+              <label>שם הכותב במיינקרפט (ייוצר דגם 3D):</label>
               <input type="text" value="${item.author || 'Steve'}" oninput="updateAuthor(${i}, this.value)">
             </div>
             <div class="skin-preview-box">
-              <img id="skin-preview-${i}" src="https://minotar.net/armor/body/${encodeURIComponent(item.author || 'Steve')}/150.png" alt="Skin Preview">
+              <canvas id="skin-canvas-${i}" style="width: 100px; height: 120px;"></canvas>
             </div>
           </div>
 
@@ -206,22 +204,37 @@
         `;
                 list.appendChild(div);
 
+                // אתחול עורכי הטקסט
                 const toolbarOptions = [['bold', 'italic', 'underline'], [{ 'header': [2, 3, false] }], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['clean']];
-
                 const quillHe = new Quill(`#editor-he-${i}`, { theme: 'snow', modules: { toolbar: toolbarOptions } });
                 quillHe.root.innerHTML = item.content_he || '';
-
                 const quillEn = new Quill(`#editor-en-${i}`, { theme: 'snow', modules: { toolbar: toolbarOptions } });
                 quillEn.root.innerHTML = item.content_en || '';
-
                 editors[i] = { he: quillHe, en: quillEn };
+
+                // אתחול מודל 3D של הסקין
+                const viewer = new skinview3d.SkinViewer({
+                    canvas: document.getElementById(`skin-canvas-${i}`),
+                    width: 100,
+                    height: 120,
+                    skin: `https://mc-heads.net/skin/${encodeURIComponent(item.author || 'Steve')}`
+                });
+                viewer.fov = 70;
+                viewer.zoom = 0.9;
+                viewer.camera.position.x = -15;
+                viewer.camera.position.y = 12;
+                viewer.camera.position.z = 22;
+                skinViewers[i] = viewer;
             });
         }
 
         function updateItem(i, k, v) { newsItems[i][k] = v; }
+
         function updateAuthor(i, name) {
             newsItems[i].author = name;
-            document.getElementById(`skin-preview-${i}`).src = `https://minotar.net/armor/body/${encodeURIComponent(name || 'Steve')}/150.png`;
+            if (skinViewers[i]) {
+                skinViewers[i].loadSkin(`https://mc-heads.net/skin/${encodeURIComponent(name || 'Steve')}`);
+            }
         }
 
         function deleteItem(i) {

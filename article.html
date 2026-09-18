@@ -40,11 +40,10 @@
             border: 1px solid #31e7ca33;
         }
 
-        .author-skin {
-            width: 70px;
-            height: 90px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+        .author-skin-canvas {
+            width: 100px;
+            height: 130px;
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
         }
 
         .author-info h4 {
@@ -104,7 +103,7 @@
                 <h1 id="article-title" style="margin: 10px 0 0; font-size: 24px;">טוען...</h1>
             </div>
             <div class="author-box" id="author-box">
-                <img id="author-skin-img" class="author-skin" src="" alt="Skin">
+                <canvas id="author-skin-canvas" class="author-skin-canvas"></canvas>
                 <div class="author-info">
                     <span>נכתב על ידי:</span>
                     <h4 id="author-name">-</h4>
@@ -117,7 +116,11 @@
         </div>
     </main>
 
+    <!-- ספריית skinview3d ליצירת מודל תלת-ממדי חי -->
+    <script src="https://unpkg.com/skinview3d@3.0.0/dist/skinview3d.bundle.js"></script>
     <script>
+        let skinViewer = null;
+
         async function loadArticle() {
             const urlParams = new URLSearchParams(window.location.search);
             const articleId = urlParams.get('id');
@@ -136,7 +139,23 @@
 
                 const author = article.author || 'Steve';
                 document.getElementById('author-name').textContent = author;
-                document.getElementById('author-skin-img').src = `https://minotar.net/armor/body/${encodeURIComponent(author)}/150.png`;
+
+                // יצירת מודל 3D של הסקין בזווית פרופיל חצי-צדית
+                skinViewer = new skinview3d.SkinViewer({
+                    canvas: document.getElementById("author-skin-canvas"),
+                    width: 100,
+                    height: 130,
+                    skin: `https://mc-heads.net/skin/${encodeURIComponent(author)}`
+                });
+
+                // הגדרת מצלמה ותאורה לקבלת מראה תלת-ממדי
+                skinViewer.fov = 70;
+                skinViewer.zoom = 0.9;
+                skinViewer.camera.position.x = -15;
+                skinViewer.camera.position.y = 12;
+                skinViewer.camera.position.z = 22;
+                skinViewer.globalLight.intensity = 1.2;
+
             } catch (e) {
                 document.getElementById('article-body').textContent = 'שגיאה בטעינת המודעה.';
             }
