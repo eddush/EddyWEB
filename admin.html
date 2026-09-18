@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EddyWEB | ניהול חדשות</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .login-box,
+        .news-editor {
+            background: #0d181d;
+            border: 1px solid #31e7ca44;
+            padding: 25px;
+            border-radius: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #5fffe4;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background: #060b0e;
+            border: 1px solid #ffffff20;
+            color: #fff;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+
+        .item-card {
+            background: #121d22;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-right: 3px solid #b965ff;
+        }
+
+        .btn-danger {
+            background: #ff4757;
+            color: #fff;
+            border: 0;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="grid"></div>
+    <div class="admin-container">
+        <h2>מערכת ניהול מודעות - EddyWEB</h2>
+
+        <!-- טופס התחברות -->
+        <div id="login-section" class="login-box">
+            <h3>התחברות למערכת</h3>
+            <div class="form-group">
+                <label>סיסמת מנהל:</label>
+                <input type="password" id="admin-pass" placeholder="הכנס סיסמה...">
+            </div>
+            <button class="btn primary" onclick="login()">התחבר</button>
+            <p id="login-error" style="color: #ff6b8a; margin-top: 10px;"></p>
+        </div>
+
+        <!-- עורך המודעות -->
+        <div id="editor-section" class="news-editor hidden">
+            <h3>ניהול מודעות קישוריות</h3>
+            <div id="news-list"></div>
+
+            <button class="btn" onclick="addNewsItem()" style="margin-bottom: 20px;">+ הוסף מודעה חדשה</button>
+            <hr style="border-color: #ffffff10; margin: 20px 0;">
+            <button class="btn primary" onclick="saveNewsToServer()">שמור שינויים בשרת</button>
+            <p id="save-status" style="margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <script>
+        let authToken = '';
+        let newsItems = [];
+
+        async function login() {
+            const password = document.getElementById('admin-pass').value;
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    authToken = password;
+                    document.getElementById('login-section').classList.add('hidden');
+                    document.getElementById('editor-section').classList.remove('hidden');
+                    loadExistingNews();
+                } else {
+                    document.getElementById('login-error').textContent = data.message || 'סיסמה שגויה';
+                }
+            } catch (err) {
+                document.getElementById('login-error').textContent = 'שגיאה בהתחברות לשרת';
+            }
+        }
+
+        async function loadExistingNews() {
+            const res = await fetch('news.json');
+            newsItems = await res.json();
+            renderNewsEditor();
+        }
+
+        function renderNewsEditor() {
+            const container = document.getElementById('news-list');
+            container.innerHTML = newsItems.map((item, index) => `
+        <div class="item-card">
+          <div class="form-group">
+            <label>מזהה (ID):</label>
+            <input type="text" value="${item.id || ''}" onchange="updateItem(${index}, 'id', this.value)">
+          </div>
+          <div class="form-group">
+            <label>כותרת (עברית):</label>
+            <input type="text" value="${item.title_he || ''}" onchange="updateItem(${index}, 'title_he', this.value)">
+          </div>
+          <div class="form-group">
+            <label>תוכן (עברית):</label>
+            <textarea onchange="updateItem(${index}, 'text_he', this.value)">${item.text_he || ''}</textarea>
+          </div>
+          <div class="form-group">
+            <label>תגית (עברית, למשל: חדש / עדכון):</label>
+            <input type="text" value="${item.badge_he || ''}" onchange="updateItem(${index}, 'badge_he', this.value)">
+          </div>
+          <div class="form-group">
+            <label>קישור לעמוד המודעה (URL):</label>
+            <input type="text" value="${item.url || ''}" onchange="updateItem(${index}, 'url', this.value)">
+          </div>
+          <button class="btn-danger" onclick="deleteItem(${index})">מחק מודעה</button>
+        </div>
+      `).join('');
+        }
+
+        function updateItem(index, key, val) { newsItems[index][key] = val; }
+        function deleteItem(index) { newsItems.splice(index, 1); renderNewsEditor(); }
+        function addNewsItem() {
+            newsItems.push({ id: 'item-' + Date.now(), badge_he: 'חדש', badge_en: 'NEW', title_he: '', title_en: '', text_he: '', text_en: '', url: 'news/' });
+            renderNewsEditor();
+        }
+
+        async function saveNewsToServer() {
+            const status = document.getElementById('save-status');
+            status.textContent = 'שומר...';
+            try {
+                const res = await fetch('/api/save-news', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: authToken, news: newsItems })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    status.style.color = '#5fffe4';
+                    status.textContent = '✓ השינויים שנשמרו בהצלחה!';
+                } else {
+                    status.style.color = '#ff6b8a';
+                    status.textContent = data.message || 'שגיאה בשמירה';
+                }
+            } catch (e) {
+                status.style.color = '#ff6b8a';
+                status.textContent = 'שגיאה בתקשורת עם השרת';
+            }
+        }
+    </script>
+</body>
+
+</html>
