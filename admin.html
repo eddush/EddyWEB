@@ -53,6 +53,12 @@
             border-right: 3px solid #b965ff;
         }
 
+        .row-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
         .btn-danger {
             background: #ff4757;
             color: #fff;
@@ -86,7 +92,7 @@
 
         <!-- עורך המודעות -->
         <div id="editor-section" class="news-editor hidden">
-            <h3>ניהול מודעות קישוריות</h3>
+            <h3>ניהול מודעות (עברית ואנגלית)</h3>
             <div id="news-list"></div>
 
             <button class="btn" onclick="addNewsItem()" style="margin-bottom: 20px;">+ הוסף מודעה חדשה</button>
@@ -137,22 +143,45 @@
             <label>מזהה (ID):</label>
             <input type="text" value="${item.id || ''}" onchange="updateItem(${index}, 'id', this.value)">
           </div>
-          <div class="form-group">
-            <label>כותרת (עברית):</label>
-            <input type="text" value="${item.title_he || ''}" onchange="updateItem(${index}, 'title_he', this.value)">
+
+          <div class="row-2">
+            <div class="form-group">
+              <label>תגית (עברית):</label>
+              <input type="text" value="${item.badge_he || ''}" onchange="updateItem(${index}, 'badge_he', this.value)">
+            </div>
+            <div class="form-group">
+              <label>תגית (אנגלית):</label>
+              <input type="text" value="${item.badge_en || ''}" onchange="updateItem(${index}, 'badge_en', this.value)">
+            </div>
           </div>
-          <div class="form-group">
-            <label>תוכן (עברית):</label>
-            <textarea onchange="updateItem(${index}, 'text_he', this.value)">${item.text_he || ''}</textarea>
+
+          <div class="row-2">
+            <div class="form-group">
+              <label>כותרת (עברית):</label>
+              <input type="text" value="${item.title_he || ''}" onchange="updateItem(${index}, 'title_he', this.value)">
+            </div>
+            <div class="form-group">
+              <label>כותרת (אנגלית):</label>
+              <input type="text" value="${item.title_en || ''}" onchange="updateItem(${index}, 'title_en', this.value)">
+            </div>
           </div>
-          <div class="form-group">
-            <label>תגית (עברית, למשל: חדש / עדכון):</label>
-            <input type="text" value="${item.badge_he || ''}" onchange="updateItem(${index}, 'badge_he', this.value)">
+
+          <div class="row-2">
+            <div class="form-group">
+              <label>תוכן (עברית):</label>
+              <textarea onchange="updateItem(${index}, 'text_he', this.value)">${item.text_he || ''}</textarea>
+            </div>
+            <div class="form-group">
+              <label>תוכן (אנגלית):</label>
+              <textarea onchange="updateItem(${index}, 'text_en', this.value)">${item.text_en || ''}</textarea>
+            </div>
           </div>
+
           <div class="form-group">
             <label>קישור לעמוד המודעה (URL):</label>
             <input type="text" value="${item.url || ''}" onchange="updateItem(${index}, 'url', this.value)">
           </div>
+
           <button class="btn-danger" onclick="deleteItem(${index})">מחק מודעה</button>
         </div>
       `).join('');
