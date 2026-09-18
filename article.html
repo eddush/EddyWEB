@@ -4,10 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EddyWEB | עדכון</title>
+    <title>EddyWEB | מאמר</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* עיצוב בסיסי מובנה שמבטיח שהדף יישאר כהה וקריא גם אם style.css חסר */
         body {
             background-color: #060b0e;
             color: #ffffff;
@@ -50,17 +49,16 @@
             border: 1px solid rgba(49, 231, 202, 0.2);
         }
 
-        .author-skin {
+        .author-skin-canvas {
             width: 90px;
             height: 90px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+            image-rendering: pixelated;
         }
 
         .author-info h4 {
             margin: 0;
             color: #5fffe4;
-            font-size: 14px;
+            font-size: 16px;
         }
 
         .author-info span {
@@ -121,9 +119,7 @@
                 <h1 id="article-title" style="margin: 10px 0 0; font-size: 24px;">טוען...</h1>
             </div>
             <div class="author-box" id="author-box">
-                <!-- onerror דואג להציג סקין חלופי תלת-ממדי אם הקישור הראשי נחסם -->
-                <img id="author-skin-img" class="author-skin" src="" alt="Skin"
-                    onerror="this.onerror=null; this.src='https://mc-heads.net/body/'+(window.currentAuthor||'Steve')">
+                <canvas id="author-skin-canvas" width="200" height="200" class="author-skin-canvas"></canvas>
                 <div class="author-info">
                     <span>נכתב על ידי:</span>
                     <h4 id="author-name">-</h4>
@@ -137,6 +133,41 @@
     </main>
 
     <script>
+        // פונקציית ציור דמות בסגנון Drops על קנווס
+        function drawDropsAvatar(canvasId, username) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            ctx.imageSmoothingEnabled = false;
+
+            const skin = new Image();
+            skin.crossOrigin = "Anonymous";
+            skin.src = `https://mc-heads.net/skin/${encodeURIComponent(username || 'Steve')}`;
+
+            skin.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const scale = 12;
+                const startX = 25;
+                const startY = 20;
+
+                // 1. ציור הגוף והרגליים
+                ctx.drawImage(skin, 20, 20, 8, 12, startX + (3 * scale), startY + (7 * scale), 7 * scale, 4 * scale);
+                ctx.drawImage(skin, 44, 20, 4, 12, startX + (1 * scale), startY + (7 * scale), 2 * scale, 4 * scale);
+                ctx.drawImage(skin, 44, 20, 4, 12, startX + (9.5 * scale), startY + (7 * scale), 2 * scale, 4 * scale);
+                ctx.drawImage(skin, 4, 28, 8, 4, startX + (3.5 * scale), startY + (10.5 * scale), 6 * scale, 1.5 * scale);
+
+                // 2. ציור הראש (מבט זוויתי)
+                ctx.drawImage(skin, 0, 8, 8, 8, startX, startY, 3 * scale, 8 * scale);
+                ctx.drawImage(skin, 8, 8, 8, 8, startX + (3 * scale), startY, 8 * scale, 8 * scale);
+
+                // 3. שכבת הכובע / הברדס (Overlay Layer)
+                ctx.drawImage(skin, 32, 8, 8, 8, startX - (0.2 * scale), startY - (0.2 * scale), 3.2 * scale, 8.4 * scale);
+                ctx.drawImage(skin, 40, 8, 8, 8, startX + (2.8 * scale), startY - (0.2 * scale), 8.4 * scale, 8.4 * scale);
+            };
+        }
+
         async function loadArticle() {
             const urlParams = new URLSearchParams(window.location.search);
             const articleId = urlParams.get('id');
@@ -160,19 +191,18 @@
                 document.getElementById('article-body').innerHTML = isHe ? (article.content_he || article.content_en) : (article.content_en || article.content_he);
 
                 const author = article.author || 'Steve';
-                window.currentAuthor = author;
                 document.getElementById('author-name').textContent = author;
 
-                // טעינת סגנון ה-Drops דרך הפרוקסי
-                const targetUrl = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(author)}&fg=87&fl=1`;
-                document.getElementById('author-skin-img').src = `https://wsrv.nl/?url=${encodeURIComponent(targetUrl)}`;
+                // ציור הדמות בקנווס
+                drawDropsAvatar('author-skin-canvas', author);
 
             } catch (e) {
                 console.error(e);
                 document.getElementById('article-title').textContent = 'שגיאה';
-                document.getElementById('article-body').innerHTML = '<p style="color:#ff6b8a;">אירעה שגיאה בטעינת המאמר. ודא שקובץ news.json נמצא בנתיב הראשי של השרת.</p>';
+                document.getElementById('article-body').innerHTML = '<p style="color:#ff6b8a;">אירעה שגיאה בטעינת המאמר.</p>';
             }
         }
+
         loadArticle();
     </script>
 </body>

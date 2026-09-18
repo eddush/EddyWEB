@@ -71,10 +71,10 @@
             margin-bottom: 12px;
         }
 
-        .skin-preview-box img {
-            height: 90px;
+        .skin-canvas-preview {
             width: 90px;
-            object-fit: contain;
+            height: 90px;
+            image-rendering: pixelated;
         }
 
         .btn-danger {
@@ -139,6 +139,35 @@
         let newsItems = [];
         let editors = {};
 
+        function drawDropsAvatar(canvasId, username) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+
+            const skin = new Image();
+            skin.crossOrigin = "Anonymous";
+            skin.src = `https://mc-heads.net/skin/${encodeURIComponent(username || 'Steve')}`;
+
+            skin.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const scale = 12;
+                const startX = 25;
+                const startY = 20;
+
+                ctx.drawImage(skin, 20, 20, 8, 12, startX + (3 * scale), startY + (7 * scale), 7 * scale, 4 * scale);
+                ctx.drawImage(skin, 44, 20, 4, 12, startX + (1 * scale), startY + (7 * scale), 2 * scale, 4 * scale);
+                ctx.drawImage(skin, 44, 20, 4, 12, startX + (9.5 * scale), startY + (7 * scale), 2 * scale, 4 * scale);
+                ctx.drawImage(skin, 4, 28, 8, 4, startX + (3.5 * scale), startY + (10.5 * scale), 6 * scale, 1.5 * scale);
+
+                ctx.drawImage(skin, 0, 8, 8, 8, startX, startY, 3 * scale, 8 * scale);
+                ctx.drawImage(skin, 8, 8, 8, 8, startX + (3 * scale), startY, 8 * scale, 8 * scale);
+
+                ctx.drawImage(skin, 32, 8, 8, 8, startX - (0.2 * scale), startY - (0.2 * scale), 3.2 * scale, 8.4 * scale);
+                ctx.drawImage(skin, 40, 8, 8, 8, startX + (2.8 * scale), startY - (0.2 * scale), 8.4 * scale, 8.4 * scale);
+            };
+        }
+
         async function login() {
             const password = document.getElementById('admin-pass').value;
             const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
@@ -168,10 +197,6 @@
                 const div = document.createElement('div');
                 div.className = 'item-card';
 
-                // יצירת קישור הפרוקסי לתצוגה המקדימה
-                const targetUrl = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(item.author || 'Steve')}&fg=87&fl=1`;
-                const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(targetUrl)}`;
-
                 div.innerHTML = `
           <div class="row-2">
             <div class="form-group">
@@ -179,7 +204,7 @@
               <input type="text" value="${item.author || 'Steve'}" oninput="updateAuthor(${i}, this.value)">
             </div>
             <div class="skin-preview-box">
-              <img id="skin-preview-${i}" src="${proxyUrl}" alt="Skin Preview" crossorigin="anonymous">
+              <canvas id="skin-preview-${i}" width="200" height="200" class="skin-canvas-preview"></canvas>
             </div>
           </div>
 
@@ -212,6 +237,9 @@
         `;
                 list.appendChild(div);
 
+                // ציור התצוגה המקדימה
+                drawDropsAvatar(`skin-preview-${i}`, item.author || 'Steve');
+
                 const toolbarOptions = [['bold', 'italic', 'underline'], [{ 'header': [2, 3, false] }], [{ 'list': 'ordered' }, { 'list': 'bullet' }], ['clean']];
 
                 const quillHe = new Quill(`#editor-he-${i}`, { theme: 'snow', modules: { toolbar: toolbarOptions } });
@@ -228,8 +256,7 @@
 
         function updateAuthor(i, name) {
             newsItems[i].author = name;
-            const targetUrl = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(name || 'Steve')}&fg=87&fl=1`;
-            document.getElementById(`skin-preview-${i}`).src = `https://wsrv.nl/?url=${encodeURIComponent(targetUrl)}`;
+            drawDropsAvatar(`skin-preview-${i}`, name);
         }
 
         function deleteItem(i) {
