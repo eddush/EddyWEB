@@ -1,30 +1,180 @@
-<script>
-    async function loadArticle() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const articleId = urlParams.get('id');
-        const isHe = localStorage.getItem('eddy-language') !== 'en';
+<!doctype html>
+<html lang="he" dir="rtl">
 
-        try {
-            const res = await fetch('news.json');
-            const newsList = await res.json();
-            const article = newsList.find(item => item.id === articleId) || newsList[0];
-
-            if (!article) return;
-
-            document.getElementById('article-title').textContent = isHe ? article.title_he : article.title_en;
-            document.getElementById('article-badge').textContent = isHe ? (article.badge_he || 'עדכון') : (article.badge_en || 'UPDATE');
-            document.getElementById('article-body').innerHTML = isHe ? article.content_he : article.content_en;
-
-            const author = article.author || 'Steve';
-            document.getElementById('author-name').textContent = author;
-
-            // שימוש בפרוקסי כדי לעקוף את החסימה של האתר
-            const targetUrl = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(author)}&fg=87&fl=1`;
-            document.getElementById('author-skin-img').src = `https://wsrv.nl/?url=${encodeURIComponent(targetUrl)}`;
-
-        } catch (e) {
-            document.getElementById('article-body').textContent = 'שגיאה בטעינת המודעה.';
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EddyWEB | עדכון</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* עיצוב בסיסי מובנה שמבטיח שהדף יישאר כהה וקריא גם אם style.css חסר */
+        body {
+            background-color: #060b0e;
+            color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
         }
-    }
-    loadArticle();
-</script>
+
+        .article-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 30px;
+            background: linear-gradient(145deg, #0d181d, #0a1115);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 2;
+        }
+
+        .article-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .author-box {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: #060b0e;
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(49, 231, 202, 0.2);
+        }
+
+        .author-skin {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+        }
+
+        .author-info h4 {
+            margin: 0;
+            color: #5fffe4;
+            font-size: 14px;
+        }
+
+        .author-info span {
+            color: #8fa0a3;
+            font-size: 12px;
+        }
+
+        .article-content {
+            line-height: 1.8;
+            color: #cde2e5;
+            font-size: 16px;
+        }
+
+        .article-content h2,
+        .article-content h3 {
+            color: #31e7ca;
+            font-size: 18px;
+            margin-top: 25px;
+            border-right: 4px solid #b965ff;
+            padding-right: 10px;
+        }
+
+        .article-content ul,
+        .article-content ol {
+            padding-right: 20px;
+        }
+
+        .article-content li {
+            margin-bottom: 8px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #5fffe4;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .news-date {
+            background: rgba(185, 101, 255, 0.2);
+            color: #b965ff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="article-container">
+        <a href="index.html" class="back-btn">→ חזרה לדף הראשי</a>
+
+        <div class="article-header">
+            <div>
+                <span id="article-badge" class="news-date">עדכון</span>
+                <h1 id="article-title" style="margin: 10px 0 0; font-size: 24px;">טוען...</h1>
+            </div>
+            <div class="author-box" id="author-box">
+                <!-- onerror דואג להציג סקין חלופי תלת-ממדי אם הקישור הראשי נחסם -->
+                <img id="author-skin-img" class="author-skin" src="" alt="Skin"
+                    onerror="this.onerror=null; this.src='https://mc-heads.net/body/'+(window.currentAuthor||'Steve')">
+                <div class="author-info">
+                    <span>נכתב על ידי:</span>
+                    <h4 id="author-name">-</h4>
+                </div>
+            </div>
+        </div>
+
+        <div id="article-body" class="article-content">
+            <p>טוען את תוכן המאמר...</p>
+        </div>
+    </main>
+
+    <script>
+        async function loadArticle() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleId = urlParams.get('id');
+            const isHe = localStorage.getItem('eddy-language') !== 'en';
+
+            try {
+                const res = await fetch('news.json');
+                if (!res.ok) throw new Error('נכשל בטעינת news.json');
+
+                const newsList = await res.json();
+                if (!Array.isArray(newsList) || newsList.length === 0) {
+                    document.getElementById('article-title').textContent = 'אין מאמרים';
+                    document.getElementById('article-body').textContent = 'לא נמצאו מאמרים בקובץ news.json.';
+                    return;
+                }
+
+                const article = newsList.find(item => item.id === articleId) || newsList[0];
+
+                document.getElementById('article-title').textContent = isHe ? (article.title_he || article.title_en) : (article.title_en || article.title_he);
+                document.getElementById('article-badge').textContent = isHe ? (article.badge_he || 'עדכון') : (article.badge_en || 'UPDATE');
+                document.getElementById('article-body').innerHTML = isHe ? (article.content_he || article.content_en) : (article.content_en || article.content_he);
+
+                const author = article.author || 'Steve';
+                window.currentAuthor = author;
+                document.getElementById('author-name').textContent = author;
+
+                // טעינת סגנון ה-Drops דרך הפרוקסי
+                const targetUrl = `https://www.minecraftmaps.com/tools/avatar-maker?s=drops&u=${encodeURIComponent(author)}&fg=87&fl=1`;
+                document.getElementById('author-skin-img').src = `https://wsrv.nl/?url=${encodeURIComponent(targetUrl)}`;
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('article-title').textContent = 'שגיאה';
+                document.getElementById('article-body').innerHTML = '<p style="color:#ff6b8a;">אירעה שגיאה בטעינת המאמר. ודא שקובץ news.json נמצא בנתיב הראשי של השרת.</p>';
+            }
+        }
+        loadArticle();
+    </script>
+</body>
+
+</html>
