@@ -15,7 +15,10 @@
     '.article-content > *',
     '.admin-container > .login-box',
     '.admin-container > .news-editor',
-    '.news-editor .item-card'
+    '.news-editor .item-card',
+    '.player-search-panel',
+    '.player-hero-card',
+    '.player-info-card'
   ];
 
   const CARD_SELECTORS = [
