@@ -1,0 +1,16 @@
+{
+  "name": "eddyweb",
+  "private": true,
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@tidbcloud/serverless": "^0.0.11",
+    "express": "^5.1.0"
+  }
+}
