@@ -207,5 +207,95 @@ app.post('/api/improve-article', async (req, res) => {
     }
 });
 
+let tidbConnection = null;
+
+function getTiDBConnection() {
+    if (!process.env.TIDB_URL) return null;
+    if (!tidbConnection) {
+        const { connect } = require('@tidbcloud/serverless');
+        tidbConnection = connect({ url: process.env.TIDB_URL });
+    }
+    return tidbConnection;
+}
+
+function getRankLabel(group) {
+    try {
+        const labels = JSON.parse(process.env.RANK_LABELS_JSON || '{}');
+        return labels[group] || group || 'default';
+    } catch {
+        return group || 'default';
+    }
+}
+
+async function runOptionalPlayerQuery(query, value) {
+    if (!query) return null;
+    const conn = getTiDBConnection();
+    if (!conn) return null;
+    const rows = await conn.execute(query, [value]);
+    return Array.isArray(rows) && rows.length ? rows[0] : null;
+}
+
+app.get('/api/player-profile', async (req, res) => {
+    const username = String(req.query.username || '').trim();
+
+    if (!/^[A-Za-z0-9_]{3,16}$/.test(username)) {
+        return res.status(400).json({ success: false, message: 'שם Minecraft לא תקין' });
+    }
+
+    const conn = getTiDBConnection();
+    if (!conn) {
+        return res.status(503).json({ success: false, message: 'TIDB_URL אינו מוגדר ב-Render' });
+    }
+
+    try {
+        const prefix = (process.env.TIDB_LP_PREFIX || 'luckperms_').replace(/[^A-Za-z0-9_]/g, '');
+        const rows = await conn.execute(
+            'SELECT uuid, username, primary_group FROM ' + prefix + 'players WHERE LOWER(username) = LOWER(?) LIMIT 1',
+            [username]
+        );
+
+        const player = Array.isArray(rows) && rows.length ? rows[0] : null;
+        if (!player) {
+            return res.status(404).json({ success: false, message: 'השחקן לא נמצא במסד הנתונים של LuckPerms' });
+        }
+
+        const uuid = String(player.uuid || '');
+        const playerName = String(player.username || username);
+        const group = String(player.primary_group || 'default');
+        let money = null;
+        let discord = null;
+
+        if (process.env.PLAYER_MONEY_QUERY) {
+            const by = String(process.env.PLAYER_MONEY_LOOKUP || 'username').toLowerCase();
+            money = await runOptionalPlayerQuery(process.env.PLAYER_MONEY_QUERY, by === 'uuid' ? uuid : playerName);
+        }
+
+        if (process.env.PLAYER_DISCORD_QUERY) {
+            const by = String(process.env.PLAYER_DISCORD_LOOKUP || 'uuid').toLowerCase();
+            discord = await runOptionalPlayerQuery(process.env.PLAYER_DISCORD_QUERY, by === 'username' ? playerName : uuid);
+        }
+
+        return res.json({
+            success: true,
+            player: {
+                username: playerName,
+                uuid,
+                rank: group,
+                rank_label: getRankLabel(group),
+                money: money ? (money.balance ?? money.money ?? money.amount ?? money.coins ?? null) : null,
+                discord: discord ? {
+                    id: discord.discord_id ?? discord.id ?? null,
+                    username: discord.discord_username ?? discord.username ?? null,
+                    tag: discord.discord_tag ?? discord.tag ?? null,
+                    avatar: discord.discord_avatar ?? discord.avatar_url ?? discord.avatar ?? null
+                } : null
+            }
+        });
+    } catch (error) {
+        console.error('Player profile error:', error);
+        return res.status(500).json({ success: false, message: 'שגיאה בטעינת נתוני השחקן' });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
