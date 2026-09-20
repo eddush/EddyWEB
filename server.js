@@ -83,7 +83,7 @@ app.post('/api/improve-article', async (req, res) => {
         'זה המאמר הנוכחי:',
         JSON.stringify(cleanInput, null, 2),
         '',
-        'שפר את כל השדות.',
+        'ערוך את הטקסט הקיים בלבד. אל תכתוב מאמר על נושא אחר.',
         'אם שדה בשפה מסוימת ריק, צור אותו על בסיס השפה השנייה והתוכן הקיים.',
         'כותרות צריכות להיות קצרות וברורות.',
         'התקציר צריך להתאים לכרטיס החדשות בדף הבית.',
@@ -113,7 +113,8 @@ app.post('/api/improve-article', async (req, res) => {
             },
             body: JSON.stringify({
                 model: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
-                temperature: 0.55,
+                temperature: 0.2,
+                reasoning_effort: 'low',
                 max_completion_tokens: 5000,
                 messages: [
                     { role: 'system', content: systemPrompt },
@@ -153,6 +154,40 @@ app.post('/api/improve-article', async (req, res) => {
             .replace(/javascript\s*:/gi, '');
 
         improved.content_he = sanitizeHtml(improved.content_he);
+        const protectedTokens = (value) => {
+                    const text = String(value || '');
+                    const matches = text.match(/https?:\/\/\S+|(?:^|\s)\/[a-zA-Z0-9:_-]+(?:\s|$)|\b\d+(?:\.\d+)?\b|#[A-Za-z0-9_-]+|[A-Z][A-Za-z0-9._-]{2,}/g);
+                    return [...new Set((matches || []).map(token => token.trim()).filter(Boolean))];
+                };
+        
+                const originalSource = [
+                    cleanInput.title_he,
+                    cleanInput.title_en,
+                    cleanInput.text_he,
+                    cleanInput.text_en,
+                    cleanInput.content_he.replace(/<[^>]*>/g, ' '),
+                    cleanInput.content_en.replace(/<[^>]*>/g, ' ')
+                ].join('\n');
+        
+                const protected = protectedTokens(originalSource);
+                const improvedSource = [
+                    improved.title_he,
+                    improved.title_en,
+                    improved.text_he,
+                    improved.text_en,
+                    improved.content_he.replace(/<[^>]*>/g, ' '),
+                    improved.content_en.replace(/<[^>]*>/g, ' ')
+                ].join('\n');
+        
+                const missingProtected = protected.filter((token) => !improvedSource.includes(token));
+        
+                if (missingProtected.length > 0) {
+                    console.warn('Rejected AI rewrite because protected details disappeared:', missingProtected);
+                    return res.status(422).json({
+                        success: false,
+                        message: 'ה-AI שינה או השמיט פרטים מהמאמר. לא בוצע שינוי. נסה שוב.'
+                    });
+                }
         improved.content_en = sanitizeHtml(improved.content_en);
 
         return res.json({ success: true, article: improved });
