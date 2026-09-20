@@ -989,20 +989,13 @@ html[dir="rtl"] .news-card {
 /* ===================================================
    Large News Section
    =================================================== */
-.large-news-card {
-  width: 100%;
+.large-news-section {
+  position: relative;
+  z-index: 2;
+  width: 70%;
   max-width: 900px;
-  /* <--- הגדרת רוחב מקסימלי לכרטיס הבודד */
-  margin: 0 auto;
-  /* ממרכז את הכרטיס */
-  background: linear-gradient(145deg, #0d181d, #0a1115);
-  border: 1px solid #ffffff14;
-  border-right: 4px solid #b965ff;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.5);
-  color: #e9ffff;
-  transition: transform 0.25s ease, border-color 0.25s ease;
+  margin: 70px auto 90px;
+  padding: 0 20px;
 }
 
 .large-news-heading {
