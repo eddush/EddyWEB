@@ -834,7 +834,7 @@ html[dir="rtl"] nav {
 }
 
 /* ===================================================
-   Top Container & News Section
+   Top Container & News Section (Compact & Dynamic)
    =================================================== */
 .top-container {
   position: relative;
@@ -987,7 +987,7 @@ html[dir="rtl"] .news-card {
 }
 
 /* ===================================================
-   Large News Section
+   Large News Section (Bottom Scroll Section - Fixed Dark Theme)
    =================================================== */
 .large-news-section {
   position: relative;
@@ -1115,31 +1115,4 @@ html[dir="ltr"] .large-news-card {
 .news-btn.large-btn {
   padding: 10px 20px;
   font-size: 13px;
-}
-
-/* ===================================================
-   Scroll Animations (אנימציות גלילה)
-   =================================================== */
-.reveal {
-  opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.reveal.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* אפשרות להוסיף השהייה לאלמנטים שמופיעים יחד */
-.delay-100 {
-  transition-delay: 0.1s;
-}
-
-.delay-200 {
-  transition-delay: 0.2s;
-}
-
-.delay-300 {
-  transition-delay: 0.3s;
-}
+} 
