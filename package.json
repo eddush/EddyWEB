@@ -10,7 +10,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@tidbcloud/serverless": "^0.0.11",
+    "@tidbcloud/serverless": "^0.3.0",
     "express": "^5.1.0"
   }
 }
