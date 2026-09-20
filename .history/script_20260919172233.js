@@ -12,7 +12,6 @@ const translations = {
     voteText: 'A voting link will be added here soon.', contactTitle: 'Contact',
     contactText: 'Have a question or problem? Contact us through Discord.', contactBtn: 'Contact Us →',
     newsBadge: 'NEWS & UPDATES', newsTitle: 'Latest News', newsIntro: 'Server news, updates, events and important announcements.',
-    largeNewsBadge: 'NEWS & UPDATES', largeNewsTitle: 'All Updates & News', largeNewsIntro: 'Read full updates and detailed server news.',
     readMore: 'Read More →',
     footer: 'Minecraft community • Eddydev.ddns.net', players: (a, b) => `${a} / ${b} players online`,
     unavailable: 'Server is currently unavailable', cannot: 'Unable to check', failed: 'Status check failed',
@@ -29,7 +28,6 @@ const translations = {
     voteText: 'קישור להצבעה יתווסף כאן ברגע שתשלח אותו.', contactTitle: 'צור קשר',
     contactText: 'יש שאלה או בעיה? פנו אלינו דרך Discord.', contactBtn: 'צור קשר →',
     newsBadge: 'חדשות ועדכונים', newsTitle: 'חדשות אחרונות', newsIntro: 'חדשות השרת, עדכונים, אירועים והודעות חשובות.',
-    largeNewsBadge: 'חדשות ועדכונים', largeNewsTitle: 'כל העדכונים והחדשות', largeNewsIntro: 'קראו הודעות מפורטות, יומני שינויים מלאים ועדכוני שרת.',
     readMore: 'קרא עוד ←',
     footer: 'קהילת Minecraft • Eddydev.ddns.net', players: (a, b) => `${a} / ${b} שחקנים מחוברים`,
     unavailable: 'השרת כרגע לא זמין', cannot: 'לא ניתן לבדוק', failed: 'בדיקת הסטטוס נכשלה',
@@ -58,8 +56,6 @@ function renderNews() {
   if (!grid || !newsData.length) return;
   const x = t();
   const isHe = language === 'he';
-
-  // 1. רנדור החדשות הקומפקטיות בחלק העליון
   grid.innerHTML = newsData.map(item => `
     <article class="news-card">
       <div class="news-date">${isHe ? item.badge_he : item.badge_en}</div>
@@ -68,23 +64,6 @@ function renderNews() {
       <a class="news-btn" href="${item.url}">${x.readMore}</a>
     </article>
   `).join('');
-
-  // 2. רנדור החדשות המוגדלות בתחתית הדף
-  const largeGrid = document.getElementById('large-news-grid');
-  if (largeGrid) {
-    largeGrid.innerHTML = newsData.map(item => `
-      <article class="large-news-card">
-        <div class="large-news-header">
-          <span class="news-date">${isHe ? item.badge_he : item.badge_en}</span>
-          ${item.author ? `<span class="news-author">${isHe ? 'מאת:' : 'By:'} ${item.author}</span>` : ''}
-        </div>
-        <h3>${isHe ? item.title_he : item.title_en}</h3>
-        <p class="large-news-summary">${isHe ? item.text_he : item.text_en}</p>
-        ${(isHe ? item.content_he : item.content_en) ? `<div class="large-news-body">${isHe ? item.content_he : item.content_en}</div>` : ''}
-        <a class="news-btn large-btn" href="${item.url}">${x.readMore}</a>
-      </article>
-    `).join('');
-  }
 }
 
 function applyLanguage() {
@@ -108,13 +87,6 @@ function applyLanguage() {
   if (newsBadge) newsBadge.textContent = x.newsBadge;
   if (newsH2) newsH2.textContent = x.newsTitle;
   if (newsP) newsP.textContent = x.newsIntro;
-
-  const largeNewsBadge = document.querySelector('#large-news .large-news-heading .badge');
-  const largeNewsH2 = document.querySelector('#large-news .large-news-heading h2');
-  const largeNewsP = document.querySelector('#large-news .large-news-heading p');
-  if (largeNewsBadge) largeNewsBadge.textContent = x.largeNewsBadge;
-  if (largeNewsH2) largeNewsH2.textContent = x.largeNewsTitle;
-  if (largeNewsP) largeNewsP.textContent = x.largeNewsIntro;
 
   renderNews();
 }
