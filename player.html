@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071014">
+  <title>EddyWEB | מידע על שחקן</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="grid"></div>
+  <main class="player-page">
+    <a class="player-back" href="index.html">→ חזרה ל-EddyWEB</a>
+
+    <section class="player-search-panel">
+      <div class="badge">PLAYER PROFILE</div>
+      <h1>מידע על שחקן</h1>
+      <p>הקלד את שם השחקן במיינקרפט כדי לראות את הפרופיל שלו.</p>
+
+      <form id="player-search-form" class="player-search-form">
+        <input id="player-name-input" name="username" type="text" maxlength="16"
+          pattern="[A-Za-z0-9_]{3,16}" autocomplete="off" placeholder="שם Minecraft..." required>
+        <button class="btn primary" type="submit">חפש שחקן</button>
+      </form>
+
+      <div id="player-status" class="player-status" aria-live="polite"></div>
+    </section>
+
+    <section id="player-profile" class="player-profile hidden" aria-live="polite">
+      <div class="player-hero-card">
+        <div class="player-skin-wrap">
+          <img id="player-skin" class="player-skin" alt="Minecraft skin">
+        </div>
+
+        <div class="player-main-info">
+          <span class="news-date">MINECRAFT PLAYER</span>
+          <h2 id="profile-username">-</h2>
+          <p id="profile-uuid" class="player-uuid"></p>
+          <div class="player-rank-pill">
+            <span>דרגה</span>
+            <strong id="profile-rank">-</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="player-info-grid">
+        <article class="player-info-card">
+          <div class="icon">💰</div>
+          <span>כסף</span>
+          <strong id="profile-money">לא זמין</strong>
+        </article>
+
+        <article class="player-info-card">
+          <div class="icon">💬</div>
+          <span>Discord</span>
+          <strong id="profile-discord">לא מחובר</strong>
+          <small id="profile-discord-id"></small>
+        </article>
+
+        <article class="player-info-card">
+          <div class="icon">🏷️</div>
+          <span>LuckPerms</span>
+          <strong id="profile-group">-</strong>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('player-search-form');
+    const input = document.getElementById('player-name-input');
+    const status = document.getElementById('player-status');
+    const profile = document.getElementById('player-profile');
+
+    function setStatus(message, kind) {
+      status.className = 'player-status' + (kind ? ' ' + kind : '');
+      status.textContent = message;
+    }
+
+    function formatMoney(value) {
+      if (value === null || value === undefined || value === '') return 'לא זמין';
+      const number = Number(value);
+      return Number.isFinite(number) ? number.toLocaleString('he-IL') : String(value);
+    }
+
+    function loadProfile(data) {
+      const player = data.player;
+      document.getElementById('profile-username').textContent = player.username;
+      document.getElementById('profile-uuid').textContent = player.uuid || '';
+      document.getElementById('profile-rank').textContent = player.rank_label || player.rank || 'default';
+      document.getElementById('profile-group').textContent = player.rank || 'default';
+      document.getElementById('profile-money').textContent = formatMoney(player.money);
+
+      const discord = player.discord;
+      document.getElementById('profile-discord').textContent =
+        discord && (discord.username || discord.tag) ? (discord.username || discord.tag) :
+        discord && discord.id ? 'חשבון מחובר' : 'לא מחובר';
+      document.getElementById('profile-discord-id').textContent =
+        discord && discord.id ? 'ID: ' + discord.id : '';
+
+      const skin = document.getElementById('player-skin');
+      skin.src = 'https://mc-heads.net/body/' + encodeURIComponent(player.username) + '/300';
+      skin.onerror = function() {
+        skin.onerror = null;
+        skin.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(player.username) + '/200';
+      };
+
+      profile.classList.remove('hidden');
+      requestAnimationFrame(function() {
+        profile.classList.add('is-loaded');
+      });
+    }
+
+    form.addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const username = input.value.trim();
+      if (!/^[A-Za-z0-9_]{3,16}$/.test(username)) {
+        profile.classList.add('hidden');
+        setStatus('הכנס שם Minecraft תקין.', 'error');
+        return;
+      }
+
+      profile.classList.add('hidden');
+      profile.classList.remove('is-loaded');
+      setStatus('🔎 מחפש את השחקן...', 'loading');
+
+      try {
+        const response = await fetch('/api/player-profile?username=' + encodeURIComponent(username), {
+          cache: 'no-store'
+        });
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || 'השחקן לא נמצא');
+        }
+
+        loadProfile(data);
+        setStatus('✓ הפרופיל נטען בהצלחה.', 'success');
+      } catch (error) {
+        setStatus('✕ ' + (error.message || 'לא ניתן לטעון את הפרופיל'), 'error');
+      }
+    });
+
+    const params = new URLSearchParams(window.location.search);
+    const initialUsername = params.get('username');
+    if (initialUsername && /^[A-Za-z0-9_]{3,16}$/.test(initialUsername)) {
+      input.value = initialUsername;
+      form.requestSubmit();
+    }
+  </script>
+  <script src="animations.js"></script>
+</body>
+</html>
