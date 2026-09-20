@@ -218,6 +218,84 @@ function getTiDBConnection() {
     return tidbConnection;
 }
 
+
+async function ensurePlayerSyncTable(conn) {
+    await conn.execute(`
+        CREATE TABLE IF NOT EXISTS player_profiles (
+            uuid VARCHAR(36) PRIMARY KEY,
+            username VARCHAR(16) NOT NULL,
+            money DECIMAL(30, 2) NULL,
+            discord_id VARCHAR(32) NULL,
+            discord_username VARCHAR(100) NULL,
+            discord_tag VARCHAR(100) NULL,
+            discord_avatar VARCHAR(500) NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+    `);
+}
+
+app.post('/api/player-sync', async (req, res) => {
+    const expectedToken = process.env.PLAYER_SYNC_TOKEN;
+    const authHeader = String(req.headers.authorization || '');
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+
+    if (!expectedToken) {
+        return res.status(503).json({ success: false, message: 'PLAYER_SYNC_TOKEN אינו מוגדר ב-Render' });
+    }
+
+    if (!token || token !== expectedToken) {
+        return res.status(401).json({ success: false, message: 'אין הרשאה' });
+    }
+
+    const username = String(req.body?.username || '').trim();
+    const uuid = String(req.body?.uuid || '').trim();
+    const money = req.body?.money;
+    const discord = req.body?.discord && typeof req.body.discord === 'object' ? req.body.discord : null;
+
+    if (!/^[A-Za-z0-9_]{3,16}$/.test(username) || !/^[0-9a-fA-F-]{36}$/.test(uuid)) {
+        return res.status(400).json({ success: false, message: 'פרטי שחקן לא תקינים' });
+    }
+
+    if (money !== null && money !== undefined && !Number.isFinite(Number(money))) {
+        return res.status(400).json({ success: false, message: 'סכום כסף לא תקין' });
+    }
+
+    const conn = getTiDBConnection();
+    if (!conn) {
+        return res.status(503).json({ success: false, message: 'TIDB_URL אינו מוגדר ב-Render' });
+    }
+
+    try {
+        await ensurePlayerSyncTable(conn);
+
+        const discordId = discord ? String(discord.id ?? discord.discord_id ?? '').trim() || null : null;
+        const discordUsername = discord ? String(discord.username ?? discord.discord_username ?? '').trim() || null : null;
+        const discordTag = discord ? String(discord.tag ?? discord.discord_tag ?? '').trim() || null : null;
+        const discordAvatar = discord ? String(discord.avatar ?? discord.discord_avatar ?? discord.avatar_url ?? '').trim() || null : null;
+        const numericMoney = money === null || money === undefined ? null : Number(money);
+
+        await conn.execute(
+            `INSERT INTO player_profiles
+                (uuid, username, money, discord_id, discord_username, discord_tag, discord_avatar)
+             VALUES (?, ?, ?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE
+                username = VALUES(username),
+                money = COALESCE(VALUES(money), money),
+                discord_id = COALESCE(VALUES(discord_id), discord_id),
+                discord_username = COALESCE(VALUES(discord_username), discord_username),
+                discord_tag = COALESCE(VALUES(discord_tag), discord_tag),
+                discord_avatar = COALESCE(VALUES(discord_avatar), discord_avatar),
+                updated_at = CURRENT_TIMESTAMP`,
+            [uuid, username, numericMoney, discordId, discordUsername, discordTag, discordAvatar]
+        );
+
+        return res.json({ success: true });
+    } catch (error) {
+        console.error('Player sync error:', error);
+        return res.status(500).json({ success: false, message: 'שגיאה בשמירת נתוני השחקן' });
+    }
+});
+
 function getRankLabel(group) {
     try {
         const labels = JSON.parse(process.env.RANK_LABELS_JSON || '{}');
@@ -286,12 +364,28 @@ app.get('/api/player-profile', async (req, res) => {
         let money = null;
         let discord = null;
 
-        if (process.env.PLAYER_MONEY_QUERY) {
+        try {
+            await ensurePlayerSyncTable(conn);
+            const profileRows = await conn.execute(
+                'SELECT money, discord_id, discord_username, discord_tag, discord_avatar FROM player_profiles WHERE uuid = ? LIMIT 1',
+                [uuid]
+            );
+            const synced = Array.isArray(profileRows) && profileRows.length ? profileRows[0] : null;
+
+            if (synced) {
+                money = synced;
+                discord = synced;
+            }
+        } catch (syncReadError) {
+            console.warn('Player sync table read skipped:', syncReadError?.message || syncReadError);
+        }
+
+        if (!money && process.env.PLAYER_MONEY_QUERY) {
             const by = String(process.env.PLAYER_MONEY_LOOKUP || 'username').toLowerCase();
             money = await runOptionalPlayerQuery(process.env.PLAYER_MONEY_QUERY, by === 'uuid' ? uuid : playerName);
         }
 
-        if (process.env.PLAYER_DISCORD_QUERY) {
+        if (!discord && process.env.PLAYER_DISCORD_QUERY) {
             const by = String(process.env.PLAYER_DISCORD_LOOKUP || 'uuid').toLowerCase();
             discord = await runOptionalPlayerQuery(process.env.PLAYER_DISCORD_QUERY, by === 'username' ? playerName : uuid);
         }
