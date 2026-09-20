@@ -107,6 +107,47 @@
         .editor-wrapper {
             margin-bottom: 20px;
         }
+
+        .ai-improve-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .btn-ai {
+            background: linear-gradient(135deg, #31e7ca, #b965ff);
+            color: #04110f;
+            border: 0;
+            box-shadow: 0 8px 24px #31e7ca22;
+            font-weight: 800;
+        }
+
+        .btn-ai:hover {
+            color: #04110f;
+            box-shadow: 0 12px 30px #31e7ca44;
+        }
+
+        .ai-status {
+            font-size: 13px;
+            color: #93a8ab;
+            min-height: 20px;
+        }
+
+        .ai-status.success {
+            color: #5fffe4;
+        }
+
+        .ai-status.error {
+            color: #ff6b8a;
+        }
+
+        .ai-loading {
+            opacity: .7;
+            pointer-events: none;
+        }
+
     </style>
 </head>
 
@@ -233,6 +274,11 @@
             <div id="editor-en-${i}"></div>
           </div>
 
+          <div class="ai-improve-row">
+            <button class="btn btn-ai" type="button" onclick="improveArticle(${i})">✨ שפר את המאמר עם AI</button>
+            <span id="ai-status-${i}" class="ai-status" aria-live="polite"></span>
+          </div>
+
           <button class="btn-danger" onclick="deleteItem(${i})">מחק מאמר</button>
         `;
                 list.appendChild(div);
@@ -250,6 +296,78 @@
 
                 editors[i] = { he: quillHe, en: quillEn };
             });
+        }
+
+
+        async function improveArticle(i) {
+            const button = document.querySelector('[onclick="improveArticle(' + i + ')"]');
+            const status = document.getElementById('ai-status-' + i);
+
+            if (!newsItems[i] || !editors[i]) return;
+
+            if (button) {
+                button.classList.add('ai-loading');
+                button.disabled = true;
+            }
+            if (status) {
+                status.className = 'ai-status';
+                status.textContent = '🤖 משפר את המאמר...';
+            }
+
+            const currentArticle = {
+                title_he: newsItems[i].title_he || '',
+                title_en: newsItems[i].title_en || '',
+                text_he: newsItems[i].text_he || '',
+                text_en: newsItems[i].text_en || '',
+                content_he: editors[i].he.root.innerHTML || '',
+                content_en: editors[i].en.root.innerHTML || ''
+            };
+
+            try {
+                const res = await fetch('/api/improve-article', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        password: authToken,
+                        article: currentArticle
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success || !data.article) {
+                    throw new Error(data.message || 'שגיאת AI');
+                }
+
+                const improved = data.article;
+
+                newsItems[i].title_he = improved.title_he;
+                newsItems[i].title_en = improved.title_en;
+                newsItems[i].text_he = improved.text_he;
+                newsItems[i].text_en = improved.text_en;
+                newsItems[i].content_he = improved.content_he;
+                newsItems[i].content_en = improved.content_en;
+
+                render();
+
+                const nextStatus = document.getElementById('ai-status-' + i);
+                if (nextStatus) {
+                    nextStatus.className = 'ai-status success';
+                    nextStatus.textContent = '✓ המאמר שופר — בדוק אותו לפני השמירה';
+                }
+            } catch (error) {
+                console.error(error);
+                if (status) {
+                    status.className = 'ai-status error';
+                    status.textContent = '✕ ' + (error.message || 'לא ניתן לשפר כרגע');
+                }
+            } finally {
+                const activeButton = document.querySelector('[onclick="improveArticle(' + i + ')"]');
+                if (activeButton) {
+                    activeButton.classList.remove('ai-loading');
+                    activeButton.disabled = false;
+                }
+            }
         }
 
         function updateItem(i, k, v) { newsItems[i][k] = v; }
