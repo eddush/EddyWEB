@@ -1150,3 +1150,121 @@ html[dir="ltr"] .large-news-card {
 .delay-300 {
   transition-delay: 0.3s;
 }
+
+/* ===================================================
+   Global Motion System — EddyWEB
+   =================================================== */
+html {
+  scroll-behavior: smooth;
+}
+
+html.animations-enabled {
+  scroll-padding-top: 24px;
+}
+
+.animations-enabled .scroll-animate {
+  opacity: 0;
+  transform: translate3d(0, 42px, 0);
+  transition:
+    opacity 700ms cubic-bezier(.22, 1, .36, 1) var(--scroll-delay, 0ms),
+    transform 700ms cubic-bezier(.22, 1, .36, 1) var(--scroll-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.animations-enabled .scroll-animate--card {
+  transform: translate3d(0, 34px, 0) scale(.975);
+}
+
+.animations-enabled .scroll-animate.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+.site-scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 10000;
+  pointer-events: none;
+  background: transparent;
+}
+
+.site-scroll-progress span {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #31e7ca, #b965ff, #5fffe4);
+  box-shadow: 0 0 14px #31e7ca66;
+  transition: width 90ms linear;
+}
+
+.animations-enabled nav a,
+.animations-enabled .btn,
+.animations-enabled .textbtn,
+.animations-enabled .news-btn,
+.animations-enabled button {
+  transition:
+    transform 220ms ease,
+    box-shadow 220ms ease,
+    border-color 220ms ease,
+    background-color 220ms ease,
+    color 220ms ease;
+}
+
+.animations-enabled nav a:hover,
+.animations-enabled .btn:hover,
+.animations-enabled .textbtn:hover,
+.animations-enabled .news-btn:hover,
+.animations-enabled button:hover {
+  transform: translateY(-2px);
+}
+
+.animations-enabled .card:hover,
+.animations-enabled .news-card:hover,
+.animations-enabled .large-news-card:hover {
+  transition-duration: 280ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animations-enabled .scroll-animate,
+  .animations-enabled .scroll-animate--card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    will-change: auto;
+  }
+
+  .site-scroll-progress {
+    display: none;
+  }
+
+  .animations-enabled nav a:hover,
+  .animations-enabled .btn:hover,
+  .animations-enabled .textbtn:hover,
+  .animations-enabled .news-btn:hover,
+  .animations-enabled button:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .site-scroll-progress {
+    height: 2px;
+  }
+
+  .animations-enabled .scroll-animate {
+    transform: translate3d(0, 28px, 0);
+    transition-duration: 560ms;
+  }
+
+  .animations-enabled .scroll-animate--card {
+    transform: translate3d(0, 24px, 0) scale(.985);
+  }
+}
