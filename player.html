@@ -67,10 +67,77 @@
   </main>
 
   <script>
-    const form = document.getElementById('player-search-form');
-    const input = document.getElementById('player-name-input');
-    const status = document.getElementById('player-status');
-    const profile = document.getElementById('player-profile');
+    const translations = {
+      en: {
+        back: '← Back to EddyWEB',
+        badge: 'PLAYER PROFILE',
+        title: 'Player Profile',
+        intro: 'Enter a Minecraft username to view the player profile.',
+        placeholder: 'Minecraft username...',
+        search: 'Search Player',
+        invalid: 'Enter a valid Minecraft username.',
+        loading: '🔎 Searching for player...',
+        success: '✓ Profile loaded successfully.',
+        notFound: 'Player not found',
+        loadError: 'Unable to load profile',
+        rank: 'Rank',
+        money: 'Money',
+        moneyUnavailable: 'Unavailable',
+        discord: 'Discord',
+        discordDisconnected: 'Not connected',
+        discordConnected: 'Connected account',
+        luckperms: 'LuckPerms',
+        defaultGroup: 'default',
+        minecraftPlayer: 'MINECRAFT PLAYER'
+      },
+      he: {
+        back: '→ חזרה ל-EddyWEB',
+        badge: 'פרופיל שחקן',
+        title: 'מידע על שחקן',
+        intro: 'הקלד את שם השחקן במיינקרפט כדי לראות את הפרופיל שלו.',
+        placeholder: 'שם Minecraft...',
+        search: 'חפש שחקן',
+        invalid: 'הכנס שם Minecraft תקין.',
+        loading: '🔎 מחפש את השחקן...',
+        success: '✓ הפרופיל נטען בהצלחה.',
+        notFound: 'השחקן לא נמצא',
+        loadError: 'לא ניתן לטעון את הפרופיל',
+        rank: 'דרגה',
+        money: 'כסף',
+        moneyUnavailable: 'לא זמין',
+        discord: 'Discord',
+        discordDisconnected: 'לא מחובר',
+        discordConnected: 'חשבון מחובר',
+        luckperms: 'LuckPerms',
+        defaultGroup: 'default',
+        minecraftPlayer: 'שחקן MINECRAFT'
+      }
+    };
+
+    let language = localStorage.getItem('eddy-language') || 'en';
+
+    function t() {
+      return translations[language];
+    }
+
+    function applyLanguage() {
+      const x = t();
+      const isHe = language === 'he';
+      document.documentElement.lang = language;
+      document.documentElement.dir = isHe ? 'rtl' : 'ltr';
+
+      document.querySelector('.player-back').textContent = x.back;
+      document.querySelector('.player-search-panel .badge').textContent = x.badge;
+      document.querySelector('.player-search-panel h1').textContent = x.title;
+      document.querySelector('.player-search-panel p').textContent = x.intro;
+      document.getElementById('player-name-input').placeholder = x.placeholder;
+      document.querySelector('#player-search-form .btn').textContent = x.search;
+      document.querySelector('.news-date').textContent = x.minecraftPlayer;
+      document.querySelector('.player-rank-pill span').textContent = x.rank;
+      document.querySelector('.player-info-card:nth-child(1) span').textContent = x.money;
+      document.querySelector('.player-info-card:nth-child(2) span').textContent = x.discord;
+      document.querySelector('.player-info-card:nth-child(3) span').textContent = x.luckperms;
+    }
 
     function setStatus(message, kind) {
       status.className = 'player-status' + (kind ? ' ' + kind : '');
@@ -78,23 +145,46 @@
     }
 
     function formatMoney(value) {
-      if (value === null || value === undefined || value === '') return 'לא זמין';
+      if (value === null || value === undefined || value === '') return t().moneyUnavailable;
       const number = Number(value);
-      return Number.isFinite(number) ? number.toLocaleString('he-IL') : String(value);
+      return Number.isFinite(number)
+        ? number.toLocaleString(language === 'he' ? 'he-IL' : 'en-US')
+        : String(value);
     }
 
     function loadProfile(data) {
       const player = data.player;
+      const group = String(player.rank || '').trim();
+      const hasRank = group && group.toLowerCase() !== 'default';
+
       document.getElementById('profile-username').textContent = player.username;
       document.getElementById('profile-uuid').textContent = player.uuid || '';
-      document.getElementById('profile-rank').textContent = player.rank_label || player.rank || 'default';
-      document.getElementById('profile-group').textContent = player.rank || 'default';
+
+      // Ignore LuckPerms "default" completely: do not display it as a rank.
+      const rankPill = document.querySelector('.player-rank-pill');
+      const luckPermsCard = document.querySelector('.player-info-card:nth-child(3)');
+      if (hasRank) {
+        document.getElementById('profile-rank').textContent = player.rank_label || group;
+        rankPill.style.display = 'inline-flex';
+        luckPermsCard.style.display = '';
+        document.getElementById('profile-group').textContent = player.rank_label || group;
+      } else {
+        rankPill.style.display = 'none';
+        luckPermsCard.style.display = 'none';
+        document.getElementById('profile-rank').textContent = '';
+        document.getElementById('profile-group').textContent = '';
+      }
+
       document.getElementById('profile-money').textContent = formatMoney(player.money);
 
       const discord = player.discord;
       document.getElementById('profile-discord').textContent =
-        discord && (discord.username || discord.tag) ? (discord.username || discord.tag) :
-        discord && discord.id ? 'חשבון מחובר' : 'לא מחובר';
+        discord && (discord.username || discord.tag)
+          ? (discord.username || discord.tag)
+          : discord && discord.id
+            ? t().discordConnected
+            : t().discordDisconnected;
+
       document.getElementById('profile-discord-id').textContent =
         discord && discord.id ? 'ID: ' + discord.id : '';
 
@@ -117,13 +207,13 @@
       const username = input.value.trim();
       if (!/^[A-Za-z0-9_]{3,16}$/.test(username)) {
         profile.classList.add('hidden');
-        setStatus('הכנס שם Minecraft תקין.', 'error');
+        setStatus(t().invalid, 'error');
         return;
       }
 
       profile.classList.add('hidden');
       profile.classList.remove('is-loaded');
-      setStatus('🔎 מחפש את השחקן...', 'loading');
+      setStatus(t().loading, 'loading');
 
       try {
         const response = await fetch('/api/player-profile?username=' + encodeURIComponent(username), {
@@ -132,13 +222,13 @@
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-          throw new Error(data.message || 'השחקן לא נמצא');
+          throw new Error(data.message || t().notFound);
         }
 
         loadProfile(data);
-        setStatus('✓ הפרופיל נטען בהצלחה.', 'success');
+        setStatus(t().success, 'success');
       } catch (error) {
-        setStatus('✕ ' + (error.message || 'לא ניתן לטעון את הפרופיל'), 'error');
+        setStatus('✕ ' + (error.message || t().loadError), 'error');
       }
     });
 
@@ -148,6 +238,8 @@
       input.value = initialUsername;
       form.requestSubmit();
     }
+
+    applyLanguage();
   </script>
   <script src="animations.js"></script>
 </body>
