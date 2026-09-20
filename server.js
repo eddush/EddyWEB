@@ -261,7 +261,28 @@ app.get('/api/player-profile', async (req, res) => {
 
         const uuid = String(player.uuid || '');
         const playerName = String(player.username || username);
-        const group = String(player.primary_group || 'default');
+        let group = String(player.primary_group || 'default').trim();
+
+        // LuckPerms can leave primary_group as "default" while assigning
+        // another group directly (for example: group.owner) in user permissions.
+        // Prefer a non-default direct group assignment when primary_group is default.
+        if (!group || group.toLowerCase() === 'default') {
+            const permissionRows = await conn.execute(
+                'SELECT permission FROM ' + prefix + 'user_permissions WHERE uuid = ? AND value = 1 AND permission LIKE ? ORDER BY id DESC',
+                [uuid, 'group.%']
+            );
+
+            const assignedGroups = (Array.isArray(permissionRows) ? permissionRows : [])
+                .map(row => String(row.permission || '').trim())
+                .filter(permission => /^group\.[A-Za-z0-9_-]+$/i.test(permission))
+                .map(permission => permission.slice('group.'.length))
+                .filter(name => name && name.toLowerCase() !== 'default');
+
+            if (assignedGroups.length) {
+                group = assignedGroups[0];
+            }
+        }
+
         let money = null;
         let discord = null;
 
