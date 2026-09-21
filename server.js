@@ -373,8 +373,8 @@ app.get('/api/player-profile', async (req, res) => {
             const synced = Array.isArray(profileRows) && profileRows.length ? profileRows[0] : null;
 
             if (synced) {
-                money = synced;
-                discord = synced;
+                money = synced.money != null ? synced : null;
+                discord = synced.discord_id ? synced : null;
             }
         } catch (syncReadError) {
             console.warn('Player sync table read skipped:', syncReadError?.message || syncReadError);
