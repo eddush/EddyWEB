@@ -1,0 +1,61 @@
+# EddyWEB <-> Minecraft player sync
+# Requires Skript + SkJson + Vault/VaultX Economy
+
+options:
+    eddyweb_url: https://YOUR-RENDER-DOMAIN/api/player-sync
+    eddyweb_token: CHANGE_ME
+    sync_interval: 30 seconds
+
+function eddywebSync(p: player):
+    if "{@eddyweb_token}" is "CHANGE_ME":
+        stop
+
+    set {_moneyText} to "%{_p}'s balance%"
+    regex replace "[^0-9.-]" with "" in {_moneyText}
+    set {_money} to {_moneyText} parsed as number
+
+    if {_money} is not set:
+        send "[EddyWEB] Could not convert balance of %name of {_p}%: %{_moneyText}%" to console
+        stop
+
+    set {_json} to json from "{""username"":""%name of {_p}%"",""uuid"":""%uuid of {_p}%"",""money"":%{_money}%}"
+    set {_request} to prepare POST request on "{@eddyweb_url}"
+    set {_request}'s headers to json from "{'Content-Type':'application/json','Authorization':'Bearer {@eddyweb_token}'}"
+    set {_request}'s body to {_json}
+    execute {_request} as non blocking
+
+on join:
+    wait 2 seconds
+    eddywebSync(player)
+
+on quit:
+    eddywebSync(player)
+
+every {@sync_interval}:
+    loop all players:
+        eddywebSync(loop-player)
+
+command /eddywebsync [<player>]:
+    permission: eddyweb.sync
+    permission message: &cאין לך הרשאה.
+    trigger:
+        if arg-1 is set:
+            eddywebSync(arg-1)
+            send "&aסונכרן: &f%arg-1%" to player
+        else:
+            eddywebSync(player)
+            send "&aהסנכרון נשלח ל-EddyWEB." to player
+
+command /eddywebstatus:
+    permission: eddyweb.sync
+    trigger:
+        send "&7URL: &f{@eddyweb_url}" to player
+        send "&7Economy: &f%player's balance%" to player
+        send "&7UUID: &f%uuid of player%" to player
+        if "{@eddyweb_token}" is "CHANGE_ME":
+            send "&cToken לא הוגדר." to player
+        else:
+            send "&aToken מוגדר." to player
+
+on script load:
+    send "[EddyWEB] player sync loaded." to console
