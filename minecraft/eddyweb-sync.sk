@@ -18,7 +18,7 @@ function eddywebSync(p: player):
         send "[EddyWEB] Could not convert balance of %name of {_p}%: %{_moneyText}%" to console
         stop
 
-    set {_json} to json from "{""username"":""%name of {_p}%"",""uuid"":""%uuid of {_p}%"",""money"":%{_money}%}"
+    set {_json} to "{""username"":""%name of {_p}%"",""uuid"":""%uuid of {_p}%"",""money"":%{_money}%}"
     set {_request} to prepare POST request on "{@eddyweb_url}"
     set {_request}'s headers to json from "{'Content-Type':'application/json','Authorization':'Bearer {@eddyweb_token}'}"
     set {_request}'s body to {_json}
