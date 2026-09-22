@@ -2,23 +2,27 @@
 # Requires Skript + SkJson + Vault/VaultX Economy
 
 options:
-    eddyweb_url: https://YOUR-RENDER-DOMAIN/api/player-sync
+    eddyweb_url: https://eddyweb-93p7.onrender.com/api/player-sync
     eddyweb_token: CHANGE_ME
     sync_interval: 30 seconds
 
 function eddywebSync(p: player):
     if "{@eddyweb_token}" is "CHANGE_ME":
+        send "[EddyWEB] Token is not configured." to console
         stop
 
-    set {_moneyText} to "%{_p}'s balance%"
-    regex replace "[^0-9.-]" with "" in {_moneyText}
-    set {_money} to {_moneyText} parsed as number
+    # VaultX Economy - this syntax is confirmed working on the server
+    set {_money} to {_p}'s money
 
     if {_money} is not set:
-        send "[EddyWEB] Could not convert balance of %name of {_p}%: %{_moneyText}%" to console
+        send "[EddyWEB] Could not get money of %name of {_p}%." to console
         stop
 
+    send "[EddyWEB] Syncing %name of {_p}% | Money: %{_money}%" to console
+
+    # IMPORTANT: body is a normal JSON string, not "json from ..."
     set {_json} to "{""username"":""%name of {_p}%"",""uuid"":""%uuid of {_p}%"",""money"":%{_money}%}"
+
     set {_request} to prepare POST request on "{@eddyweb_url}"
     set {_request}'s headers to json from "{'Content-Type':'application/json','Authorization':'Bearer {@eddyweb_token}'}"
     set {_request}'s body to {_json}
@@ -50,7 +54,7 @@ command /eddywebstatus:
     permission: eddyweb.sync
     trigger:
         send "&7URL: &f{@eddyweb_url}" to player
-        send "&7Economy: &f%player's balance%" to player
+        send "&7Economy: &f%player's money%" to player
         send "&7UUID: &f%uuid of player%" to player
         if "{@eddyweb_token}" is "CHANGE_ME":
             send "&cToken לא הוגדר." to player
