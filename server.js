@@ -3,7 +3,43 @@ const fs = require('fs');
 const path = require('path');
 const app = express();
 
-app.use(express.json());
+// Accept normal JSON and also the JSON-string body produced by some Minecraft/SkJson clients.
+// Parsing is done here so a doubly-encoded payload does not get rejected by express.json().
+app.use(express.text({ type: ['application/json', 'text/plain'] }));
+app.use((req, res, next) => {
+    if (typeof req.body !== 'string') return next();
+
+    const raw = req.body.trim();
+    if (!raw) {
+        req.body = {};
+        return next();
+    }
+
+    try {
+        let parsed = JSON.parse(raw);
+        // Handle a second JSON encoding layer if the client sent a JSON string.
+        if (typeof parsed === 'string') {
+            try { parsed = JSON.parse(parsed); } catch (_) {}
+        }
+        req.body = parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (error) {
+        // Some SkJson versions can add one extra quote layer without valid JSON escaping.
+        // Recover the inner object when the payload contains a JSON object.
+        const start = raw.indexOf('{');
+        const end = raw.lastIndexOf('}');
+        if (start >= 0 && end > start) {
+            try {
+                req.body = JSON.parse(raw.slice(start, end + 1).replace(/\\\\\"/g, '\\"'));
+            } catch (_) {
+                return res.status(400).json({ success: false, message: 'JSON לא תקין' });
+            }
+        } else {
+            return res.status(400).json({ success: false, message: 'JSON לא תקין' });
+        }
+    }
+
+    next();
+});
 app.use(express.static(__dirname));
 
 app.post('/api/login', (req, res) => {
