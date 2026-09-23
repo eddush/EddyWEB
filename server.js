@@ -416,6 +416,25 @@ app.get('/api/player-profile', async (req, res) => {
             console.warn('Player sync table read skipped:', syncReadError?.message || syncReadError);
         }
 
+        // Money is stored by the Minecraft Skript as a LuckPerms user meta value:
+        // meta key: eddy_money
+        // This keeps EddyWEB independent from the old player-sync money field.
+        if (!money) {
+            try {
+                const moneyRows = await conn.execute(
+                    'SELECT meta_value AS balance FROM ' + prefix + 'user_meta WHERE uuid = ? AND meta_key = ? ORDER BY id DESC LIMIT 1',
+                    [uuid, 'eddy_money']
+                );
+                const lpMoney = Array.isArray(moneyRows) && moneyRows.length ? moneyRows[0] : null;
+                if (lpMoney && lpMoney.balance !== null && lpMoney.balance !== undefined) {
+                    money = lpMoney;
+                }
+            } catch (lpMoneyError) {
+                console.warn('LuckPerms money meta read skipped:', lpMoneyError?.message || lpMoneyError);
+            }
+        }
+
+        // Optional fallback for other economy databases.
         if (!money && process.env.PLAYER_MONEY_QUERY) {
             const by = String(process.env.PLAYER_MONEY_LOOKUP || 'username').toLowerCase();
             money = await runOptionalPlayerQuery(process.env.PLAYER_MONEY_QUERY, by === 'uuid' ? uuid : playerName);
