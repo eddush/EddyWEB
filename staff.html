@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071014"><title>EddyWEB | Staff</title><link rel="stylesheet" href="style.css"></head>
+<body><div class="grid"></div>
+<main class="info-page">
+<a class="info-back" href="index.html">← Back to EddyWEB</a>
+<section class="info-hero"><div class="badge" id="staff-badge">SERVER STAFF</div><h1 id="staff-title">Our Staff</h1><p id="staff-intro">Meet the people who help manage and support the EddyWEB Minecraft community.</p><div class="page-lang"><button class="btn" id="staff-lang">עברית</button></div></section>
+<section class="info-card"><h2 id="staff-heading">Staff Team</h2><div id="staff-list" class="staff-list"><div class="staff-empty" id="staff-loading">Loading staff...</div></div></section>
+</main>
+<script>
+const API='https://eddy-bot-lyvo.onrender.com/api/discord';let lang=localStorage.getItem('eddy-language')||'en';
+const tr={en:{back:'← Back to EddyWEB',badge:'SERVER STAFF',title:'Our Staff',intro:'Meet the people who help manage and support the EddyWEB Minecraft community.',heading:'Staff Team',loading:'Loading staff...',failed:'Unable to load staff information.',roles:{team:'Team',developers:'Developers',helpers:'Helpers',moderators:'Moderators'},switch:'עברית'},
+he:{back:'→ חזרה ל-EddyWEB',badge:'צוות השרת',title:'צוות השרת',intro:'הכירו את האנשים שעוזרים לנהל ולתמוך בקהילת EddyWEB.',heading:'צוות',loading:'טוען את הצוות...',failed:'לא ניתן לטעון את מידע הצוות.',roles:{team:'צוות',developers:'מתכנתים',helpers:'הלפרים',moderators:'מודרטורים'},switch:'English'}};
+function apply(){const x=tr[lang];document.documentElement.lang=lang;document.documentElement.dir=lang==='he'?'rtl':'ltr';document.querySelector('.info-back').textContent=x.back;document.getElementById('staff-badge').textContent=x.badge;document.getElementById('staff-title').textContent=x.title;document.getElementById('staff-intro').textContent=x.intro;document.getElementById('staff-heading').textContent=x.heading;document.getElementById('staff-lang').textContent=x.switch;load();}
+async function load(){const el=document.getElementById('staff-list'),x=tr[lang];el.innerHTML='<div class="staff-empty">'+x.loading+'</div>';try{const r=await fetch(API,{cache:'no-store'}),d=await r.json();if(!d.ok)throw 0;const roles=d.staff?.roles||{};const out=[];Object.keys(x.roles).forEach(k=>{const a=roles[k];if(a&&a.members&&Array.isArray(a.members)){a.members.forEach(m=>out.push('<div class="staff-member"><div><strong>'+String(m.username||m.name||m.tag||m).replace(/[<>&"]/g,'')+'</strong></div><span class="staff-role">'+x.roles[k]+'</span></div>'));}});el.innerHTML=out.length?out.join(''):'<div class="staff-empty">'+x.failed+'</div>';}catch(e){el.innerHTML='<div class="staff-empty">'+x.failed+'</div>';}}
+document.getElementById('staff-lang').onclick=()=>{lang=lang==='en'?'he':'en';localStorage.setItem('eddy-language',lang);apply()};apply();
+</script><script src="animations.js"></script></body></html>
