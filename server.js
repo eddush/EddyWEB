@@ -401,18 +401,36 @@ app.get('/api/player-profile', async (req, res) => {
         let discord = null;
 
         // Read the live balance directly from LuckPerms first.
-        // The Minecraft Skript stores the economy value as the user meta key "eddy_money".
-        // Do not use ORDER BY id here: some LuckPerms schema versions do not expose
-        // an "id" column on the meta table, and that would make the whole lookup fail.
+        // LuckPerms stores normal user meta nodes in the user_permissions table.
+        // A meta node such as "eddy_money = $6,429,884.93" is serialized as:
+        //   meta.eddy_money.$6,429,884\\.93
+        // (the dot in the value is escaped because "." separates node parts).
         try {
             const moneyRows = await conn.execute(
-                'SELECT meta_value AS balance FROM ' + prefix + 'user_meta WHERE uuid = ? AND meta_key = ? LIMIT 1',
-                [uuid, 'eddy_money']
+                'SELECT permission FROM ' + prefix + 'user_permissions ' +
+                'WHERE uuid = ? AND value = 1 AND LOWER(permission) LIKE ? ' +
+                'ORDER BY id DESC LIMIT 1',
+                [uuid, 'meta.eddy_money.%']
             );
             const lpMoney = Array.isArray(moneyRows) && moneyRows.length ? moneyRows[0] : null;
 
-            if (lpMoney && lpMoney.balance !== null && lpMoney.balance !== undefined) {
-                money = String(lpMoney.balance).trim();
+            if (lpMoney?.permission) {
+                const marker = 'meta.eddy_money.';
+                const rawPermission = String(lpMoney.permission);
+                const markerIndex = rawPermission.toLowerCase().indexOf(marker);
+
+                if (markerIndex === 0) {
+                    // LuckPerms escapes node separators in meta values with a backslash.
+                    const rawValue = rawPermission.slice(marker.length);
+                    const decodedValue = rawValue
+                        .replace(/\\\\([.])/g, '$1')
+                        .replace(/\\\\([/\\$-])/g, '$1')
+                        .trim();
+
+                    if (decodedValue) {
+                        money = decodedValue;
+                    }
+                }
             }
         } catch (lpMoneyError) {
             console.warn('LuckPerms money meta read skipped:', lpMoneyError?.message || lpMoneyError);
