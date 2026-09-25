@@ -406,30 +406,43 @@ app.get('/api/player-profile', async (req, res) => {
         //   meta.eddy_money.$6,429,884\\.93
         // (the dot in the value is escaped because "." separates node parts).
         try {
-            const moneyRows = await conn.execute(
+            // Read ALL direct meta nodes for this UUID from the same table used by
+            // the working rank lookup, then find the eddy_money node in JavaScript.
+            // This avoids relying on SQL LIKE semantics for the underscore in eddy_money.
+            const metaRows = await conn.execute(
                 'SELECT permission FROM ' + prefix + 'user_permissions ' +
                 'WHERE uuid = ? AND value = 1 AND LOWER(permission) LIKE ? ' +
-                'ORDER BY id DESC LIMIT 1',
-                [uuid, 'meta.eddy_money.%']
+                'ORDER BY id DESC',
+                [uuid, 'meta.%']
             );
-            const lpMoney = Array.isArray(moneyRows) && moneyRows.length ? moneyRows[0] : null;
 
-            if (lpMoney?.permission) {
-                const marker = 'meta.eddy_money.';
-                const rawPermission = String(lpMoney.permission);
-                const markerIndex = rawPermission.toLowerCase().indexOf(marker);
+            const candidates = (Array.isArray(metaRows) ? metaRows : [])
+                .map(row => String(row.permission || ''))
+                .filter(permission => permission.toLowerCase().startsWith('meta.'));
 
-                if (markerIndex === 0) {
-                    // LuckPerms escapes node separators in meta values with a backslash.
-                    const rawValue = rawPermission.slice(marker.length);
-                    const decodedValue = rawValue
-                        .replace(/\\\\([.])/g, '$1')
-                        .replace(/\\\\([/\\$-])/g, '$1')
-                        .trim();
+            const moneyNode = candidates.find(permission => {
+                const rest = permission.slice(5);
+                const separator = rest.indexOf('.');
+                if (separator < 1) return false;
+                const metaKey = rest.slice(0, separator);
+                return metaKey.toLowerCase() === 'eddy_money';
+            });
 
-                    if (decodedValue) {
-                        money = decodedValue;
-                    }
+            console.log('Player money meta lookup', {
+                username: playerName,
+                metaNodeCount: candidates.length,
+                moneyNodeFound: Boolean(moneyNode)
+            });
+
+            if (moneyNode) {
+                const rawValue = moneyNode.slice('meta.eddy_money.'.length);
+                const decodedValue = rawValue
+                    .replace(/\\([.])/g, '$1')
+                    .replace(/\\([/\\$-])/g, '$1')
+                    .trim();
+
+                if (decodedValue) {
+                    money = decodedValue;
                 }
             }
         } catch (lpMoneyError) {
