@@ -488,6 +488,12 @@ app.get('/api/player-profile', async (req, res) => {
             discord = await runOptionalPlayerQuery(process.env.PLAYER_DISCORD_QUERY, by === 'username' ? playerName : uuid);
         }
 
+        const normalizedMoney = money !== null && money !== undefined
+            ? (typeof money === 'object'
+                ? (money.balance ?? money.money ?? money.amount ?? money.coins ?? null)
+                : money)
+            : null;
+
         return res.json({
             success: true,
             player: {
@@ -495,7 +501,7 @@ app.get('/api/player-profile', async (req, res) => {
                 uuid,
                 rank: group,
                 rank_label: getRankLabel(group),
-                money: money ? (money.balance ?? money.money ?? money.amount ?? money.coins ?? null) : null,
+                money: normalizedMoney,
                 discord: discord ? {
                     id: discord.discord_id ?? discord.id ?? null,
                     username: discord.discord_username ?? discord.username ?? null,
