@@ -400,6 +400,25 @@ app.get('/api/player-profile', async (req, res) => {
         let money = null;
         let discord = null;
 
+        // Read the live balance directly from LuckPerms first.
+        // The Minecraft Skript stores the economy value as the user meta key "eddy_money".
+        // Do not use ORDER BY id here: some LuckPerms schema versions do not expose
+        // an "id" column on the meta table, and that would make the whole lookup fail.
+        try {
+            const moneyRows = await conn.execute(
+                'SELECT meta_value AS balance FROM ' + prefix + 'user_meta WHERE uuid = ? AND meta_key = ? LIMIT 1',
+                [uuid, 'eddy_money']
+            );
+            const lpMoney = Array.isArray(moneyRows) && moneyRows.length ? moneyRows[0] : null;
+
+            if (lpMoney && lpMoney.balance !== null && lpMoney.balance !== undefined) {
+                money = String(lpMoney.balance).trim();
+            }
+        } catch (lpMoneyError) {
+            console.warn('LuckPerms money meta read skipped:', lpMoneyError?.message || lpMoneyError);
+        }
+
+        // Keep the synced player profile as a fallback for older data.
         try {
             await ensurePlayerSyncTable(conn);
             const profileRows = await conn.execute(
@@ -409,35 +428,28 @@ app.get('/api/player-profile', async (req, res) => {
             const synced = Array.isArray(profileRows) && profileRows.length ? profileRows[0] : null;
 
             if (synced) {
-                money = synced.money != null ? synced : null;
-                discord = synced.discord_id ? synced : null;
+                if (money === null && synced.money != null) {
+                    money = synced.money;
+                }
+                if (synced.discord_id) {
+                    discord = synced;
+                }
             }
         } catch (syncReadError) {
             console.warn('Player sync table read skipped:', syncReadError?.message || syncReadError);
         }
 
-        // Money is stored by the Minecraft Skript as a LuckPerms user meta value:
-        // meta key: eddy_money
-        // This keeps EddyWEB independent from the old player-sync money field.
-        if (!money) {
-            try {
-                const moneyRows = await conn.execute(
-                    'SELECT meta_value AS balance FROM ' + prefix + 'user_meta WHERE uuid = ? AND meta_key = ? ORDER BY id DESC LIMIT 1',
-                    [uuid, 'eddy_money']
-                );
-                const lpMoney = Array.isArray(moneyRows) && moneyRows.length ? moneyRows[0] : null;
-                if (lpMoney && lpMoney.balance !== null && lpMoney.balance !== undefined) {
-                    money = lpMoney;
-                }
-            } catch (lpMoneyError) {
-                console.warn('LuckPerms money meta read skipped:', lpMoneyError?.message || lpMoneyError);
-            }
-        }
-
         // Optional fallback for other economy databases.
-        if (!money && process.env.PLAYER_MONEY_QUERY) {
+        if (money === null && process.env.PLAYER_MONEY_QUERY) {
             const by = String(process.env.PLAYER_MONEY_LOOKUP || 'username').toLowerCase();
-            money = await runOptionalPlayerQuery(process.env.PLAYER_MONEY_QUERY, by === 'uuid' ? uuid : playerName);
+            const optionalMoney = await runOptionalPlayerQuery(
+                process.env.PLAYER_MONEY_QUERY,
+                by === 'uuid' ? uuid : playerName
+            );
+
+            if (optionalMoney) {
+                money = optionalMoney.balance ?? optionalMoney.money ?? optionalMoney.amount ?? optionalMoney.coins ?? null;
+            }
         }
 
         if (!discord && process.env.PLAYER_DISCORD_QUERY) {
