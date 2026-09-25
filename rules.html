@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071014"><title>EddyWEB | Rules</title><link rel="stylesheet" href="style.css"></head>
+<body><div class="grid"></div>
+<main class="info-page">
+<a class="info-back" href="index.html">← Back to EddyWEB</a>
+<section class="info-hero"><div class="badge" id="rules-badge">SERVER RULES</div><h1 id="rules-title">Server Rules</h1><p id="rules-intro">Please follow these rules to keep EddyWEB friendly, fair and enjoyable for everyone.</p><div class="page-lang"><button class="btn" id="rules-lang">עברית</button></div></section>
+<section class="info-card"><div id="rules-list" class="rules-list"></div></section>
+</main>
+<script>
+let lang=localStorage.getItem('eddy-language')||'en';
+const data={en:{back:'← Back to EddyWEB',badge:'SERVER RULES',title:'Server Rules',intro:'Please follow these rules to keep EddyWEB friendly, fair and enjoyable for everyone.',switch:'עברית',rules:[
+['Be respectful','Treat players and staff respectfully. Harassment, bullying and personal attacks are not allowed.'],
+['No cheating','Do not use cheats, hacks, exploits or unfair client modifications.'],
+['No griefing','Do not intentionally destroy, steal from or sabotage other players or their builds.'],
+['No spam','Avoid chat spam, flooding, excessive caps and repeated messages.'],
+['No advertising','Do not advertise other servers, services or communities without staff permission.'],
+['No inappropriate content','Keep usernames, builds, skins, messages and links appropriate for the community.'],
+['Respect staff','Follow reasonable staff instructions and use Discord or the appropriate support channel for disputes.'],
+['Use common sense','Staff may take action when behavior clearly harms the server or other players, even if a specific situation is not listed here.']
+]},he:{back:'→ חזרה ל-EddyWEB',badge:'חוקי השרת',title:'חוקי השרת',intro:'יש לפעול לפי החוקים כדי לשמור על EddyWEB קהילה נעימה, הוגנת ומהנה לכולם.',switch:'English',rules:[
+['כבוד הדדי','יש לכבד שחקנים ואנשי צוות. הטרדות, בריונות והתקפות אישיות אסורות.'],
+['ללא צ׳יטים','אין להשתמש בצ׳יטים, האקים, ניצולים או שינויים שנותנים יתרון לא הוגן.'],
+['ללא גריפינג','אין להרוס, לגנוב או לפגוע בכוונה בבנייה וברכוש של שחקנים אחרים.'],
+['ללא ספאם','אין להציף את הצ׳אט, לשלוח הודעות חוזרות או להשתמש בספאם מוגזם.'],
+['ללא פרסום','אין לפרסם שרתים, שירותים או קהילות אחרות ללא אישור הצוות.'],
+['תוכן הולם','יש לשמור על שמות, בניות, סקינים, הודעות וקישורים מתאימים לקהילה.'],
+['כבדו את הצוות','יש להקשיב להנחיות סבירות של הצוות ולהשתמש ב-Discord או בערוץ התמיכה המתאים במקרה של מחלוקת.'],
+['היגיון בריא','הצוות רשאי לטפל בהתנהגות שפוגעת בבירור בשרת או בשחקנים, גם אם המקרה הספציפי אינו מופיע ברשימה.']
+]}};
+function apply(){const x=data[lang];document.documentElement.lang=lang;document.documentElement.dir=lang==='he'?'rtl':'ltr';document.querySelector('.info-back').textContent=x.back;document.getElementById('rules-badge').textContent=x.badge;document.getElementById('rules-title').textContent=x.title;document.getElementById('rules-intro').textContent=x.intro;document.getElementById('rules-lang').textContent=x.switch;document.getElementById('rules-list').innerHTML=x.rules.map((r,i)=>'<article class="rule-item"><span class="rule-number">'+(i+1)+'</span><div><h3>'+r[0]+'</h3><p>'+r[1]+'</p></div></article>').join('');}
+document.getElementById('rules-lang').onclick=()=>{lang=lang==='en'?'he':'en';localStorage.setItem('eddy-language',lang);apply()};apply();
+</script><script src="animations.js"></script></body></html>
