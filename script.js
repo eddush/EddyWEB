@@ -3,7 +3,7 @@ const DISCORD_API = 'https://eddy-bot-lyvo.onrender.com/api/discord';
 
 const translations = {
   en: {
-    navServer: 'Server', navDiscord: 'Discord', navContact: 'Contact', navNews: 'News', lang: 'עברית',
+    navServer: 'Server', navDiscord: 'Discord', navContact: 'Contact', navNews: 'News', navPlayer: 'Player Info', lang: 'עברית',
     badge: 'MINECRAFT COMMUNITY', heroTitle: 'Welcome to <span>EddyWEB</span>',
     heroText: 'The home of our Minecraft community. Join, play, and become part of the community.',
     copy: 'Copy IP', copied: '✓ IP copied!', join: 'Join Server', statusTitle: 'Server Status',
@@ -20,7 +20,7 @@ const translations = {
     available: (o, t) => `${o} / ${t} available`, staffFail: 'Unable to check staff availability'
   },
   he: {
-    navServer: 'השרת', navDiscord: 'Discord', navContact: 'צור קשר', navNews: 'חדשות', lang: 'English',
+    navServer: 'השרת', navDiscord: 'Discord', navContact: 'צור קשר', navNews: 'חדשות', navPlayer: 'מידע על השחקן', lang: 'English',
     badge: 'קהילת MINECRAFT', heroTitle: 'ברוכים הבאים ל־<span>EddyWEB</span>',
     heroText: 'הבית של קהילת Minecraft שלנו. היכנסו, שחקו והצטרפו לקהילה.',
     copy: 'העתק IP', copied: '✓ ה־IP הועתק!', join: 'כניסה לשרת', statusTitle: 'סטטוס השרת',
@@ -89,7 +89,7 @@ function renderNews() {
 
 function applyLanguage() {
   const x = t(); document.documentElement.lang = language; document.documentElement.dir = language === 'he' ? 'rtl' : 'ltr';
-  const nav = document.querySelectorAll('nav a'); nav[0].textContent = x.navServer; nav[2].textContent = x.navContact; nav[3].textContent = x.navNews;
+  const nav = document.querySelectorAll('nav a'); nav[0].textContent = x.navServer; nav[2].textContent = x.navContact; nav[3].textContent = x.navNews; nav[4].textContent = x.navPlayer;
   document.getElementById('lang-toggle').textContent = x.lang;
   document.querySelector('.badge').lastChild.textContent = x.badge;
   document.querySelector('.hero h1').innerHTML = x.heroTitle; document.querySelector('.hero p').textContent = x.heroText;
