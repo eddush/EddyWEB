@@ -151,10 +151,26 @@
 
     function formatMoney(value) {
       if (value === null || value === undefined || value === '') return t().moneyUnavailable;
-      const number = Number(value);
-      return Number.isFinite(number)
-        ? number.toLocaleString(language === 'he' ? 'he-IL' : 'en-US')
-        : String(value);
+
+      const number = Number(String(value).replace(/[$,]/g, '').trim());
+      if (!Number.isFinite(number)) return String(value);
+
+      const abs = Math.abs(number);
+      const units = [
+        { value: 1e12, suffix: 'T' },
+        { value: 1e9, suffix: 'B' },
+        { value: 1e6, suffix: 'M' },
+        { value: 1e3, suffix: 'K' }
+      ];
+
+      const unit = units.find(u => abs >= u.value);
+      if (!unit) return number.toLocaleString(language === 'he' ? 'he-IL' : 'en-US');
+
+      const shortValue = number / unit.value;
+      const rounded = Math.round(shortValue * 100) / 100;
+      return rounded.toLocaleString(language === 'he' ? 'he-IL' : 'en-US', {
+        maximumFractionDigits: 2
+      }) + unit.suffix;
     }
 
     function loadProfile(data) {
