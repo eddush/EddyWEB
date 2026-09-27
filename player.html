@@ -98,8 +98,16 @@
         discordDisconnected: 'Not connected',
         discordConnected: 'Connected account',
         luckperms: 'LuckPerms',
-        playtime: 'זמן משחק',
-        playtimeUnavailable: 'לא זמין',
+        playtime: 'Playtime',
+        playtimeUnavailable: 'Unavailable',
+        playtimeDay: 'day',
+        playtimeDays: 'days',
+        playtimeHour: 'hour',
+        playtimeHours: 'hours',
+        playtimeMinute: 'minute',
+        playtimeMinutes: 'minutes',
+        playtimeSecond: 'second',
+        playtimeSeconds: 'seconds',
         defaultGroup: 'default',
         minecraftPlayer: 'MINECRAFT PLAYER'
       },
@@ -124,6 +132,14 @@
         luckperms: 'LuckPerms',
         playtime: 'זמן משחק',
         playtimeUnavailable: 'לא זמין',
+        playtimeDay: 'יום',
+        playtimeDays: 'ימים',
+        playtimeHour: 'שעה',
+        playtimeHours: 'שעות',
+        playtimeMinute: 'דקה',
+        playtimeMinutes: 'דקות',
+        playtimeSecond: 'שנייה',
+        playtimeSeconds: 'שניות',
         defaultGroup: 'default',
         minecraftPlayer: 'שחקן MINECRAFT'
       }
@@ -215,12 +231,15 @@
       const wholeMinutes = Math.floor(minutes);
       const wholeSeconds = Math.floor(seconds);
 
+      const x = t();
+      const plural = (n, singular, pluralForm) => n === 1 ? singular : pluralForm;
       const parts = [];
-      if (totalHours > 0) parts.push(totalHours + 'h');
-      if (wholeMinutes > 0 || totalHours > 0) parts.push(wholeMinutes + 'm');
-      if (wholeSeconds > 0 || parts.length > 0) parts.push(wholeSeconds + 's');
 
-      return parts.length ? parts.join(' ') : '0s';
+      if (totalHours > 0) parts.push(totalHours + ' ' + plural(totalHours, x.playtimeHour, x.playtimeHours));
+      if (wholeMinutes > 0 || totalHours > 0) parts.push(wholeMinutes + ' ' + plural(wholeMinutes, x.playtimeMinute, x.playtimeMinutes));
+      if (wholeSeconds > 0 || parts.length > 0) parts.push(wholeSeconds + ' ' + plural(wholeSeconds, x.playtimeSecond, x.playtimeSeconds));
+
+      return parts.length ? parts.join(' ') : (language === 'he' ? '0 שניות' : '0 seconds');
     }
 
     function loadProfile(data) {
