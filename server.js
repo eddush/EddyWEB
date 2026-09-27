@@ -398,6 +398,7 @@ app.get('/api/player-profile', async (req, res) => {
         }
 
         let money = null;
+        let playtime = null;
         let discord = null;
 
         // Read the live balance directly from LuckPerms first.
@@ -443,6 +444,31 @@ app.get('/api/player-profile', async (req, res) => {
 
                 if (decodedValue) {
                     money = decodedValue;
+                }
+            }
+
+            const playtimeNode = candidates.find(permission => {
+                const rest = permission.slice(5);
+                const separator = rest.indexOf('.');
+                if (separator < 1) return false;
+                const metaKey = rest.slice(0, separator);
+                return metaKey.toLowerCase() === 'eddy_playtime';
+            });
+
+            console.log('Player playtime meta lookup', {
+                username: playerName,
+                playtimeNodeFound: Boolean(playtimeNode)
+            });
+
+            if (playtimeNode) {
+                const rawValue = playtimeNode.slice('meta.eddy_playtime.'.length);
+                const decodedValue = rawValue
+                    .replace(/\\([.])/g, '$1')
+                    .replace(/\\([/\\$-])/g, '$1')
+                    .trim();
+
+                if (decodedValue) {
+                    playtime = decodedValue;
                 }
             }
         } catch (lpMoneyError) {
@@ -502,6 +528,7 @@ app.get('/api/player-profile', async (req, res) => {
                 rank: group,
                 rank_label: getRankLabel(group),
                 money: normalizedMoney,
+                playtime: playtime,
                 discord: discord ? {
                     id: discord.discord_id ?? discord.id ?? null,
                     username: discord.discord_username ?? discord.username ?? null,
