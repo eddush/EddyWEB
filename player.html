@@ -59,15 +59,10 @@
 
         <article class="player-info-card">
           <div class="icon">⏱️</div>
-          <span>זמן משחק</span>
+          <span id="profile-playtime-label">זמן משחק</span>
           <strong id="profile-playtime">לא זמין</strong>
         </article>
 
-        <article class="player-info-card">
-          <div class="icon">🏷️</div>
-          <span>LuckPerms</span>
-          <strong id="profile-group">-</strong>
-        </article>
       </div>
     </section>
   </main>
@@ -151,8 +146,7 @@
       document.querySelector('.player-rank-pill span').textContent = x.rank;
       document.querySelector('.player-info-card:nth-child(1) span').textContent = x.money;
       document.querySelector('.player-info-card:nth-child(2) span').textContent = x.discord;
-      document.querySelector('.player-info-card:nth-child(3) span').textContent = x.luckperms;
-      document.querySelector('.player-info-card:nth-child(4) span').textContent = x.playtime;
+      document.getElementById('profile-playtime-label').textContent = x.playtime;
     }
 
     function setStatus(message, kind) {
@@ -209,7 +203,9 @@
 
       document.getElementById('profile-money').textContent = formatMoney(player.money);
       document.getElementById('profile-playtime').textContent =
-        player.playtime ? String(player.playtime) : t().playtimeUnavailable;
+        player.playtime !== null && player.playtime !== undefined && String(player.playtime).trim() !== ''
+          ? String(player.playtime)
+          : t().playtimeUnavailable;
 
       const discord = player.discord;
       document.getElementById('profile-discord').textContent =
