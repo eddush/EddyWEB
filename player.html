@@ -184,6 +184,45 @@
       }) + unit.suffix;
     }
 
+    function formatPlaytime(value) {
+      if (value === null || value === undefined || String(value).trim() === '') {
+        return t().playtimeUnavailable;
+      }
+
+      const text = String(value).trim();
+
+      // Parse: "3 days and 2 hours and 25 minutes and 57.35 seconds"
+      const dayMatch = text.match(/([\\d.]+)\\s*days?/i);
+      const hourMatch = text.match(/([\\d.]+)\\s*hours?/i);
+      const minuteMatch = text.match(/([\\d.]+)\\s*minutes?/i);
+      const secondMatch = text.match(/([\\d.]+)\\s*seconds?/i);
+
+      if (!dayMatch && !hourMatch && !minuteMatch && !secondMatch) {
+        return text;
+      }
+
+      const days = dayMatch ? Number(dayMatch[1]) : 0;
+      const hours = hourMatch ? Number(hourMatch[1]) : 0;
+      const minutes = minuteMatch ? Number(minuteMatch[1]) : 0;
+      const seconds = secondMatch ? Number(secondMatch[1]) : 0;
+
+      if (![days, hours, minutes, seconds].every(Number.isFinite)) {
+        return text;
+      }
+
+      // Convert days to hours and keep the display compact.
+      const totalHours = Math.floor(days * 24 + hours);
+      const wholeMinutes = Math.floor(minutes);
+      const wholeSeconds = Math.floor(seconds);
+
+      const parts = [];
+      if (totalHours > 0) parts.push(totalHours + 'h');
+      if (wholeMinutes > 0 || totalHours > 0) parts.push(wholeMinutes + 'm');
+      if (wholeSeconds > 0 || parts.length > 0) parts.push(wholeSeconds + 's');
+
+      return parts.length ? parts.join(' ') : '0s';
+    }
+
     function loadProfile(data) {
       const player = data.player;
       const group = String(player.rank || '').trim();
@@ -208,8 +247,7 @@
       }
 
       document.getElementById('profile-money').textContent = formatMoney(player.money);
-      document.getElementById('profile-playtime').textContent =
-        player.playtime ? String(player.playtime) : t().playtimeUnavailable;
+      document.getElementById('profile-playtime').textContent = formatPlaytime(player.playtime);
 
       const discord = player.discord;
       document.getElementById('profile-discord').textContent =
