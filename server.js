@@ -449,10 +449,8 @@ app.get('/api/player-profile', async (req, res) => {
 
             const playtimeNode = candidates.find(permission => {
                 const rest = permission.slice(5);
-                const separator = rest.indexOf('.');
-                if (separator < 1) return false;
-                const metaKey = rest.slice(0, separator);
-                return metaKey.toLowerCase() === 'eddy_playtime';
+                const normalized = rest.replace(/\\\\/g, '\\');
+                return /^eddy_playtime(?:\\.|\.)/i.test(normalized);
             });
 
             console.log('Player playtime meta lookup', {
@@ -461,7 +459,9 @@ app.get('/api/player-profile', async (req, res) => {
             });
 
             if (playtimeNode) {
-                const rawValue = playtimeNode.slice('meta.eddy_playtime.'.length);
+                const rawValue = playtimeNode
+                    .replace(/^meta\.eddy_playtime\./i, '')
+                    .replace(/^meta\.eddy_playtime\\./i, '');
                 const decodedValue = rawValue
                     .replace(/\\([.])/g, '$1')
                     .replace(/\\([/\\$-])/g, '$1')
