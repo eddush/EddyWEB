@@ -192,10 +192,10 @@
       const text = String(value).trim();
 
       // Parse: "3 days and 2 hours and 25 minutes and 57.35 seconds"
-      const dayMatch = text.match(/([\\d.]+)\\s*days?/i);
-      const hourMatch = text.match(/([\\d.]+)\\s*hours?/i);
-      const minuteMatch = text.match(/([\\d.]+)\\s*minutes?/i);
-      const secondMatch = text.match(/([\\d.]+)\\s*seconds?/i);
+      const dayMatch = text.match(/([\d.]+)\s*days?/i);
+      const hourMatch = text.match(/([\d.]+)\s*hours?/i);
+      const minuteMatch = text.match(/([\d.]+)\s*minutes?/i);
+      const secondMatch = text.match(/([\d.]+)\s*seconds?/i);
 
       if (!dayMatch && !hourMatch && !minuteMatch && !secondMatch) {
         return text;
