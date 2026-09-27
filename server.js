@@ -398,6 +398,7 @@ app.get('/api/player-profile', async (req, res) => {
         }
 
         let money = null;
+        let playtime = null;
         let discord = null;
 
         // Read the live balance directly from LuckPerms first.
@@ -445,6 +446,49 @@ app.get('/api/player-profile', async (req, res) => {
                     money = decodedValue;
                 }
             }
+
+            // LuckPerms playtime is stored in TiDB in the same user_permissions
+            // table, as a meta node beginning with "meta.eddy_playtime".
+            // Example:
+            // meta.eddy_playtime.3 days and 2 hours and 2 minutes and 20.4 seconds
+            const playtimeRows = await conn.execute(
+                'SELECT permission, value FROM ' + prefix + 'user_permissions ' +
+                'WHERE uuid = ? AND LOWER(permission) LIKE ? ' +
+                'ORDER BY id DESC',
+                [uuid, 'meta.eddy_playtime%']
+            );
+
+            const playtimeNode = Array.isArray(playtimeRows) && playtimeRows.length
+                ? playtimeRows[0]
+                : null;
+
+            if (playtimeNode) {
+                const permission = String(playtimeNode.permission || '');
+                const match = permission.match(/^meta\.eddy_playtime(?:\.|\\\.)(.+)$/i);
+
+                if (match && match[1]) {
+                    playtime = match[1]
+                        .replace(/\\([.])/g, '$1')
+                        .replace(/\\([/\\$-])/g, '$1')
+                        .trim();
+                }
+
+                // Also support a schema where the metadata value itself is
+                // stored in the value column instead of the permission suffix.
+                if (!playtime && playtimeNode.value !== undefined && playtimeNode.value !== null) {
+                    const value = String(playtimeNode.value).trim();
+                    if (value && value.toLowerCase() !== 'true' && value.toLowerCase() !== 'false') {
+                        playtime = value;
+                    }
+                }
+            }
+
+            console.log('Player playtime TiDB lookup', {
+                username: playerName,
+                uuid,
+                playtimeNodeFound: Boolean(playtimeNode),
+                playtime
+            });
         } catch (lpMoneyError) {
             console.warn('LuckPerms money meta read skipped:', lpMoneyError?.message || lpMoneyError);
         }
@@ -502,6 +546,7 @@ app.get('/api/player-profile', async (req, res) => {
                 rank: group,
                 rank_label: getRankLabel(group),
                 money: normalizedMoney,
+                playtime: playtime,
                 discord: discord ? {
                     id: discord.discord_id ?? discord.id ?? null,
                     username: discord.discord_username ?? discord.username ?? null,
