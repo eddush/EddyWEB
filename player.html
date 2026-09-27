@@ -58,6 +58,12 @@
         </article>
 
         <article class="player-info-card">
+          <div class="icon">⏱️</div>
+          <span>זמן משחק</span>
+          <strong id="profile-playtime">לא זמין</strong>
+        </article>
+
+        <article class="player-info-card">
           <div class="icon">🏷️</div>
           <span>LuckPerms</span>
           <strong id="profile-group">-</strong>
@@ -92,6 +98,8 @@
         discordDisconnected: 'Not connected',
         discordConnected: 'Connected account',
         luckperms: 'LuckPerms',
+        playtime: 'Play Time',
+        playtimeUnavailable: 'Unavailable',
         defaultGroup: 'default',
         minecraftPlayer: 'MINECRAFT PLAYER'
       },
@@ -114,6 +122,8 @@
         discordDisconnected: 'לא מחובר',
         discordConnected: 'חשבון מחובר',
         luckperms: 'LuckPerms',
+        playtime: 'זמן משחק',
+        playtimeUnavailable: 'לא זמין',
         defaultGroup: 'default',
         minecraftPlayer: 'שחקן MINECRAFT'
       }
@@ -142,6 +152,7 @@
       document.querySelector('.player-info-card:nth-child(1) span').textContent = x.money;
       document.querySelector('.player-info-card:nth-child(2) span').textContent = x.discord;
       document.querySelector('.player-info-card:nth-child(3) span').textContent = x.luckperms;
+      document.querySelector('.player-info-card:nth-child(4) span').textContent = x.playtime;
     }
 
     function setStatus(message, kind) {
@@ -197,6 +208,8 @@
       }
 
       document.getElementById('profile-money').textContent = formatMoney(player.money);
+      document.getElementById('profile-playtime').textContent =
+        player.playtime ? String(player.playtime) : t().playtimeUnavailable;
 
       const discord = player.discord;
       document.getElementById('profile-discord').textContent =
