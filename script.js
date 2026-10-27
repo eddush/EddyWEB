@@ -45,7 +45,7 @@ function t() { return translations[language] }
 
 async function loadNews() {
   try {
-    const r = await fetch('news.json');
+    const r = await fetch('/api/news', { cache: 'no-store' });
     newsData = await r.json();
     renderNews();
   } catch (e) {
@@ -121,7 +121,7 @@ function applyLanguage() {
 
 function toggleLanguage() { language = language === 'en' ? 'he' : 'en'; localStorage.setItem('eddy-language', language); applyLanguage(); status(); discordStats() }
 async function copyIP() { try { await navigator.clipboard.writeText(IP); document.getElementById('copied').textContent = t().copied; setTimeout(() => document.getElementById('copied').textContent = '', 1800) } catch (e) { } }
-async function status() { const s = document.getElementById('status'), p = document.getElementById('players'), x = t(); try { const r = await fetch('https://api.mcsrvstat.us/3/' + IP); const d = await r.json(); if (d.online) { s.textContent = 'Online'; s.style.color = '#4ffdc'; p.textContent = x.players(d.players?.online ?? 0, d.players?.max ?? 0) } else { s.textContent = 'Offline'; s.style.color = '#ff6b8a'; p.textContent = x.unavailable } } catch (e) { s.textContent = x.cannot; p.textContent = x.failed } }
+async function status() { const s = document.getElementById('status'), p = document.getElementById('players'), x = t(); try { const r = await fetch('https://api.mcsrvstat.us/3/' + IP); const d = await r.json(); if (d.online) { s.textContent = 'Online'; s.style.color = '#4ffdcc'; p.textContent = x.players(d.players?.online ?? 0, d.players?.max ?? 0) } else { s.textContent = 'Offline'; s.style.color = '#ff6b8a'; p.textContent = x.unavailable } } catch (e) { s.textContent = x.cannot; p.textContent = x.failed } }
 async function discordStats() { const p = document.getElementById('discord-members'), staff = document.getElementById('discord-staff'), x = t(); if (!p) return; try { const r = await fetch(DISCORD_API, { cache: 'no-store' }), d = await r.json(); if (!d.ok) throw new Error(); p.textContent = x.members(Number(d.members)); p.style.color = '#b965ff'; const labels = { team: x.team, developers: x.developers, helpers: x.helpers, moderators: x.moderators }; staff.innerHTML = '<div class="staff-title">' + x.staff + ' <strong>' + (d.staff?.totalAvailable ?? 0) + '</strong></div>' + Object.entries(labels).map(([key, label]) => { const a = d.staff?.roles?.[key] || { online: 0, total: 0 }; return '<div class="staff-row"><span>' + label + '</span><span><b>' + a.online + '</b> / ' + a.total + ' ' + (language === 'en' ? 'available' : 'זמינים') + '</span></div>' }).join('') } catch (e) { p.textContent = language === 'en' ? 'Unavailable' : 'לא זמין'; if (staff) staff.innerHTML = '<span>' + x.staffFail + '</span>' } }
 
 applyLanguage();
