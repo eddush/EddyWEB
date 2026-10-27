@@ -1,8 +1,42 @@
 {
-  "rewrites": [
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/api/index.js"
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "script.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "animations.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "news.json",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "^/$",
+      "dest": "/index.html"
+    },
+    {
+      "handle": "filesystem"
     }
   ]
 }
