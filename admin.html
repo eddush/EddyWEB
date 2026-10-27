@@ -224,7 +224,7 @@
         }
 
         async function loadNews() {
-            const res = await fetch('news.json');
+            const res = await fetch('/api/news', { cache: 'no-store' });
             newsItems = await res.json();
             render();
         }
@@ -404,12 +404,12 @@
             });
             const data = await res.json();
 
-            if (data.success) {
+            if (res.ok && data.success) {
                 status.style.color = '#5fffe4';
                 status.textContent = '✓ המאמרים נשמרו בהצלחה!';
             } else {
                 status.style.color = '#ff6b8a';
-                status.textContent = 'שגיאה בשמירה';
+                status.textContent = data.message || 'שגיאה בשמירה';
             }
         }
     </script>
