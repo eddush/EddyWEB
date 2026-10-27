@@ -24,6 +24,10 @@
     {
       "src": "news.json",
       "use": "@vercel/static"
+    },
+    {
+      "src": "*.jpg",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
