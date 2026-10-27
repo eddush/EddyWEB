@@ -14,8 +14,12 @@ body {
   margin: 0;
   width: 100%;
   min-width: 0;
-  background: linear-gradient(rgba(6, 11, 14, .64), rgba(6, 11, 14, .82)), url('/minecraft-background.jpg') center / cover fixed no-repeat;
   background-color: #060b0e;
+  background-image: linear-gradient(rgba(6, 11, 14, .12), rgba(6, 11, 14, .28)), url('/minecraft-background.jpg');
+  background-position: center center;
+  background-size: cover;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   color: #e9ffff;
   font-family: 'Rubik', Arial, sans-serif;
   overflow-x: hidden;
