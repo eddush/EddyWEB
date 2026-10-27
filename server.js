@@ -57,19 +57,88 @@ app.post('/api/login', (req, res) => {
     }
 });
 
-app.post('/api/save-news', (req, res) => {
-    const { password, news } = req.body;
+app.get('/api/news', async (req, res) => {
+    const conn = getTiDBConnection();
+
+    if (conn) {
+        try {
+            await ensureSiteContentTable(conn);
+            const rows = await conn.execute(
+                'SELECT content_json FROM site_content WHERE content_key = ? LIMIT 1',
+                ['news']
+            );
+
+            if (Array.isArray(rows) && rows.length) {
+                let news = rows[0].content_json;
+                if (typeof news === 'string') news = JSON.parse(news);
+                if (Array.isArray(news)) return res.json(news);
+            }
+        } catch (error) {
+            console.warn('Persistent news read skipped; using bundled defaults:', error?.message || error);
+        }
+    }
+
+    try {
+        return res.json(require('./news.json'));
+    } catch (_) {
+        return res.json([]);
+    }
+});
+
+app.post('/api/save-news', async (req, res) => {
+    const { password, news } = req.body || {};
     const adminPassword = process.env.ADMIN_PASSWORD;
 
-    if (password !== adminPassword) {
+    if (!adminPassword || password !== adminPassword) {
         return res.status(401).json({ success: false, message: 'אין הרשאה' });
+    }
+
+    if (!Array.isArray(news)) {
+        return res.status(400).json({ success: false, message: 'רשימת החדשות לא תקינה' });
+    }
+
+    const conn = getTiDBConnection();
+    if (conn) {
+        try {
+            await ensureSiteContentTable(conn);
+            await conn.execute(
+                `INSERT INTO site_content (content_key, content_json)
+                 VALUES (?, ?)
+                 ON DUPLICATE KEY UPDATE
+                    content_json = VALUES(content_json),
+                    updated_at = CURRENT_TIMESTAMP`,
+                ['news', JSON.stringify(news)]
+            );
+            return res.json({ success: true, persistent: true });
+        } catch (error) {
+            console.error('Persistent news save error:', error?.message || error);
+            const message = String(error?.message || '');
+            if (/usage quota|quota being exhausted|49900002/i.test(message) || error?.details?.code === 49900002) {
+                return res.status(503).json({
+                    success: false,
+                    code: 'DATABASE_QUOTA_EXCEEDED',
+                    message: 'מכסת השימוש של TiDB Cloud הסתיימה. יש להחזיר את מסד הנתונים לפעילות לפני שניתן לשמור חדשות.'
+                });
+            }
+            return res.status(503).json({
+                success: false,
+                message: 'מסד הנתונים אינו זמין כרגע, ולכן החדשות לא נשמרו.'
+            });
+        }
+    }
+
+    if (process.env.VERCEL) {
+        return res.status(503).json({
+            success: false,
+            message: 'TIDB_URL אינו מוגדר. לא ניתן לשמור חדשות באופן קבוע ב-Vercel.'
+        });
     }
 
     fs.writeFile(path.join(__dirname, 'news.json'), JSON.stringify(news, null, 2), 'utf8', (err) => {
         if (err) {
             return res.status(500).json({ success: false, message: 'כשל בכתיבה לקובץ' });
         }
-        res.json({ success: true });
+        res.json({ success: true, persistent: false });
     });
 });
 
@@ -86,7 +155,7 @@ app.post('/api/improve-article', async (req, res) => {
     if (!groqApiKey) {
         return res.status(500).json({
             success: false,
-            message: 'משתנה GROQ_API_KEY אינו מוגדר ב-Render'
+            message: 'משתנה GROQ_API_KEY אינו מוגדר בסביבת השרת'
         });
     }
 
@@ -254,6 +323,16 @@ function getTiDBConnection() {
     return tidbConnection;
 }
 
+
+async function ensureSiteContentTable(conn) {
+    await conn.execute(`
+        CREATE TABLE IF NOT EXISTS site_content (
+            content_key VARCHAR(64) PRIMARY KEY,
+            content_json JSON NOT NULL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+    `);
+}
 
 async function ensurePlayerSyncTable(conn) {
     await conn.execute(`
@@ -556,8 +635,20 @@ app.get('/api/player-profile', async (req, res) => {
             }
         });
     } catch (error) {
+        const message = String(error?.message || '');
+        if (/usage quota|quota being exhausted|49900002/i.test(message) || error?.details?.code === 49900002) {
+            return res.status(503).json({
+                success: false,
+                code: 'DATABASE_QUOTA_EXCEEDED',
+                message: 'מסד הנתונים של TiDB Cloud הגיע למכסת השימוש. יש להחזיר אותו לפעילות כדי לטעון פרטי שחקנים.'
+            });
+        }
+
         console.error('Player profile error:', error);
-        return res.status(500).json({ success: false, message: 'שגיאה בטעינת נתוני השחקן' });
+        return res.status(503).json({
+            success: false,
+            message: 'מסד הנתונים אינו זמין כרגע. נסה שוב מאוחר יותר.'
+        });
     }
 });
 
