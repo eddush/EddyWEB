@@ -21,6 +21,7 @@ body {
   background-attachment: fixed;
   background-repeat: no-repeat;
   color: #e9ffff;
+  transition: background-color .25s ease, color .25s ease;
   font-family: 'Rubik', Arial, sans-serif;
   overflow-x: hidden;
   line-height: 1.5;
@@ -1306,3 +1307,73 @@ html.animations-enabled {
 
 /* Staff & Rules */
 .info-page{width:min(100%,1100px);margin:0 auto;padding:36px 20px 70px;position:relative;z-index:2}.info-back{display:inline-flex;margin-bottom:18px;color:#5fffe4;text-decoration:none;font-weight:800}.info-hero{padding:40px 30px;text-align:center;background:linear-gradient(145deg,#0d181d,#0a1115);border:1px solid #ffffff14;border-radius:20px;box-shadow:0 18px 60px #0008;margin-bottom:24px}.info-hero h1{margin:14px 0 8px;font-size:clamp(30px,6vw,52px)}.info-hero p{color:#93a8ab;max-width:700px;margin:0 auto}.info-card{padding:26px;background:linear-gradient(145deg,#0d181d,#0a1115);border:1px solid #ffffff14;border-radius:18px;box-shadow:0 12px 40px #0007}.staff-list,.rules-list{display:grid;gap:14px;margin-top:18px}.staff-member{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:16px 18px;border:1px solid #ffffff12;background:#060b0e99;border-radius:12px}.staff-member strong{color:#fff}.staff-role{color:#d991ff;font-size:13px;font-weight:700}.staff-empty{color:#93a8ab;text-align:center;padding:25px}.rule-item{display:flex;gap:15px;align-items:flex-start;padding:18px;border:1px solid #ffffff12;background:#060b0e99;border-radius:14px}.rule-number{flex:0 0 36px;height:36px;display:grid;place-items:center;border-radius:10px;background:#31e7ca18;border:1px solid #31e7ca44;color:#5fffe4;font-weight:900}.rule-item h3{margin:0 0 5px}.rule-item p{margin:0;color:#b8cacc;line-height:1.8}.page-lang{margin-top:20px}@media(max-width:700px){.info-page{padding-inline:14px}.info-hero{padding:28px 20px}.staff-member{align-items:flex-start;flex-direction:column}}
+
+
+/* Light / dark theme. Upload minecraft-background-dark.jpg for the dark theme. */
+body[data-theme="dark"] {
+  background-image: linear-gradient(rgba(2, 4, 12, .16), rgba(2, 4, 12, .42)), url('/minecraft-background-dark.jpg?v=1');
+  background-color: #060711;
+  color: #f2f3ff;
+}
+body[data-theme="light"] {
+  background-image: linear-gradient(rgba(255, 255, 255, .08), rgba(255, 255, 255, .18)), url('/minecraft-background.jpg?v=3');
+  background-color: #eaf4f7;
+  color: #10232a;
+}
+body[data-theme="light"] .grid {
+  background-image:
+    linear-gradient(rgba(20, 130, 120, .07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 80, 170, .06) 1px, transparent 1px);
+}
+body[data-theme="light"] .logo,
+body[data-theme="light"] h1,
+body[data-theme="light"] .card h2,
+body[data-theme="light"] .section-heading h2,
+body[data-theme="light"] footer b {
+  color: #10232a;
+}
+body[data-theme="light"] nav a { color: #24454c; }
+body[data-theme="light"] nav a:hover { color: #087f70; }
+body[data-theme="light"] .hero > p,
+body[data-theme="light"] .section-heading p,
+body[data-theme="light"] .card p,
+body[data-theme="light"] footer,
+body[data-theme="light"] .large-news-summary { color: #29464c; }
+body[data-theme="light"] .card,
+body[data-theme="light"] .news-card,
+body[data-theme="light"] .large-news-card {
+  background: rgba(245, 252, 255, .9);
+  border-color: rgba(20, 70, 80, .18);
+  box-shadow: 0 12px 35px rgba(15, 50, 60, .16);
+  color: #10232a;
+  backdrop-filter: blur(10px);
+}
+body[data-theme="light"] .ip {
+  background: rgba(245, 252, 255, .92);
+  border-color: rgba(20, 140, 125, .35);
+  color: #10232a;
+}
+body[data-theme="light"] .ip strong { color: #10232a; }
+body[data-theme="light"] .btn:not(.primary),
+body[data-theme="light"] .lang-btn {
+  background: rgba(245, 252, 255, .9);
+  color: #17363b;
+  border-color: rgba(20, 100, 100, .28);
+}
+body[data-theme="light"] .large-news-body,
+body[data-theme="light"] .staff-status {
+  background: rgba(220, 239, 242, .9);
+  color: #17363b;
+  border-color: rgba(20, 100, 100, .16);
+}
+body[data-theme="light"] .large-news-body,
+body[data-theme="light"] .large-news-body ul,
+body[data-theme="light"] .large-news-body ol { color: #29464c; }
+body[data-theme="light"] .staff-row { color: #29464c; border-color: rgba(20, 70, 80, .12); }
+body[data-theme="light"] .staff-title { color: #17363b; }
+body[data-theme="light"] footer { border-color: rgba(20, 70, 80, .16); }
+
+.theme-btn { white-space: nowrap; }
+@media (prefers-reduced-motion: reduce) {
+  body { transition: none; }
+}
