@@ -15,7 +15,7 @@ body {
   width: 100%;
   min-width: 0;
   background-color: #060b0e;
-  background-image: linear-gradient(rgba(6, 11, 14, .12), rgba(6, 11, 14, .28)), url('/minecraft-background.jpg');
+  background-image: linear-gradient(rgba(6, 11, 14, .10), rgba(6, 11, 14, .20)), url('https://raw.githubusercontent.com/eddush/EddyWEB/main/minecraft-background.jpg?v=2');
   background-position: center center;
   background-size: cover;
   background-attachment: fixed;
