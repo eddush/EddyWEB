@@ -328,11 +328,10 @@ function getDatabaseConnection() {
         });
     }
 
-    // Compatibility adapter for the existing route code. All database reads/writes
-    // below are translated to Supabase PostgREST requests; no TiDB connection is used.
+    // Translate the existing route queries to Supabase PostgREST requests.
     return {
         async execute(sql, params = []) {
-            const q = String(sql).replace(/\\s+/g, ' ').trim();
+            const q = String(sql).replace(/\s+/g, ' ').trim();
             let result;
 
             if (/^CREATE TABLE IF NOT EXISTS site_content/i.test(q) ||
@@ -340,7 +339,7 @@ function getDatabaseConnection() {
                 return [];
             }
 
-            if (/^SELECT content_json FROM site_content WHERE content_key = \\? LIMIT 1$/i.test(q)) {
+            if (/^SELECT content_json FROM site_content WHERE content_key = \? LIMIT 1$/i.test(q)) {
                 result = await supabaseClient.from('site_content').select('content_json')
                     .eq('content_key', params[0]).limit(1);
             } else if (/^INSERT INTO site_content/i.test(q)) {
@@ -361,22 +360,22 @@ function getDatabaseConnection() {
                 }, { onConflict: 'uuid' });
                 if (result.error) throw result.error;
                 return [];
-            } else if (/^SELECT uuid, username, primary_group FROM luckperms_players WHERE LOWER\\(username\\) = LOWER\\(\\?\\) LIMIT 1$/i.test(q)) {
+            } else if (/^SELECT uuid, username, primary_group FROM luckperms_players WHERE LOWER\(username\) = LOWER\(\?\) LIMIT 1$/i.test(q)) {
                 result = await supabaseClient.from('luckperms_players')
                     .select('uuid,username,primary_group').ilike('username', params[0]).limit(1);
-            } else if (/^SELECT permission FROM [a-zA-Z0-9_]+ WHERE uuid = \\? AND value = 1 AND permission LIKE \\? ORDER BY id DESC$/i.test(q)) {
+            } else if (/^SELECT permission FROM [a-zA-Z0-9_]+ WHERE uuid = \? AND value = 1 AND permission LIKE \? ORDER BY id DESC$/i.test(q)) {
                 const table = q.match(/^SELECT permission FROM ([a-zA-Z0-9_]+)/i)[1];
                 result = await supabaseClient.from(table).select('permission')
                     .eq('uuid', params[0]).eq('value', true).like('permission', params[1]).order('id', { ascending: false });
-            } else if (/^SELECT permission FROM [a-zA-Z0-9_]+ WHERE uuid = \\? AND value = 1 AND LOWER\\(permission\\) LIKE \\? ORDER BY id DESC$/i.test(q)) {
+            } else if (/^SELECT permission FROM [a-zA-Z0-9_]+ WHERE uuid = \? AND value = 1 AND LOWER\(permission\) LIKE \? ORDER BY id DESC$/i.test(q)) {
                 const table = q.match(/^SELECT permission FROM ([a-zA-Z0-9_]+)/i)[1];
                 result = await supabaseClient.from(table).select('permission')
                     .eq('uuid', params[0]).eq('value', true).ilike('permission', params[1]).order('id', { ascending: false });
-            } else if (/^SELECT permission, value FROM [a-zA-Z0-9_]+ WHERE uuid = \\? AND LOWER\\(permission\\) LIKE \\? ORDER BY id DESC$/i.test(q)) {
+            } else if (/^SELECT permission, value FROM [a-zA-Z0-9_]+ WHERE uuid = \? AND LOWER\(permission\) LIKE \? ORDER BY id DESC$/i.test(q)) {
                 const table = q.match(/^SELECT permission, value FROM ([a-zA-Z0-9_]+)/i)[1];
                 result = await supabaseClient.from(table).select('permission,value')
                     .eq('uuid', params[0]).ilike('permission', params[1]).order('id', { ascending: false });
-            } else if (/^SELECT money, discord_id, discord_username, discord_tag, discord_avatar FROM player_profiles WHERE uuid = \\? LIMIT 1$/i.test(q)) {
+            } else if (/^SELECT money, discord_id, discord_username, discord_tag, discord_avatar FROM player_profiles WHERE uuid = \? LIMIT 1$/i.test(q)) {
                 result = await supabaseClient.from('player_profiles')
                     .select('money,discord_id,discord_username,discord_tag,discord_avatar')
                     .eq('uuid', params[0]).limit(1);
