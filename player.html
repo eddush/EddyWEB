@@ -91,6 +91,7 @@
         success: '✓ Profile loaded successfully.',
         notFound: 'Player not found',
         loadError: 'Unable to load profile',
+        databaseQuota: 'Player data is temporarily unavailable because the database usage quota has been reached. Please try again later.',
         rank: 'Rank',
         money: 'Money',
         moneyUnavailable: 'Unavailable',
@@ -123,6 +124,7 @@
         success: '✓ הפרופיל נטען בהצלחה.',
         notFound: 'השחקן לא נמצא',
         loadError: 'לא ניתן לטעון את הפרופיל',
+        databaseQuota: 'נתוני השחקנים אינם זמינים כרגע כי מכסת השימוש במסד הנתונים הסתיימה. נסה שוב מאוחר יותר.',
         rank: 'דרגה',
         money: 'כסף',
         moneyUnavailable: 'לא זמין',
@@ -313,7 +315,7 @@
         const data = await response.json();
 
         if (!response.ok || !data.success) {
-          throw new Error(data.message || t().notFound);
+          throw new Error(data.code === 'DATABASE_QUOTA_EXCEEDED' ? t().databaseQuota : (data.message || t().notFound));
         }
 
         loadProfile(data);
