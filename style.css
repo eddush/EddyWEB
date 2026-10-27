@@ -1377,3 +1377,74 @@ body[data-theme="light"] footer { border-color: rgba(20, 70, 80, .16); }
 @media (prefers-reduced-motion: reduce) {
   body { transition: none; }
 }
+
+
+/* Glassmorphism: more transparent cards and buttons in both themes */
+.card,
+.news-card,
+.large-news-card,
+.player-search-panel,
+.player-hero-card,
+.player-info-card,
+.info-hero,
+.info-card {
+  background: rgba(9, 20, 26, .48);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border-color: rgba(255, 255, 255, .16);
+}
+.news-card,
+.staff-member,
+.rule-item,
+.staff-status {
+  background-color: rgba(6, 16, 21, .38);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.ip,
+.btn:not(.primary),
+.lang-btn,
+.news-btn {
+  background-color: rgba(10, 25, 31, .48);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.ip button,
+.primary {
+  background-color: rgba(49, 231, 202, .88);
+}
+.large-news-body,
+.player-skin-wrap {
+  background-color: rgba(6, 11, 14, .42);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+body[data-theme="light"] .card,
+body[data-theme="light"] .news-card,
+body[data-theme="light"] .large-news-card,
+body[data-theme="light"] .player-search-panel,
+body[data-theme="light"] .player-hero-card,
+body[data-theme="light"] .player-info-card,
+body[data-theme="light"] .info-hero,
+body[data-theme="light"] .info-card {
+  background: rgba(245, 252, 255, .52);
+  border-color: rgba(20, 70, 80, .18);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+body[data-theme="light"] .news-card,
+body[data-theme="light"] .staff-member,
+body[data-theme="light"] .rule-item,
+body[data-theme="light"] .staff-status {
+  background-color: rgba(235, 249, 252, .42);
+}
+body[data-theme="light"] .ip,
+body[data-theme="light"] .btn:not(.primary),
+body[data-theme="light"] .lang-btn,
+body[data-theme="light"] .news-btn {
+  background-color: rgba(245, 252, 255, .48);
+}
+body[data-theme="light"] .large-news-body,
+body[data-theme="light"] .player-skin-wrap {
+  background-color: rgba(220, 239, 242, .42);
+}
