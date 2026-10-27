@@ -58,7 +58,7 @@ app.post('/api/login', (req, res) => {
 });
 
 app.get('/api/news', async (req, res) => {
-    const conn = getTiDBConnection();
+    const conn = getDatabaseConnection();
 
     if (conn) {
         try {
@@ -97,7 +97,7 @@ app.post('/api/save-news', async (req, res) => {
         return res.status(400).json({ success: false, message: 'רשימת החדשות לא תקינה' });
     }
 
-    const conn = getTiDBConnection();
+    const conn = getDatabaseConnection();
     if (conn) {
         try {
             await ensureSiteContentTable(conn);
@@ -312,17 +312,83 @@ app.post('/api/improve-article', async (req, res) => {
     }
 });
 
-let tidbConnection = null;
+let supabaseClient = null;
 
-function getTiDBConnection() {
-    if (!process.env.TIDB_URL) return null;
-    if (!tidbConnection) {
-        const { connect } = require('@tidbcloud/serverless');
-        tidbConnection = connect({ url: process.env.TIDB_URL });
+function getDatabaseConnection() {
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SECRET_KEY ||
+        process.env.SUPABASE_SERVICE_ROLE_KEY ||
+        process.env.SUPABASE_SERVICE_ROLE;
+    if (!url || !key) return null;
+
+    if (!supabaseClient) {
+        const { createClient } = require('@supabase/supabase-js');
+        supabaseClient = createClient(url, key, {
+            auth: { persistSession: false, autoRefreshToken: false }
+        });
     }
-    return tidbConnection;
-}
 
+    // Compatibility adapter for the existing route code. All database reads/writes
+    // below are translated to Supabase PostgREST requests; no TiDB connection is used.
+    return {
+        async execute(sql, params = []) {
+            const q = String(sql).replace(/\\s+/g, ' ').trim();
+            let result;
+
+            if (/^CREATE TABLE IF NOT EXISTS site_content/i.test(q) ||
+                /^CREATE TABLE IF NOT EXISTS player_profiles/i.test(q)) {
+                return [];
+            }
+
+            if (/^SELECT content_json FROM site_content WHERE content_key = \\? LIMIT 1$/i.test(q)) {
+                result = await supabaseClient.from('site_content').select('content_json')
+                    .eq('content_key', params[0]).limit(1);
+            } else if (/^INSERT INTO site_content/i.test(q)) {
+                let json = params[1];
+                if (typeof json === 'string') {
+                    try { json = JSON.parse(json); } catch (_) {}
+                }
+                result = await supabaseClient.from('site_content')
+                    .upsert({ content_key: params[0], content_json: json, updated_at: new Date().toISOString() },
+                        { onConflict: 'content_key' });
+                if (result.error) throw result.error;
+                return [];
+            } else if (/^INSERT INTO player_profiles/i.test(q)) {
+                const [uuid, username, money, discord_id, discord_username, discord_tag, discord_avatar] = params;
+                result = await supabaseClient.from('player_profiles').upsert({
+                    uuid, username, money, discord_id, discord_username, discord_tag, discord_avatar,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'uuid' });
+                if (result.error) throw result.error;
+                return [];
+            } else if (/^SELECT uuid, username, primary_group FROM luckperms_players WHERE LOWER\\(username\\) = LOWER\\(\\?\\) LIMIT 1$/i.test(q)) {
+                result = await supabaseClient.from('luckperms_players')
+                    .select('uuid,username,primary_group').ilike('username', params[0]).limit(1);
+            } else if (/^SELECT permission FROM [a-zA-Z0-9_]+ WHERE uuid = \\? AND value = 1 AND permission LIKE \\? ORDER BY id DESC$/i.test(q)) {
+                const table = q.match(/^SELECT permission FROM ([a-zA-Z0-9_]+)/i)[1];
+                result = await supabaseClient.from(table).select('permission')
+                    .eq('uuid', params[0]).eq('value', true).like('permission', params[1]).order('id', { ascending: false });
+            } else if (/^SELECT permission FROM [a-zA-Z0-9_]+ WHERE uuid = \\? AND value = 1 AND LOWER\\(permission\\) LIKE \\? ORDER BY id DESC$/i.test(q)) {
+                const table = q.match(/^SELECT permission FROM ([a-zA-Z0-9_]+)/i)[1];
+                result = await supabaseClient.from(table).select('permission')
+                    .eq('uuid', params[0]).eq('value', true).ilike('permission', params[1]).order('id', { ascending: false });
+            } else if (/^SELECT permission, value FROM [a-zA-Z0-9_]+ WHERE uuid = \\? AND LOWER\\(permission\\) LIKE \\? ORDER BY id DESC$/i.test(q)) {
+                const table = q.match(/^SELECT permission, value FROM ([a-zA-Z0-9_]+)/i)[1];
+                result = await supabaseClient.from(table).select('permission,value')
+                    .eq('uuid', params[0]).ilike('permission', params[1]).order('id', { ascending: false });
+            } else if (/^SELECT money, discord_id, discord_username, discord_tag, discord_avatar FROM player_profiles WHERE uuid = \\? LIMIT 1$/i.test(q)) {
+                result = await supabaseClient.from('player_profiles')
+                    .select('money,discord_id,discord_username,discord_tag,discord_avatar')
+                    .eq('uuid', params[0]).limit(1);
+            } else {
+                throw new Error('Supabase adapter does not support query: ' + q.slice(0, 120));
+            }
+
+            if (result.error) throw result.error;
+            return result.data || [];
+        }
+    };
+}
 
 async function ensureSiteContentTable(conn) {
     await conn.execute(`
@@ -355,7 +421,7 @@ app.post('/api/player-sync', async (req, res) => {
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
 
     if (!expectedToken) {
-        return res.status(503).json({ success: false, message: 'PLAYER_SYNC_TOKEN אינו מוגדר ב-Render' });
+        return res.status(503).json({ success: false, message: 'PLAYER_SYNC_TOKEN אינו מוגדר ב-Vercel' });
     }
 
     if (!token || token !== expectedToken) {
@@ -375,9 +441,9 @@ app.post('/api/player-sync', async (req, res) => {
         return res.status(400).json({ success: false, message: 'סכום כסף לא תקין' });
     }
 
-    const conn = getTiDBConnection();
+    const conn = getDatabaseConnection();
     if (!conn) {
-        return res.status(503).json({ success: false, message: 'TIDB_URL אינו מוגדר ב-Render' });
+        return res.status(503).json({ success: false, message: 'SUPABASE_URL או SUPABASE_SECRET_KEY אינם מוגדרים ב-Vercel' });
     }
 
     try {
@@ -421,11 +487,7 @@ function getRankLabel(group) {
 }
 
 async function runOptionalPlayerQuery(query, value) {
-    if (!query) return null;
-    const conn = getTiDBConnection();
-    if (!conn) return null;
-    const rows = await conn.execute(query, [value]);
-    return Array.isArray(rows) && rows.length ? rows[0] : null;
+    return null; // Optional custom SQL queries are disabled after the migration to Supabase.
 }
 
 app.get('/api/player-profile', async (req, res) => {
@@ -435,7 +497,7 @@ app.get('/api/player-profile', async (req, res) => {
         return res.status(400).json({ success: false, message: 'שם Minecraft לא תקין' });
     }
 
-    const conn = getTiDBConnection();
+    const conn = getDatabaseConnection();
     if (!conn) {
         return res.status(503).json({ success: false, message: 'TIDB_URL אינו מוגדר ב-Render' });
     }
@@ -526,7 +588,7 @@ app.get('/api/player-profile', async (req, res) => {
                 }
             }
 
-            // LuckPerms playtime is stored in TiDB in the same user_permissions
+            // LuckPerms playtime is stored in Supabase in the same user_permissions
             // table, as a meta node beginning with "meta.eddy_playtime".
             // Example:
             // meta.eddy_playtime.3 days and 2 hours and 2 minutes and 20.4 seconds
@@ -562,7 +624,7 @@ app.get('/api/player-profile', async (req, res) => {
                 }
             }
 
-            console.log('Player playtime TiDB lookup', {
+            console.log('Player playtime Supabase lookup', {
                 username: playerName,
                 uuid,
                 playtimeNodeFound: Boolean(playtimeNode),
@@ -640,7 +702,7 @@ app.get('/api/player-profile', async (req, res) => {
             return res.status(503).json({
                 success: false,
                 code: 'DATABASE_QUOTA_EXCEEDED',
-                message: 'מסד הנתונים של TiDB Cloud הגיע למכסת השימוש. יש להחזיר אותו לפעילות כדי לטעון פרטי שחקנים.'
+                message: 'מסד הנתונים אינו זמין כרגע. יש לבדוק את הגדרות Supabase ב-Vercel.'
             });
         }
 
