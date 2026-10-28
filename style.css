@@ -1960,3 +1960,70 @@ html[dir="rtl"][data-theme] .theme-floating-toggle {
 .btn-ai i {
   margin-inline-end: 6px;
 }
+
+
+/* EddyWEB account area */
+.account-page { max-width: 980px; }
+.account-page [hidden] { display: none !important; }
+.account-card { width: min(100%, 720px); margin: 0 auto 22px; text-align: start; }
+.account-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 24px; }
+.account-tab {
+  appearance: none; border: 1px solid #ffffff22; border-radius: 12px;
+  background: #060b0e99; color: #d6e7e8; padding: 12px 14px; font: inherit;
+  font-weight: 800; cursor: pointer;
+  transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+.account-tab:hover { transform: translateY(-1px); border-color: #31e7ca88; }
+.account-tab.is-active { background: #31e7ca1e; border-color: #31e7caaa; color: #5fffe4; }
+.account-field { display: grid; gap: 7px; margin-bottom: 17px; }
+.account-field label { color: #9fb7bb; font-size: 14px; font-weight: 750; }
+.account-field input {
+  width: 100%; min-height: 46px; padding: 11px 13px; box-sizing: border-box;
+  border-radius: 10px; border: 1px solid #ffffff26; background: #060b0ecc;
+  color: #f4ffff; font: inherit; outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+.account-field input:focus { border-color: #31e7ca; box-shadow: 0 0 0 3px #31e7ca26; }
+.account-field input:disabled { opacity: .65; cursor: not-allowed; }
+.account-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 8px; }
+.account-form-actions .btn { min-height: 44px; }
+.account-link {
+  appearance: none; border: 0; background: transparent; color: #5fffe4; padding: 10px 2px;
+  font: inherit; font-weight: 700; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+}
+.account-link:disabled, .account-tab:disabled { opacity: .6; cursor: wait; }
+.account-status { min-height: 1.5em; margin: 18px 0 0; color: #9fb7bb; line-height: 1.7; overflow-wrap: anywhere; }
+.account-status[data-kind="success"] { color: #4ffdcc; }
+.account-status[data-kind="error"] { color: #ff7d91; }
+.account-status[data-kind="loading"] { color: #9fb7bb; }
+.account-email-line { color: #9fb7bb; overflow-wrap: anywhere; margin: 10px 0 22px; }
+.account-email-line strong { color: #f4ffff; }
+.account-site-link {
+  display: inline-flex; align-items: center; gap: 8px; vertical-align: middle;
+  margin: 0 12px 18px 0; padding: 9px 14px; border: 1px solid #31e7ca55;
+  border-radius: 999px; color: #5fffe4; background: #0d181dcc;
+  text-decoration: none; font-weight: 800;
+  transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
+}
+.account-site-link:hover { border-color: #31e7ca; transform: translateY(-1px); }
+.account-site-link i { font-size: .95em; }
+.account-page .info-hero .badge i { margin-inline-end: 7px; }
+.account-page button:focus-visible, .account-site-link:focus-visible { outline: 3px solid #31e7ca; outline-offset: 3px; }
+body[data-theme="light"] .account-tab { background: #f7ffffc9; border-color: #0c797522; color: #164047; }
+body[data-theme="light"] .account-tab.is-active { background: #31bfae1c; border-color: #0b9b8d88; color: #087f76; }
+body[data-theme="light"] .account-field label { color: #31585d; }
+body[data-theme="light"] .account-field input { background: #ffffffdf; border-color: #0c797533; color: #12343a; }
+body[data-theme="light"] .account-link { color: #087f76; }
+body[data-theme="light"] .account-email-line, body[data-theme="light"] .account-status { color: #31585d; }
+body[data-theme="light"] .account-email-line strong { color: #12343a; }
+body[data-theme="light"] .account-status[data-kind="success"] { color: #087f76; }
+body[data-theme="light"] .account-status[data-kind="error"] { color: #ba2946; }
+body[data-theme="light"] .account-site-link { background: #f7ffffe8; color: #087f76; border-color: #0c797544; }
+@media (max-width: 560px) {
+  .account-page { padding-inline: 14px; }
+  .account-card { padding: 20px; }
+  .account-tabs { gap: 7px; }
+  .account-tab { padding: 11px 8px; }
+  .account-form-actions { align-items: stretch; flex-direction: column; }
+  .account-form-actions .btn, .account-form-actions .account-link { width: 100%; text-align: center; justify-content: center; }
+}
