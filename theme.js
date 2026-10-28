@@ -17,7 +17,7 @@
     const button = document.getElementById('theme-toggle') || createButton();
     button.classList.add('theme-floating-toggle');
     button.type = 'button';
-    button.textContent = selected === DARK ? '🌙 מצב כהה' : '☀️ מצב בהיר';
+    button.innerHTML = selected === DARK ? '<i class="fa-solid fa-moon" aria-hidden="true"></i> מצב כהה' : '<i class="fa-solid fa-sun" aria-hidden="true"></i> מצב בהיר';
     button.setAttribute('aria-label', selected === DARK ? 'החלפה למצב בהיר' : 'החלפה למצב כהה');
     button.setAttribute('aria-pressed', String(selected === DARK));
     button.onclick = (event) => {
