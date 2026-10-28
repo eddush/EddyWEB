@@ -30,5 +30,4 @@ const data={en:{back:'← Back to EddyWEB',badge:'SERVER RULES',title:'Server Ru
 ]}};
 function apply(){const x=data[lang];document.documentElement.lang=lang;document.documentElement.dir=lang==='he'?'rtl':'ltr';document.querySelector('.info-back').textContent=x.back;document.getElementById('rules-badge').textContent=x.badge;document.getElementById('rules-title').textContent=x.title;document.getElementById('rules-intro').textContent=x.intro;document.getElementById('rules-lang').textContent=x.switch;document.getElementById('rules-list').innerHTML=x.rules.map((r,i)=>'<article class="rule-item"><span class="rule-number">'+(i+1)+'</span><div><h3>'+r[0]+'</h3><p>'+r[1]+'</p></div></article>').join('');}
 document.getElementById('rules-lang').onclick=()=>{lang=lang==='en'?'he':'en';localStorage.setItem('eddy-language',lang);apply()};apply();
-</script><script src="theme.js"></script>
-  <script src="theme.js"></script><script src="animations.js"></script></body></html>
+</script><script src="theme.js"></script><script src="animations.js"></script></body></html>
