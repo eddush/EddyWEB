@@ -40,24 +40,6 @@ const translations = {
 
 let language = localStorage.getItem('eddy-language') || 'en';
 
-const THEME_KEY = 'eddy-theme';
-function applyTheme() {
-  const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
-  document.body.dataset.theme = savedTheme;
-  const button = document.getElementById('theme-toggle');
-  if (button) {
-    const isDark = savedTheme === 'dark';
-    button.textContent = isDark ? '🌙 Dark' : '☀️ Light';
-    button.setAttribute('aria-label', isDark ? 'Switch to light theme' : 'Switch to dark theme');
-    button.setAttribute('aria-pressed', String(isDark));
-  }
-}
-function toggleTheme() {
-  const nextTheme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
-  localStorage.setItem(THEME_KEY, nextTheme);
-  applyTheme();
-}
-
 let newsData = [];
 
 function t() { return translations[language] }
@@ -143,7 +125,6 @@ async function copyIP() { try { await navigator.clipboard.writeText(IP); documen
 async function status() { const s = document.getElementById('status'), p = document.getElementById('players'), x = t(); try { const r = await fetch('https://api.mcsrvstat.us/3/' + IP); const d = await r.json(); if (d.online) { s.textContent = x.online; s.style.color = '#4ffdcc'; p.textContent = x.players(d.players?.online ?? 0, d.players?.max ?? 0) } else { s.textContent = x.offline; s.style.color = '#ff6b8a'; p.textContent = x.unavailable } } catch (e) { s.textContent = x.cannot; p.textContent = x.failed } }
 async function discordStats() { const p = document.getElementById('discord-members'), staff = document.getElementById('discord-staff'), x = t(); if (!p) return; try { const r = await fetch(DISCORD_API, { cache: 'no-store' }), d = await r.json(); if (!d.ok) throw new Error(); p.textContent = x.members(Number(d.members)); p.style.color = '#b965ff'; const labels = { team: x.team, developers: x.developers, helpers: x.helpers, moderators: x.moderators }; staff.innerHTML = '<div class="staff-title">' + x.staff + ' <strong>' + (d.staff?.totalAvailable ?? 0) + '</strong></div>' + Object.entries(labels).map(([key, label]) => { const a = d.staff?.roles?.[key] || { online: 0, total: 0 }; return '<div class="staff-row"><span>' + label + '</span><span><b>' + a.online + '</b> / ' + a.total + ' ' + (language === 'en' ? 'available' : 'זמינים') + '</span></div>' }).join('') } catch (e) { p.textContent = language === 'en' ? 'Unavailable' : 'לא זמין'; if (staff) staff.innerHTML = '<span>' + x.staffFail + '</span>' } }
 
-applyTheme();
 applyLanguage();
 loadNews();
 status();
