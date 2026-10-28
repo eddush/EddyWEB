@@ -26,6 +26,14 @@
       "use": "@vercel/static"
     },
     {
+      "src": "account.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "account-nav.js",
+      "use": "@vercel/static"
+    },
+    {
       "src": "news.json",
       "use": "@vercel/static"
     },
