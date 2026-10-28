@@ -1722,3 +1722,82 @@ body[data-theme="dark"] .theme-floating-toggle {
   color: #f2f3ff !important;
   border: 1px solid rgba(255,255,255,.22) !important;
 }
+
+
+/* Final shared theme rules: keep page background and controls in sync everywhere. */
+html[data-theme="light"],
+body[data-theme="light"] {
+  color-scheme: light;
+}
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  color-scheme: dark;
+}
+body[data-theme="light"] {
+  background-color: #eaf4f6 !important;
+  background-image: linear-gradient(rgba(240, 250, 252, .08), rgba(240, 250, 252, .18)), url('/minecraft-background.jpg?v=4') !important;
+  background-position: center center !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  color: #10232a;
+}
+body[data-theme="dark"] {
+  background-color: #060b0e !important;
+  background-image: linear-gradient(rgba(6, 11, 14, .03), rgba(6, 11, 14, .12)), url('/minecraft-background-dark.jpg?v=2') !important;
+  background-position: center center !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+  color: #e9ffff;
+}
+body[data-theme="light"] .card,
+body[data-theme="light"] .news-card,
+body[data-theme="light"] .large-news-card,
+body[data-theme="light"] .staff-status,
+body[data-theme="light"] .ip,
+body[data-theme="light"] .btn:not(.primary),
+body[data-theme="light"] .news-btn {
+  background: rgba(245, 252, 255, .62) !important;
+  color: #17363b !important;
+  border-color: rgba(20, 100, 100, .24) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+body[data-theme="light"] .card p,
+body[data-theme="light"] .news-card p,
+body[data-theme="light"] .large-news-card p,
+body[data-theme="light"] .section-heading p {
+  color: #29464c !important;
+}
+body[data-theme="dark"] .card,
+body[data-theme="dark"] .news-card,
+body[data-theme="dark"] .large-news-card,
+body[data-theme="dark"] .staff-status,
+body[data-theme="dark"] .ip,
+body[data-theme="dark"] .btn:not(.primary),
+body[data-theme="dark"] .news-btn {
+  background: rgba(9, 12, 28, .58) !important;
+  color: #f2f3ff !important;
+  border-color: rgba(255, 255, 255, .16) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+body[data-theme="dark"] .card p,
+body[data-theme="dark"] .news-card p,
+body[data-theme="dark"] .large-news-card p,
+body[data-theme="dark"] .section-heading p {
+  color: #c3d3dc !important;
+}
+body[data-theme="light"] nav a,
+body[data-theme="light"] footer,
+body[data-theme="light"] .staff-row,
+body[data-theme="light"] .staff-title {
+  color: #29464c;
+}
+body[data-theme="dark"] nav a,
+body[data-theme="dark"] footer,
+body[data-theme="dark"] .staff-row,
+body[data-theme="dark"] .staff-title {
+  color: #c3d3dc;
+}
