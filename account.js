@@ -53,6 +53,7 @@
       profileSaved: 'פרטי החשבון נשמרו.',
       passwordUpdated: 'הסיסמה עודכנה בהצלחה.',
       authError: 'לא ניתן להשלים את הפעולה. בדוק את הפרטים ונסה שוב.',
+      redirectConfig: 'כדי שאימות ואיפוס סיסמה יעבדו, יש להוסיף את כתובת האתר ברשימת Redirect URLs של Supabase.',
       passwordError: 'הסיסמה או כתובת הדוא״ל אינם נכונים, או שהחשבון עדיין לא אומת.',
       loadError: 'לא ניתן לטעון את מערכת החשבונות. נסה לרענן את הדף.',
       emailRequired: 'יש להזין כתובת דוא״ל תקינה.',
@@ -102,6 +103,7 @@
       profileSaved: 'Your profile has been saved.',
       passwordUpdated: 'Your password has been updated.',
       authError: 'The request could not be completed. Check the details and try again.',
+      redirectConfig: 'Add this site to the Redirect URLs in Supabase Authentication settings so email confirmation and password reset can return to the site.',
       passwordError: 'Email or password is incorrect, or the account has not been verified.',
       loadError: 'Unable to load accounts. Please refresh the page.',
       emailRequired: 'Enter a valid email address.',
@@ -209,7 +211,7 @@
     const message = String(error?.message || '').toLowerCase();
     if (message.includes('invalid login credentials') || message.includes('email not confirmed')) return t().passwordError;
     if (message.includes('password should be at least') || message.includes('password is too short')) return t().passwordTooShort;
-    if (message.includes('redirect') && message.includes('not allowed')) return t().authError + ' Add the site URL to Supabase Auth redirect URLs.';
+    if (message.includes('redirect') && (message.includes('not allowed') || message.includes('not permitted'))) return t().redirectConfig;
     return fallback;
   }
 
