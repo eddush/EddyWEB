@@ -1448,3 +1448,100 @@ body[data-theme="light"] .large-news-body,
 body[data-theme="light"] .player-skin-wrap {
   background-color: rgba(220, 239, 242, .42);
 }
+
+/* Theme support for every secondary page */
+body[data-theme="light"] .player-search-panel,
+body[data-theme="light"] .player-hero-card,
+body[data-theme="light"] .player-info-card,
+body[data-theme="light"] .info-hero,
+body[data-theme="light"] .info-card {
+  background: rgba(245, 252, 255, .54);
+  color: #10232a;
+  border-color: rgba(20, 70, 80, .2);
+  box-shadow: 0 12px 35px rgba(15, 50, 60, .16);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+body[data-theme="light"] .player-search-panel p,
+body[data-theme="light"] .info-hero p,
+body[data-theme="light"] .player-info-card span,
+body[data-theme="light"] .player-info-card small,
+body[data-theme="light"] .player-uuid,
+body[data-theme="light"] .info-card,
+body[data-theme="light"] .staff-empty {
+  color: #29464c;
+}
+body[data-theme="light"] .player-info-card strong,
+body[data-theme="light"] .player-main-info h2,
+body[data-theme="light"] .info-hero h1,
+body[data-theme="light"] .info-card h2,
+body[data-theme="light"] .staff-member strong,
+body[data-theme="light"] .rule-item h3 {
+  color: #10232a;
+}
+body[data-theme="light"] .player-search-form input {
+  background: rgba(255, 255, 255, .68);
+  color: #10232a;
+  border-color: rgba(20, 70, 80, .24);
+}
+body[data-theme="light"] .player-skin-wrap {
+  background: radial-gradient(circle at center, rgba(49, 231, 202, .18), transparent 60%), rgba(220, 239, 242, .45);
+}
+body[data-theme="light"] .staff-member,
+body[data-theme="light"] .rule-item {
+  background: rgba(235, 249, 252, .45);
+  border-color: rgba(20, 70, 80, .18);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+body[data-theme="light"] .rule-item p {
+  color: #29464c;
+}
+body[data-theme="light"] .player-rank-pill {
+  background: rgba(185, 101, 255, .12);
+  border-color: rgba(130, 60, 180, .3);
+}
+body[data-theme="light"] .player-rank-pill span {
+  color: #29464c;
+}
+body[data-theme="light"] .player-back,
+body[data-theme="light"] .info-back {
+  color: #087f70;
+}
+body[data-theme="light"] .player-status {
+  color: #29464c;
+}
+body[data-theme="light"] .player-status.success {
+  color: #087f70;
+}
+body[data-theme="light"] .player-status.error {
+  color: #b42345;
+}
+body[data-theme="dark"] .player-search-panel,
+body[data-theme="dark"] .player-hero-card,
+body[data-theme="dark"] .player-info-card,
+body[data-theme="dark"] .info-hero,
+body[data-theme="dark"] .info-card {
+  background: rgba(9, 12, 28, .5);
+  color: #f2f3ff;
+  border-color: rgba(255, 255, 255, .16);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+body[data-theme="dark"] .player-search-form input {
+  background: rgba(4, 6, 18, .62);
+  color: #f2f3ff;
+}
+body[data-theme="dark"] .staff-member,
+body[data-theme="dark"] .rule-item,
+body[data-theme="dark"] .player-skin-wrap {
+  background-color: rgba(4, 6, 18, .42);
+}
+body[data-theme="dark"] .player-info-card strong,
+body[data-theme="dark"] .player-main-info h2,
+body[data-theme="dark"] .info-hero h1,
+body[data-theme="dark"] .info-card h2,
+body[data-theme="dark"] .staff-member strong,
+body[data-theme="dark"] .rule-item h3 {
+  color: #f2f3ff;
+}
