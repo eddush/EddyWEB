@@ -1690,3 +1690,35 @@ body[data-theme="dark"] .author-box {
 body[data-theme="light"] .article-container h1 {
   color: #10232a !important;
 }
+
+
+/* Always-visible theme switch, including pages without a navigation bar */
+.theme-floating-toggle {
+  position: fixed !important;
+  top: 16px !important;
+  right: 16px !important;
+  z-index: 2147483000 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 42px !important;
+  padding: 10px 14px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 28px rgba(0,0,0,.28) !important;
+}
+body[data-theme="light"] .theme-floating-toggle {
+  background: rgba(245,252,255,.94) !important;
+  color: #17363b !important;
+  border: 1px solid rgba(20,100,100,.3) !important;
+}
+body[data-theme="dark"] .theme-floating-toggle {
+  background: rgba(9,12,28,.94) !important;
+  color: #f2f3ff !important;
+  border: 1px solid rgba(255,255,255,.22) !important;
+}
