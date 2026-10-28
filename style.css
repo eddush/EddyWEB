@@ -1740,7 +1740,7 @@ body[data-theme="light"] {
   background-size: cover !important;
   background-attachment: fixed !important;
   background-repeat: no-repeat !important;
-  color: #10232a;
+  color: #10232a !important;
 }
 body[data-theme="dark"] {
   background-color: #060b0e !important;
@@ -1749,7 +1749,7 @@ body[data-theme="dark"] {
   background-size: cover !important;
   background-attachment: fixed !important;
   background-repeat: no-repeat !important;
-  color: #e9ffff;
+  color: #e9ffff !important;
 }
 body[data-theme="light"] .card,
 body[data-theme="light"] .news-card,
