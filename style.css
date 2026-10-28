@@ -1934,3 +1934,29 @@ html[dir="rtl"][data-theme] .theme-floating-toggle {
     padding: 8px 11px !important;
   }
 }
+
+
+/* Font Awesome Classic icon sizing and alignment */
+.badge > i,
+.ip > i {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 1.15em;
+  margin-inline-end: 8px;
+  text-align: center;
+  color: currentColor;
+}
+.icon > i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35em;
+  line-height: 1;
+  color: inherit;
+}
+.theme-floating-toggle i {
+  margin-inline-end: 7px;
+}
+.btn-ai i {
+  margin-inline-end: 6px;
+}
