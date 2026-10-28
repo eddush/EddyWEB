@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#071014">
   <title>EddyWEB | מידע על שחקן</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
   <button id="theme-toggle" class="lang-btn theme-btn theme-floating-toggle" type="button" aria-label="החלפת מצב תצוגה">☀️ מצב בהיר</button>
@@ -46,20 +47,20 @@
 
       <div class="player-info-grid">
         <article class="player-info-card">
-          <div class="icon">💰</div>
+          <div class="icon"><i class="fa-solid fa-coins" aria-hidden="true"></i></div>
           <span>כסף</span>
           <strong id="profile-money">לא זמין</strong>
         </article>
 
         <article class="player-info-card">
-          <div class="icon">💬</div>
+          <div class="icon"><i class="fa-brands fa-discord" aria-hidden="true"></i></div>
           <span>Discord</span>
           <strong id="profile-discord">לא מחובר</strong>
           <small id="profile-discord-id"></small>
         </article>
 
         <article class="player-info-card">
-          <div class="icon">🏷️</div>
+          <div class="icon"><i class="fa-solid fa-ranking-star" aria-hidden="true"></i></div>
           <span>LuckPerms</span>
           <strong id="profile-group">-</strong>
         </article>
@@ -88,7 +89,7 @@
         placeholder: 'Minecraft username...',
         search: 'Search Player',
         invalid: 'Enter a valid Minecraft username.',
-        loading: '🔎 Searching for player...',
+        loading: 'Searching for player...',
         success: '✓ Profile loaded successfully.',
         notFound: 'Player not found',
         loadError: 'Unable to load profile',
@@ -121,7 +122,7 @@
         placeholder: 'שם Minecraft...',
         search: 'חפש שחקן',
         invalid: 'הכנס שם Minecraft תקין.',
-        loading: '🔎 מחפש את השחקן...',
+        loading: 'מחפש את השחקן...',
         success: '✓ הפרופיל נטען בהצלחה.',
         notFound: 'השחקן לא נמצא',
         loadError: 'לא ניתן לטעון את הפרופיל',
