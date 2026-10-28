@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071014">
+  <title>EddyWEB | חשבון</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+  <div class="grid"></div>
+  <main class="info-page account-page">
+    <a class="info-back" id="account-back" href="index.html">← חזרה ל-EddyWEB</a>
+
+    <section class="info-hero">
+      <div class="badge"><i class="fa-regular fa-user" aria-hidden="true"></i> <span id="account-badge">חשבון EddyWEB</span></div>
+      <h1 id="account-title">החשבון שלך</h1>
+      <p id="account-intro">התחברות, הרשמה וניהול פרטי החשבון שלך.</p>
+      <div class="page-lang">
+        <button class="btn" id="account-language" type="button">English</button>
+      </div>
+    </section>
+
+    <section class="info-card account-card" id="auth-panel">
+      <div class="account-tabs" role="tablist" aria-label="Account access">
+        <button type="button" class="account-tab is-active" id="tab-login" data-mode="login" role="tab" aria-selected="true">התחברות</button>
+        <button type="button" class="account-tab" id="tab-signup" data-mode="signup" role="tab" aria-selected="false">יצירת חשבון</button>
+      </div>
+
+      <form id="auth-form">
+        <div id="signup-fields" hidden>
+          <div class="account-field">
+            <label for="signup-display-name" id="label-signup-display-name">שם תצוגה</label>
+            <input id="signup-display-name" name="displayName" type="text" maxlength="40" autocomplete="nickname">
+          </div>
+          <div class="account-field">
+            <label for="signup-minecraft" id="label-signup-minecraft">שם משתמש ב-Minecraft (לא חובה)</label>
+            <input id="signup-minecraft" name="minecraftUsername" type="text" maxlength="16" autocomplete="off" pattern="[A-Za-z0-9_]{3,16}">
+          </div>
+        </div>
+
+        <div class="account-field">
+          <label for="account-email" id="label-email">כתובת דוא״ל</label>
+          <input id="account-email" name="email" type="email" autocomplete="email" required maxlength="254">
+        </div>
+
+        <div class="account-field">
+          <label for="account-password" id="label-password">סיסמה</label>
+          <input id="account-password" name="password" type="password" autocomplete="current-password" minlength="8" required>
+        </div>
+
+        <div class="account-field" id="confirm-password-wrap" hidden>
+          <label for="confirm-password" id="label-confirm-password">אימות סיסמה</label>
+          <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" minlength="8">
+        </div>
+
+        <div class="account-form-actions">
+          <button class="btn primary" id="submit-auth" type="submit">התחברות</button>
+          <button class="account-link" id="forgot-password" type="button">שכחתי את הסיסמה</button>
+        </div>
+      </form>
+      <p id="auth-status" class="account-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="info-card account-card" id="profile-panel" hidden>
+      <h2 id="profile-heading">החשבון שלי</h2>
+      <p class="account-email-line"><span id="profile-email-label">מחובר בתור:</span> <strong id="profile-email"></strong></p>
+      <form id="profile-form">
+        <div class="account-field">
+          <label for="profile-display-name" id="label-profile-display-name">שם תצוגה</label>
+          <input id="profile-display-name" name="displayName" type="text" maxlength="40" autocomplete="nickname" required>
+        </div>
+        <div class="account-field">
+          <label for="profile-minecraft" id="label-profile-minecraft">שם משתמש ב-Minecraft (לא חובה)</label>
+          <input id="profile-minecraft" name="minecraftUsername" type="text" maxlength="16" autocomplete="off" pattern="[A-Za-z0-9_]{3,16}">
+        </div>
+        <div class="account-form-actions">
+          <button class="btn primary" id="save-profile" type="submit">שמור פרטים</button>
+          <button class="btn" id="logout-button" type="button">התנתקות</button>
+        </div>
+      </form>
+      <p id="profile-status" class="account-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="info-card account-card" id="recovery-panel" hidden>
+      <h2 id="recovery-heading">בחירת סיסמה חדשה</h2>
+      <p id="recovery-intro">הזן סיסמה חדשה לחשבון שלך.</p>
+      <form id="recovery-form">
+        <div class="account-field">
+          <label for="new-password" id="label-new-password">סיסמה חדשה</label>
+          <input id="new-password" name="newPassword" type="password" minlength="8" autocomplete="new-password" required>
+        </div>
+        <div class="account-field">
+          <label for="new-password-confirm" id="label-new-password-confirm">אימות הסיסמה החדשה</label>
+          <input id="new-password-confirm" name="newPasswordConfirm" type="password" minlength="8" autocomplete="new-password" required>
+        </div>
+        <button class="btn primary" id="save-new-password" type="submit">עדכון סיסמה</button>
+      </form>
+      <p id="recovery-status" class="account-status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
+  <script src="account.js"></script>
+  <script src="theme.js"></script>
+  <script src="animations.js"></script>
+</body>
+</html>
