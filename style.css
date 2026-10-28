@@ -1896,3 +1896,41 @@ html[dir="rtl"][data-theme] .theme-floating-toggle { right: 18px !important; lef
 @media(max-width:520px) {
   html[data-theme] .theme-floating-toggle { right: 12px !important; bottom: 12px !important; }
 }
+
+/* Theme toggle: top-right, clear of navigation and page action buttons. */
+html[data-theme] #theme-toggle,
+html[data-theme] .theme-floating-toggle {
+  position: fixed !important;
+  top: max(16px, env(safe-area-inset-top)) !important;
+  right: max(16px, env(safe-area-inset-right)) !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 2147483000 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 112px !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+  padding: 10px 14px !important;
+  border-radius: 999px !important;
+  box-sizing: border-box !important;
+  pointer-events: auto !important;
+  isolation: isolate;
+}
+html[dir="rtl"][data-theme] #theme-toggle,
+html[dir="rtl"][data-theme] .theme-floating-toggle {
+  right: max(16px, env(safe-area-inset-right)) !important;
+  left: auto !important;
+}
+@media (max-width: 520px) {
+  html[data-theme] #theme-toggle,
+  html[data-theme] .theme-floating-toggle {
+    top: max(10px, env(safe-area-inset-top)) !important;
+    right: max(10px, env(safe-area-inset-right)) !important;
+    min-width: 104px !important;
+    min-height: 40px !important;
+    padding: 8px 11px !important;
+  }
+}
