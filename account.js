@@ -281,12 +281,29 @@
     const internalMinecraftEmail = String(user.email || '').endsWith('@minecraft.eddyweb.invalid');
     $('profile-email').textContent = internalMinecraftEmail ? (metadata.minecraft_username || (language === 'he' ? 'חשבון Minecraft' : 'Minecraft account')) : (user.email || '');
     const avatar = $('profile-avatar');
-    const uuid = String(metadata.minecraft_uuid || '').replace(/-/g, '').trim();
+    // LuckPerms on offline-mode servers may store an offline UUID, which skin
+    // services cannot resolve. Resolve the head by the actual Minecraft username first.
+    const uuid = String(metadata.minecraft_uuid || user.app_metadata?.minecraft_uuid || '').replace(/-/g, '').trim();
+    const minecraftUsername = String(metadata.minecraft_username || metadata.display_name || '').trim();
     if (avatar) {
-      if (uuid) {
+      avatar.onerror = () => {
+        if (avatar.dataset.fallbackTried !== 'uuid' && uuid) {
+          avatar.dataset.fallbackTried = 'uuid';
+          avatar.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(uuid) + '/64';
+          return;
+        }
+        avatar.hidden = true;
+      };
+      if (minecraftUsername) {
+        avatar.dataset.fallbackTried = '';
+        avatar.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(minecraftUsername) + '/64';
+        avatar.hidden = false;
+        avatar.alt = minecraftUsername + ' Minecraft skin head';
+      } else if (uuid) {
+        avatar.dataset.fallbackTried = 'uuid';
         avatar.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(uuid) + '/64';
         avatar.hidden = false;
-        avatar.alt = (metadata.minecraft_username || 'Minecraft') + ' skin head';
+        avatar.alt = 'Minecraft skin head';
       } else {
         avatar.removeAttribute('src');
         avatar.hidden = true;
@@ -497,13 +514,23 @@
     button.disabled = true;
     setStatus('link-email-status', t().linkEmailSending, 'loading');
     try {
-      const redirectTo = new URL('/account.html', window.location.origin).href;
-      const { data, error } = await client.auth.updateUser({ email }, { emailRedirectTo: redirectTo });
-      if (error) throw error;
-      if (data?.user) {
-        currentUser = data.user;
-        showProfile(data.user);
-      }
+      const { data: sessionData, error: sessionError } = await client.auth.getSession();
+      if (sessionError) throw sessionError;
+      const token = sessionData?.session?.access_token;
+      if (!token) throw new Error('No active session');
+      const response = await fetch('/api/account/link-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          email,
+          emailRedirectTo: new URL('/account.html', window.location.origin).href
+        })
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Email link failed');
       setStatus('link-email-status', t().linkEmailSent, 'success');
     } catch (error) {
       console.warn('Email linking failed:', error);
