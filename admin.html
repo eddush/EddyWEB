@@ -153,23 +153,24 @@
 </head>
 
 <body>
+    <button id="admin-language-toggle" class="lang-btn" type="button" style="position:fixed;top:16px;left:16px;z-index:30">English</button>
     <div class="grid"></div>
     <div class="admin-container">
         <div id="login-section" class="login-box">
-            <h3>התחברות למערכת</h3>
+            <h3 id="admin-login-heading">התחברות למערכת</h3>
             <div class="form-group">
                 <input type="password" id="admin-pass" placeholder="הכנס סיסמה...">
             </div>
-            <button class="btn primary" onclick="login()">התחבר</button>
+            <button class="btn primary" id="admin-login-button" onclick="login()">התחבר</button>
             <p id="login-error" style="color: #ff6b8a; margin-top: 10px;"></p>
         </div>
 
         <div id="editor-section" class="news-editor hidden">
-            <h3>יצירת מאמר Changelog</h3>
+            <h3 id="admin-editor-heading">יצירת מאמר Changelog</h3>
             <div id="news-list"></div>
-            <button class="btn" onclick="addNewsItem()">+ צור מאמר חדש</button>
+            <button class="btn" id="admin-add-button" onclick="addNewsItem()">+ צור מאמר חדש</button>
             <hr style="border-color: #ffffff10; margin: 20px 0;">
-            <button class="btn primary" onclick="saveNewsToServer()" style="font-size: 16px; padding: 12px 24px;">שמור
+            <button class="btn primary" id="admin-save-button" onclick="saveNewsToServer()" style="font-size: 16px; padding: 12px 24px;">שמור
                 מאמרים</button>
             <p id="save-status" style="margin-top: 10px; font-weight: bold;"></p>
         </div>
@@ -177,6 +178,27 @@
 
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
+
+        let adminLang = localStorage.getItem('eddy-language') || 'he';
+        function applyAdminLanguage() {
+            const he = adminLang === 'he';
+            document.documentElement.lang = adminLang;
+            document.documentElement.dir = he ? 'rtl' : 'ltr';
+            document.title = he ? 'EddyWEB | ניהול עדכונים ומאמרים' : 'EddyWEB | News & Article Admin';
+            document.getElementById('admin-language-toggle').textContent = he ? 'English' : 'עברית';
+            document.getElementById('admin-login-heading').textContent = he ? 'התחברות למערכת' : 'Admin Login';
+            document.getElementById('admin-pass').placeholder = he ? 'הכנס סיסמה...' : 'Enter password...';
+            document.getElementById('admin-login-button').textContent = he ? 'התחבר' : 'Log in';
+            document.getElementById('admin-editor-heading').textContent = he ? 'יצירת מאמר Changelog' : 'Create Changelog Article';
+            document.getElementById('admin-add-button').textContent = he ? '+ צור מאמר חדש' : '+ Create Article';
+            document.getElementById('admin-save-button').textContent = he ? 'שמור מאמרים' : 'Save Articles';
+        }
+        document.getElementById('admin-language-toggle').addEventListener('click', () => {
+            adminLang = adminLang === 'he' ? 'en' : 'he';
+            try { localStorage.setItem('eddy-language', adminLang); } catch (_) {}
+            applyAdminLanguage();
+        });
+
         let authToken = '';
         let newsItems = [];
         let editors = {};
@@ -413,6 +435,7 @@
                 status.textContent = data.message || 'שגיאה בשמירה';
             }
         }
+        applyAdminLanguage();
     </script>
   <script src="theme.js"></script>
   <script src="animations.js"></script>
