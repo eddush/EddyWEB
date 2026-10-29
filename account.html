@@ -60,12 +60,35 @@
           <button class="account-link" id="forgot-password" type="button">שכחתי את הסיסמה</button>
         </div>
       </form>
+      <div class="minecraft-login-divider"><span id="minecraft-login-or">או</span></div>
+      <button class="btn" id="minecraft-login-start" type="button"><i class="fa-solid fa-cube" aria-hidden="true"></i> <span id="minecraft-login-label">התחברות דרך Minecraft</span></button>
+      <div id="minecraft-login-code-wrap" class="minecraft-link-box" hidden>
+        <p id="minecraft-login-instructions">היכנס לשרת Minecraft והקלד את הפקודה הבאה:</p>
+        <p><code id="minecraft-login-command"></code></p>
+        <button class="btn" id="minecraft-login-copy" type="button">העתק פקודה</button>
+        <p id="minecraft-login-status" class="account-status" role="status" aria-live="polite"></p>
+      </div>
       <p id="auth-status" class="account-status" role="status" aria-live="polite"></p>
     </section>
 
     <section class="info-card account-card" id="profile-panel" hidden>
-      <h2 id="profile-heading">החשבון שלי</h2>
-      <p class="account-email-line"><span id="profile-email-label">מחובר בתור:</span> <strong id="profile-email"></strong></p>
+      <div class="account-profile-header">
+        <img id="profile-avatar" class="account-profile-avatar" alt="Minecraft skin head" width="64" height="64" hidden>
+        <div>
+          <h2 id="profile-heading">החשבון שלי</h2>
+          <p class="account-email-line"><span id="profile-email-label">מחובר בתור:</span> <strong id="profile-email"></strong></p>
+        </div>
+      </div>
+      <form id="link-email-form" class="minecraft-link-box">
+        <h3 id="link-email-heading">חיבור דוא״ל לחשבון</h3>
+        <p id="link-email-description">אפשר להוסיף כתובת דוא״ל בהמשך כדי להשתמש בה בחשבון.</p>
+        <div class="account-field">
+          <label for="link-email-input" id="label-link-email">כתובת דוא״ל</label>
+          <input id="link-email-input" type="email" autocomplete="email" maxlength="254" placeholder="name@example.com" required>
+        </div>
+        <button class="btn" id="link-email-submit" type="submit">חבר דוא״ל</button>
+        <p id="link-email-status" class="account-status" role="status" aria-live="polite"></p>
+      </form>
 
       <section class="minecraft-link-box" aria-labelledby="minecraft-link-heading">
         <h3 id="minecraft-link-heading">חיבור חשבון Minecraft</h3>
