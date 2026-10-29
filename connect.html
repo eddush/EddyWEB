@@ -36,18 +36,17 @@
       <div class="connect-icon"><i class="fa-solid fa-cube" aria-hidden="true"></i></div>
       <div class="badge"><i class="fa-brands fa-java" aria-hidden="true"></i> MINECRAFT JAVA EDITION</div>
       <h1>מתחברים ל־<span>Eddydev</span></h1>
-      <p>לחץ כדי לנסות לפתוח את Minecraft Java Edition. כתובת השרת תועתק אוטומטית כגיבוי, למקרה שהמשחק לא יתחבר ישירות.</p>
+      <p>העתק את כתובת השרת והתחבר אליו דרך תפריט Multiplayer בתוך Minecraft Java Edition.</p>
       <div class="server-address" aria-label="כתובת השרת"><span>eddydev.ddns.net:25565</span></div>
       <div class="connect-actions">
-        <button id="open-minecraft" class="btn primary" type="button"><i class="fa-solid fa-play" aria-hidden="true"></i> פתח את Minecraft</button>
-        <button id="copy-server" class="btn" type="button"><i class="fa-regular fa-copy" aria-hidden="true"></i> העתק כתובת שרת</button>
+        <button id="copy-server" class="btn primary" type="button"><i class="fa-regular fa-copy" aria-hidden="true"></i> העתק כתובת שרת</button>
       </div>
       <p id="connect-status" class="connect-status" role="status" aria-live="polite"></p>
       <div class="connect-note">
         <strong><i class="fa-solid fa-circle-info" aria-hidden="true"></i> חשוב לדעת</strong>
-        <p>ב־Minecraft Java Edition אין קישור דפדפן רשמי ואמין שמחבר אוטומטית לשרת. הכפתור מנסה לפתוח את Minecraft אם הפרוטוקול מוגדר במחשב, ומעתיק את כתובת השרת כגיבוי. ייתכן שיהיה צורך לאשר פתיחת אפליקציה בדפדפן.</p>
+        <p>ב־Minecraft Java Edition מתחברים ידנית דרך תפריט Multiplayer. האתר אינו מנסה לפתוח את המשחק.</p>
       </div>
-      <h2>אם המשחק נפתח אבל לא התחבר</h2>
+      <h2>איך מתחברים לשרת</h2>
       <ol class="connect-steps">
         <li>פתח ב־Minecraft את <strong>Multiplayer</strong>.</li>
         <li>בחר <strong>Direct Connection</strong>.</li>
@@ -77,18 +76,7 @@
           ?'כתובת השרת הועתקה. הדבק אותה ב־Multiplayer → Direct Connection.'
           :'לא הצלחנו להעתיק אוטומטית. סמן והעתק את הכתובת שמופיעה למעלה.';
       });
-      document.getElementById('open-minecraft').addEventListener('click',()=>{
-        // Start clipboard writing from the click, but do not await it before
-        // invoking the external protocol: browsers may drop user activation
-        // across an asynchronous boundary.
-        const copyTask=copyAddress();
-        status.textContent='מנסה לפתוח את Minecraft… אם לא נפתח חלון אישור, ייתכן שאין במחשב פרוטוקול Minecraft רשום ל־Java Edition.';
-        window.location.href='minecraft://';
-        copyTask.then(copied=>{
-          if(copied) status.textContent='ניסינו לפתוח את Minecraft וכתובת השרת הועתקה. אם לא נפתח חלון אישור או שהמשחק לא התחבר, פתח Multiplayer → Direct Connection והדבק את הכתובת.';
-          else status.textContent='ניסינו לפתוח את Minecraft. אם לא נפתח חלון אישור, הדפדפן או מערכת ההפעלה לא זיהו את הקישור; העתק את הכתובת והתחבר דרך Multiplayer → Direct Connection.';
-        });
-      });
+
     })();
   </script>
 </body>
