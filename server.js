@@ -389,7 +389,7 @@ function getDatabaseConnection() {
     };
 }
 
-// Minecraft account linking: the website polls the same LuckPerms tables used by player lookup.
+// Minecraft account linking. Link codes are created and owned server-side by the signed-in user.
 function getBearerToken(req) {
     const header = String(req.headers.authorization || '');
     return header.startsWith('Bearer ') ? header.slice(7).trim() : '';
@@ -404,9 +404,39 @@ async function getAuthenticatedSupabaseUser(req) {
     return { conn, user: data.user };
 }
 
+app.post('/api/minecraft-link/create', async (req, res) => {
+    try {
+        const { conn, user } = await getAuthenticatedSupabaseUser(req);
+        if (!conn) return res.status(503).json({ success: false, message: 'חיבור מסד הנתונים אינו זמין. בדוק את SUPABASE_URL ואת מפתח השרת ב-Vercel.' });
+        if (!user) return res.status(401).json({ success: false, message: 'יש להתחבר מחדש לאתר' });
+
+        // One active code per website account; each code expires after 10 minutes.
+        await supabaseClient.from('minecraft_link_codes').delete().eq('user_id', user.id);
+        const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ2346789';
+        const crypto = require('crypto');
+        let code = '';
+        let saved = false;
+        for (let attempt = 0; attempt < 5 && !saved; attempt++) {
+            code = Array.from(crypto.randomBytes(8), byte => alphabet[byte % alphabet.length]).join('');
+            const { error } = await supabaseClient.from('minecraft_link_codes').insert({
+                code,
+                user_id: user.id,
+                expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString()
+            });
+            if (!error) saved = true;
+            else if (error.code !== '23505') throw error;
+        }
+        if (!saved) throw new Error('Could not generate a unique code');
+        return res.json({ success: true, code, expiresInSeconds: 600 });
+    } catch (error) {
+        console.error('Minecraft link code creation error:', error?.message || error);
+        return res.status(500).json({ success: false, message: 'לא ניתן ליצור קוד חיבור כרגע' });
+    }
+});
+
 app.get('/api/minecraft-link/status', async (req, res) => {
     const code = String(req.query.code || '').trim().toUpperCase();
-    if (!/^[A-HJ-NP-Z2-9]{8}$/.test(code)) {
+    if (!/^[ABCDEFGHJKLMNPQRSTUVWXYZ2346789]{8}$/.test(code)) {
         return res.status(400).json({ success: false, message: 'קוד חיבור לא תקין' });
     }
 
@@ -414,6 +444,16 @@ app.get('/api/minecraft-link/status', async (req, res) => {
         const { conn, user } = await getAuthenticatedSupabaseUser(req);
         if (!conn) return res.status(503).json({ success: false, message: 'חיבור מסד הנתונים אינו זמין' });
         if (!user) return res.status(401).json({ success: false, message: 'יש להתחבר מחדש לאתר' });
+
+        const { data: link, error: linkError } = await supabaseClient
+            .from('minecraft_link_codes')
+            .select('code,user_id,expires_at')
+            .eq('code', code)
+            .eq('user_id', user.id)
+            .gt('expires_at', new Date().toISOString())
+            .maybeSingle();
+        if (linkError) throw linkError;
+        if (!link) return res.status(404).json({ success: false, pending: true });
 
         const { data: rows, error } = await supabaseClient
             .from('luckperms_user_permissions')
@@ -447,7 +487,7 @@ app.get('/api/minecraft-link/status', async (req, res) => {
 app.post('/api/minecraft-link/complete', async (req, res) => {
     const code = String(req.body?.code || '').trim().toUpperCase();
     const rowId = Number(req.body?.rowId);
-    if (!/^[A-HJ-NP-Z2-9]{8}$/.test(code) || !Number.isInteger(rowId) || rowId < 1) {
+    if (!/^[ABCDEFGHJKLMNPQRSTUVWXYZ2346789]{8}$/.test(code) || !Number.isInteger(rowId) || rowId < 1) {
         return res.status(400).json({ success: false, message: 'פרטי חיבור לא תקינים' });
     }
 
@@ -456,12 +496,29 @@ app.post('/api/minecraft-link/complete', async (req, res) => {
         if (!conn) return res.status(503).json({ success: false, message: 'חיבור מסד הנתונים אינו זמין' });
         if (!user) return res.status(401).json({ success: false, message: 'יש להתחבר מחדש לאתר' });
 
-        const { error } = await supabaseClient
+        const { data: link, error: linkError } = await supabaseClient
+            .from('minecraft_link_codes')
+            .select('code,user_id')
+            .eq('code', code)
+            .eq('user_id', user.id)
+            .gt('expires_at', new Date().toISOString())
+            .maybeSingle();
+        if (linkError) throw linkError;
+        if (!link) return res.status(404).json({ success: false, message: 'קוד החיבור פג תוקף או אינו שייך לחשבון זה' });
+
+        const { error: deletePermissionError } = await supabaseClient
             .from('luckperms_user_permissions')
             .delete()
             .eq('id', rowId)
             .eq('permission', 'meta.eddy_link.' + code);
-        if (error) throw error;
+        if (deletePermissionError) throw deletePermissionError;
+
+        const { error: deleteCodeError } = await supabaseClient
+            .from('minecraft_link_codes')
+            .delete()
+            .eq('code', code)
+            .eq('user_id', user.id);
+        if (deleteCodeError) throw deleteCodeError;
         return res.json({ success: true });
     } catch (error) {
         console.error('Minecraft link cleanup error:', error?.message || error);
