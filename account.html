@@ -72,6 +72,7 @@
         <p id="minecraft-link-description">חבר את חשבון Minecraft שלך לחשבון EDDYWEB.</p>
         <p id="minecraft-linked-status" class="account-status" role="status" aria-live="polite"></p>
         <button class="btn primary" id="minecraft-link-start" type="button">חבר חשבון Minecraft</button>
+        <button class="btn" id="minecraft-disconnect" type="button" hidden>נתק חשבון Minecraft</button>
         <div id="minecraft-link-code-wrap" hidden>
           <p id="minecraft-link-instructions">היכנס לשרת Minecraft וכתוב את הפקודה הבאה:</p>
           <p><code id="minecraft-link-command"></code></p>
@@ -94,6 +95,11 @@
         </div>
       </form>
       <p id="profile-status" class="account-status" role="status" aria-live="polite"></p>
+      <section class="minecraft-link-box account-danger-zone" aria-labelledby="delete-account-heading">
+        <h3 id="delete-account-heading">מחיקת חשבון EddyWEB</h3>
+        <p id="delete-account-description">מחיקת החשבון היא פעולה קבועה ולא ניתן לשחזר אותו.</p>
+        <button class="btn" id="delete-account-button" type="button">מחק את החשבון שלי</button>
+      </section>
     </section>
 
     <section class="info-card account-card" id="recovery-panel" hidden>
