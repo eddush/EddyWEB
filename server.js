@@ -484,18 +484,27 @@ app.post('/api/minecraft-auth/create', async (req, res) => {
 
 async function findAuthUserByMinecraftUuid(uuid) {
     const normalized = String(uuid || '').replace(/-/g, '').toLowerCase();
+    const legacyMatches = [];
     for (let page = 1; page <= 10; page++) {
         const { data, error } = await supabaseClient.auth.admin.listUsers({ page, perPage: 1000 });
         if (error) throw error;
         const users = data?.users || [];
-        // Use app_metadata, which clients cannot edit, as the trusted Minecraft identity.
-        const match = users.find(user =>
+        const trusted = users.find(user =>
             String(user.app_metadata?.minecraft_uuid || '').replace(/-/g, '').toLowerCase() === normalized
         );
-        if (match) return match;
+        if (trusted) return trusted;
+
+        // Existing EDDYWEB accounts predate protected app_metadata. Only accept a unique legacy
+        // metadata match; the Minecraft server proof is required before it is promoted to app_metadata.
+        legacyMatches.push(...users.filter(user =>
+            String(user.user_metadata?.minecraft_uuid || '').replace(/-/g, '').toLowerCase() === normalized
+        ));
         if (users.length < 1000) break;
     }
-    return null;
+    if (legacyMatches.length > 1) {
+        throw new Error('More than one account claims this Minecraft UUID; sign in with email and reconnect Minecraft.');
+    }
+    return legacyMatches[0] || null;
 }
 
 app.get('/api/minecraft-auth/status', async (req, res) => {
