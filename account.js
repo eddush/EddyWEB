@@ -365,66 +365,93 @@
     }
   }
 
+  async function getAccountAccessToken() {
+    const { data } = await client.auth.getSession();
+    return data?.session?.access_token || '';
+  }
+
   $('minecraft-link-start').addEventListener('click', async () => {
     if (!currentUser) return;
     stopMinecraftLinkPolling();
-    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ2346789';
-    const bytes = new Uint8Array(8);
-    if (window.crypto?.getRandomValues) window.crypto.getRandomValues(bytes);
-    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
-    activeMinecraftCode = Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
-    $('minecraft-link-command').textContent = '/link ' + activeMinecraftCode;
-    $('minecraft-link-code-wrap').hidden = false;
-    $('minecraft-link-waiting').textContent = t().minecraftLinkWaiting;
     $('minecraft-link-start').disabled = true;
+    $('minecraft-link-waiting').textContent = t().minecraftLinkWaiting;
+    $('minecraft-link-code-wrap').hidden = true;
 
-    const checkStatus = async () => {
-      if (!currentUser || !activeMinecraftCode) return;
-      try {
-        const { data: sessionData } = await client.auth.getSession();
-        const accessToken = sessionData?.session?.access_token;
-        if (!accessToken) throw new Error('No active session');
-        const response = await fetch('/api/minecraft-link/status?code=' + encodeURIComponent(activeMinecraftCode), {
-          headers: { Authorization: 'Bearer ' + accessToken }
-        });
-        const result = await response.json();
-        if (response.ok && result.success && result.player?.uuid && result.player?.username) {
-          const { data, error } = await client.auth.updateUser({
-            data: {
-              minecraft_username: result.player.username,
-              minecraft_uuid: result.player.uuid
-            }
-          });
-          if (error) throw error;
-          const completeResponse = await fetch('/api/minecraft-link/complete', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: 'Bearer ' + accessToken
-            },
-            body: JSON.stringify({ code: activeMinecraftCode, rowId: result.rowId })
-          });
-          if (!completeResponse.ok) console.warn('Minecraft link cleanup did not complete.');
-          stopMinecraftLinkPolling();
-          activeMinecraftCode = '';
-          $('minecraft-link-waiting').textContent = t().minecraftLinkSuccess;
-          $('minecraft-link-waiting').dataset.kind = 'success';
-          showProfile(data.user, t().minecraftLinkSuccess);
-          $('minecraft-link-start').disabled = false;
-        } else if (response.status === 404) {
-          // Code has not reached LuckPerms yet; keep polling.
-        } else if (!response.ok) {
-          throw new Error(result.message || 'Link status request failed');
-        }
-      } catch (error) {
-        console.warn('Minecraft link check failed:', error);
-        $('minecraft-link-waiting').textContent = t().minecraftLinkError;
-        $('minecraft-link-waiting').dataset.kind = 'error';
+    try {
+      const accessToken = await getAccountAccessToken();
+      if (!accessToken) throw new Error('No active session');
+      const createResponse = await fetch('/api/minecraft-link/create', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + accessToken }
+      });
+      const created = await createResponse.json();
+      if (!createResponse.ok || !created.success || !created.code) {
+        throw new Error(created.message || 'Could not create a link code');
       }
-    };
 
-    await checkStatus();
-    minecraftLinkPoll = setInterval(checkStatus, 3000);
+      activeMinecraftCode = created.code;
+      $('minecraft-link-command').textContent = '/link ' + activeMinecraftCode;
+      $('minecraft-link-code-wrap').hidden = false;
+      $('minecraft-link-waiting').textContent = t().minecraftLinkWaiting;
+
+      const checkStatus = async () => {
+        if (!currentUser || !activeMinecraftCode) return;
+        try {
+          const token = await getAccountAccessToken();
+          if (!token) throw new Error('No active session');
+          const response = await fetch('/api/minecraft-link/status?code=' + encodeURIComponent(activeMinecraftCode), {
+            headers: { Authorization: 'Bearer ' + token }
+          });
+          const result = await response.json();
+          if (response.ok && result.success && result.player?.uuid && result.player?.username && result.rowId) {
+            const { data, error } = await client.auth.updateUser({
+              data: {
+                minecraft_username: result.player.username,
+                minecraft_uuid: result.player.uuid
+              }
+            });
+            if (error) throw error;
+
+            const completeResponse = await fetch('/api/minecraft-link/complete', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + token
+              },
+              body: JSON.stringify({ code: activeMinecraftCode, rowId: result.rowId })
+            });
+            if (!completeResponse.ok) {
+              const completeResult = await completeResponse.json().catch(() => ({}));
+              throw new Error(completeResult.message || 'Could not finalize linking');
+            }
+
+            stopMinecraftLinkPolling();
+            activeMinecraftCode = '';
+            $('minecraft-link-waiting').textContent = t().minecraftLinkSuccess;
+            $('minecraft-link-waiting').dataset.kind = 'success';
+            showProfile(data.user, t().minecraftLinkSuccess);
+            $('minecraft-link-start').disabled = false;
+          } else if (response.status === 404) {
+            // Code has not reached LuckPerms yet; keep polling until the code expires.
+          } else if (!response.ok) {
+            throw new Error(result.message || 'Link status request failed');
+          }
+        } catch (error) {
+          console.warn('Minecraft link check failed:', error);
+          $('minecraft-link-waiting').textContent = t().minecraftLinkError;
+          $('minecraft-link-waiting').dataset.kind = 'error';
+        }
+      };
+
+      await checkStatus();
+      minecraftLinkPoll = setInterval(checkStatus, 3000);
+    } catch (error) {
+      console.warn('Minecraft link code creation failed:', error);
+      $('minecraft-link-waiting').textContent = t().minecraftLinkError;
+      $('minecraft-link-waiting').dataset.kind = 'error';
+      $('minecraft-link-code-wrap').hidden = false;
+      $('minecraft-link-start').disabled = false;
+    }
   });
 
   $('minecraft-link-copy').addEventListener('click', async () => {
