@@ -417,6 +417,10 @@ app.post('/api/account/disconnect-minecraft', async (req, res) => {
                 ...(user.user_metadata || {}),
                 minecraft_username: null,
                 minecraft_uuid: null
+            },
+            app_metadata: {
+                ...(user.app_metadata || {}),
+                minecraft_uuid: null
             }
         });
         if (metadataError) throw metadataError;
@@ -484,8 +488,9 @@ async function findAuthUserByMinecraftUuid(uuid) {
         const { data, error } = await supabaseClient.auth.admin.listUsers({ page, perPage: 1000 });
         if (error) throw error;
         const users = data?.users || [];
+        // Use app_metadata, which clients cannot edit, as the trusted Minecraft identity.
         const match = users.find(user =>
-            String(user.user_metadata?.minecraft_uuid || '').replace(/-/g, '').toLowerCase() === normalized
+            String(user.app_metadata?.minecraft_uuid || '').replace(/-/g, '').toLowerCase() === normalized
         );
         if (match) return match;
         if (users.length < 1000) break;
@@ -549,6 +554,9 @@ app.get('/api/minecraft-auth/status', async (req, res) => {
                     display_name: player.username,
                     minecraft_username: player.username,
                     minecraft_uuid: player.uuid
+                },
+                app_metadata: {
+                    minecraft_uuid: player.uuid
                 }
             });
             if (createError) {
@@ -568,6 +576,10 @@ app.get('/api/minecraft-auth/status', async (req, res) => {
                 user_metadata: {
                     ...(user.user_metadata || {}),
                     minecraft_username: player.username,
+                    minecraft_uuid: player.uuid
+                },
+                app_metadata: {
+                    ...(user.app_metadata || {}),
                     minecraft_uuid: player.uuid
                 }
             });
@@ -698,6 +710,25 @@ app.post('/api/minecraft-link/complete', async (req, res) => {
             .maybeSingle();
         if (linkError) throw linkError;
         if (!link) return res.status(404).json({ success: false, message: 'קוד החיבור פג תוקף או אינו שייך לחשבון זה' });
+
+        const { data: verifiedRows, error: verifyPermissionError } = await supabaseClient
+            .from('luckperms_user_permissions')
+            .select('id,uuid,permission,value')
+            .eq('id', rowId)
+            .eq('permission', 'meta.eddy_link.' + code)
+            .eq('value', true)
+            .limit(1);
+        if (verifyPermissionError) throw verifyPermissionError;
+        const verifiedRow = verifiedRows?.[0];
+        if (!verifiedRow?.uuid) return res.status(404).json({ success: false, message: 'קוד החיבור כבר אינו תקף' });
+
+        const { error: trustedIdentityError } = await supabaseClient.auth.admin.updateUserById(user.id, {
+            app_metadata: {
+                ...(user.app_metadata || {}),
+                minecraft_uuid: verifiedRow.uuid
+            }
+        });
+        if (trustedIdentityError) throw trustedIdentityError;
 
         const { error: deletePermissionError } = await supabaseClient
             .from('luckperms_user_permissions')
