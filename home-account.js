@@ -3,6 +3,8 @@
 
   const SUPABASE_URL = 'https://vnhgkatsfpjyqpdppqrf.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_N6amZaYaWj7AdF8wQAHpEA_Qd2TAyp6';
+  const ACCOUNT_PROFILE_STORAGE_KEY = 'eddyweb.account.profile.v1';
+  const AUTH_STORAGE_KEY = 'sb-vnhgkatsfpjyqpdppqrf-auth-token';
 
   const avatar = document.getElementById('home-account-avatar');
   const icon = document.getElementById('account-nav-icon');
@@ -66,6 +68,33 @@
       return;
     }
     label.textContent = currentDisplayName || (currentLanguage() === 'he' ? 'החשבון שלי' : 'My account');
+  }
+
+  function readAccountProfileMirror() {
+    try {
+      const raw = localStorage.getItem(ACCOUNT_PROFILE_STORAGE_KEY);
+      if (!raw) return null;
+      const profile = JSON.parse(raw);
+      if (!profile || typeof profile !== 'object') return null;
+      const displayName = String(profile.displayName || '').trim();
+      const minecraftUsername = String(profile.minecraftUsername || '').trim();
+      const uuid = String(profile.uuid || '').replace(/-/g, '').trim();
+      if (!displayName && !minecraftUsername && !uuid) return null;
+      return {
+        id: 'homepage-profile-mirror',
+        email: '',
+        user_metadata: { display_name: displayName, minecraft_username: minecraftUsername, minecraft_uuid: uuid },
+        app_metadata: {}
+      };
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function showAccountProfileMirrorOrSignedOut() {
+    const mirroredUser = readAccountProfileMirror();
+    if (mirroredUser) showUser(mirroredUser);
+    else showSignedOut();
   }
 
   function showSignedOut() {
@@ -141,8 +170,11 @@
     avatar.src = candidates[0];
   }
 
+  // Show the last successfully signed-in profile while Supabase restores its session.
+  showAccountProfileMirrorOrSignedOut();
+
   if (!window.supabase?.createClient) {
-    showSignedOut();
+    showAccountProfileMirrorOrSignedOut();
     console.error('[EddyWEB] Supabase client did not load on the homepage.');
     return;
   }
@@ -151,30 +183,41 @@
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      storageKey: AUTH_STORAGE_KEY
     }
   });
 
   window.eddyHomeAccount = {
     syncLanguage: updateLanguageLabel,
     refresh: () => client.auth.getSession()
-      .then(({ data }) => showUser(data.session?.user || null))
-      .catch(showSignedOut)
+      .then(({ data }) => data.session?.user ? showUser(data.session.user) : showAccountProfileMirrorOrSignedOut())
+      .catch(showAccountProfileMirrorOrSignedOut)
   };
 
   client.auth.getSession()
     .then(({ data, error }) => {
       if (error) throw error;
-      showUser(data.session?.user || null);
+      if (data.session?.user) showUser(data.session.user);
+      else showAccountProfileMirrorOrSignedOut();
     })
     .catch((error) => {
-      showSignedOut();
+      showAccountProfileMirrorOrSignedOut();
       console.error('[EddyWEB] Could not read the homepage sign-in session:', error);
     });
 
-  client.auth.onAuthStateChange((_event, session) => showUser(session?.user || null));
+  client.auth.onAuthStateChange((_event, session) => {
+    if (session?.user) showUser(session.user);
+    else showAccountProfileMirrorOrSignedOut();
+  });
 
   window.addEventListener('storage', (event) => {
-    if (event.key === 'eddy-language') updateLanguageLabel();
+    if (event.key === 'eddy-language') {
+      updateLanguageLabel();
+    } else if (event.key === ACCOUNT_PROFILE_STORAGE_KEY || event.key === AUTH_STORAGE_KEY) {
+      client.auth.getSession()
+        .then(({ data }) => data.session?.user ? showUser(data.session.user) : showAccountProfileMirrorOrSignedOut())
+        .catch(showAccountProfileMirrorOrSignedOut);
+    }
   });
 })();
