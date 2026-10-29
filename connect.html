@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071014">
+  <title>EddyWEB | התחברות לשרת</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <style>
+    .connect-page{width:min(100%,900px);margin:0 auto;padding:34px 18px 70px;position:relative;z-index:2}
+    .connect-panel{padding:clamp(22px,5vw,42px);text-align:center;background:linear-gradient(145deg,#0d181deF,#0a1115F2);border:1px solid #ffffff18;border-radius:22px;box-shadow:0 18px 60px #0008}
+    .connect-icon{width:76px;height:76px;margin:0 auto 18px;display:grid;place-items:center;border-radius:20px;background:#31e7ca18;border:1px solid #31e7ca55;color:#5fffe4;font-size:36px}
+    .connect-panel h1{font-size:clamp(25px,5vw,44px);margin:12px 0}
+    .connect-panel>p{color:#a9babc;line-height:1.8;max-width:640px;margin:0 auto 22px}
+    .server-address{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;direction:ltr;padding:16px;margin:20px auto;max-width:560px;border:1px solid #31e7ca55;background:#061014a8;border-radius:14px;font:700 clamp(16px,3vw,22px) monospace;overflow-wrap:anywhere}
+    .connect-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:22px 0}
+    .connect-actions .btn{min-height:48px}
+    .connect-status{min-height:28px;margin:14px auto 0;color:#5fffe4}
+    .connect-note{text-align:start;margin:24px auto 0;max-width:650px;padding:16px 18px;border-radius:12px;border:1px solid #ffffff16;background:#060b0e88;color:#a9babc;line-height:1.85}
+    .connect-note strong{color:#fff}
+    .connect-steps{text-align:start;max-width:650px;margin:20px auto 0;padding-inline-start:24px;color:#c5d4d6;line-height:2}
+    body[data-theme="light"] .connect-panel{background:#ffffffd9;border-color:#1b344022}
+    body[data-theme="light"] .connect-panel>p,body[data-theme="light"] .connect-note,body[data-theme="light"] .connect-steps{color:#30444a}
+    body[data-theme="light"] .server-address{background:#ffffffb8;color:#13282e}
+    body[data-theme="light"] .connect-note{background:#ffffffa8;border-color:#1b344022}
+    body[data-theme="light"] .connect-note strong{color:#10252a}
+  </style>
+</head>
+<body>
+  <button id="theme-toggle" class="lang-btn theme-btn theme-floating-toggle" type="button" aria-label="החלפת מצב תצוגה">☀️ מצב בהיר</button>
+  <div class="grid"></div>
+  <main class="connect-page">
+    <a class="info-back" href="index.html">→ חזרה ל-EddyWEB</a>
+    <section class="connect-panel">
+      <div class="connect-icon"><i class="fa-solid fa-cube" aria-hidden="true"></i></div>
+      <div class="badge"><i class="fa-brands fa-java" aria-hidden="true"></i> MINECRAFT JAVA EDITION</div>
+      <h1>מתחברים ל־<span>Eddydev</span></h1>
+      <p>לחץ כדי לנסות לפתוח את Minecraft Java Edition. כתובת השרת תועתק אוטומטית כגיבוי, למקרה שהמשחק לא יתחבר ישירות.</p>
+      <div class="server-address" aria-label="כתובת השרת"><span>eddydev.ddns.net:25565</span></div>
+      <div class="connect-actions">
+        <button id="open-minecraft" class="btn primary" type="button"><i class="fa-solid fa-play" aria-hidden="true"></i> פתח את Minecraft</button>
+        <button id="copy-server" class="btn" type="button"><i class="fa-regular fa-copy" aria-hidden="true"></i> העתק כתובת שרת</button>
+      </div>
+      <p id="connect-status" class="connect-status" role="status" aria-live="polite"></p>
+      <div class="connect-note">
+        <strong><i class="fa-solid fa-circle-info" aria-hidden="true"></i> חשוב לדעת</strong>
+        <p>ב־Minecraft Java Edition אין קישור דפדפן רשמי ואמין שמחבר אוטומטית לשרת. הכפתור מנסה לפתוח את Minecraft אם הפרוטוקול מוגדר במחשב, ומעתיק את כתובת השרת כגיבוי. ייתכן שיהיה צורך לאשר פתיחת אפליקציה בדפדפן.</p>
+      </div>
+      <h2>אם המשחק נפתח אבל לא התחבר</h2>
+      <ol class="connect-steps">
+        <li>פתח ב־Minecraft את <strong>Multiplayer</strong>.</li>
+        <li>בחר <strong>Direct Connection</strong>.</li>
+        <li>הדבק <code>eddydev.ddns.net:25565</code> ולחץ <strong>Join Server</strong>.</li>
+      </ol>
+    </section>
+  </main>
+  <script src="theme.js"></script>
+  <script>
+    (() => {
+      const address='eddydev.ddns.net:25565';
+      const status=document.getElementById('connect-status');
+      async function copyAddress(){
+        try {
+          if(navigator.clipboard&&window.isSecureContext) await navigator.clipboard.writeText(address);
+          else {
+            const field=document.createElement('textarea'); field.value=address; field.readOnly=true;
+            field.style.position='fixed'; field.style.opacity='0'; document.body.appendChild(field);
+            field.select(); const ok=document.execCommand('copy'); field.remove();
+            if(!ok) throw new Error('copy failed');
+          }
+          return true;
+        } catch(_){ return false; }
+      }
+      document.getElementById('copy-server').addEventListener('click',async()=>{
+        status.textContent=await copyAddress()
+          ?'כתובת השרת הועתקה. הדבק אותה ב־Multiplayer → Direct Connection.'
+          :'לא הצלחנו להעתיק אוטומטית. סמן והעתק את הכתובת שמופיעה למעלה.';
+      });
+      document.getElementById('open-minecraft').addEventListener('click',async()=>{
+        const copied=await copyAddress();
+        status.textContent=copied
+          ?'ניסינו לפתוח את Minecraft והעתקנו את כתובת השרת. אם המשחק לא נפתח או לא התחבר, הדבק אותה ב־Multiplayer → Direct Connection.'
+          :'ננסה לפתוח את Minecraft. אם לא התחבר, העתק את כתובת השרת שמופיעה למעלה.';
+        window.location.href='minecraft://';
+      });
+    })();
+  </script>
+</body>
+</html>
