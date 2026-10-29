@@ -389,6 +389,86 @@ function getDatabaseConnection() {
     };
 }
 
+// Minecraft account linking: the website polls the same LuckPerms tables used by player lookup.
+function getBearerToken(req) {
+    const header = String(req.headers.authorization || '');
+    return header.startsWith('Bearer ') ? header.slice(7).trim() : '';
+}
+
+async function getAuthenticatedSupabaseUser(req) {
+    const conn = getDatabaseConnection();
+    const token = getBearerToken(req);
+    if (!conn || !token) return { conn, user: null };
+    const { data, error } = await supabaseClient.auth.getUser(token);
+    if (error || !data?.user) return { conn, user: null };
+    return { conn, user: data.user };
+}
+
+app.get('/api/minecraft-link/status', async (req, res) => {
+    const code = String(req.query.code || '').trim().toUpperCase();
+    if (!/^[A-HJ-NP-Z2-9]{8}$/.test(code)) {
+        return res.status(400).json({ success: false, message: 'קוד חיבור לא תקין' });
+    }
+
+    try {
+        const { conn, user } = await getAuthenticatedSupabaseUser(req);
+        if (!conn) return res.status(503).json({ success: false, message: 'חיבור מסד הנתונים אינו זמין' });
+        if (!user) return res.status(401).json({ success: false, message: 'יש להתחבר מחדש לאתר' });
+
+        const { data: rows, error } = await supabaseClient
+            .from('luckperms_user_permissions')
+            .select('id,uuid,permission,value,expiry')
+            .eq('permission', 'meta.eddy_link.' + code)
+            .eq('value', true)
+            .order('id', { ascending: false })
+            .limit(1);
+        if (error) throw error;
+        if (!rows || !rows.length) return res.status(404).json({ success: false, pending: true });
+
+        const row = rows[0];
+        if (row.expiry && Number(row.expiry) > 0 && Number(row.expiry) < Math.floor(Date.now() / 1000)) {
+            return res.status(404).json({ success: false, pending: true });
+        }
+        const { data: players, error: playerError } = await supabaseClient
+            .from('luckperms_players')
+            .select('uuid,username')
+            .eq('uuid', row.uuid)
+            .limit(1);
+        if (playerError) throw playerError;
+        const player = players?.[0];
+        if (!player?.username) return res.status(404).json({ success: false, pending: true });
+        return res.json({ success: true, rowId: row.id, player: { uuid: player.uuid, username: player.username } });
+    } catch (error) {
+        console.error('Minecraft link status error:', error?.message || error);
+        return res.status(500).json({ success: false, message: 'שגיאה בבדיקת חיבור Minecraft' });
+    }
+});
+
+app.post('/api/minecraft-link/complete', async (req, res) => {
+    const code = String(req.body?.code || '').trim().toUpperCase();
+    const rowId = Number(req.body?.rowId);
+    if (!/^[A-HJ-NP-Z2-9]{8}$/.test(code) || !Number.isInteger(rowId) || rowId < 1) {
+        return res.status(400).json({ success: false, message: 'פרטי חיבור לא תקינים' });
+    }
+
+    try {
+        const { conn, user } = await getAuthenticatedSupabaseUser(req);
+        if (!conn) return res.status(503).json({ success: false, message: 'חיבור מסד הנתונים אינו זמין' });
+        if (!user) return res.status(401).json({ success: false, message: 'יש להתחבר מחדש לאתר' });
+
+        const { error } = await supabaseClient
+            .from('luckperms_user_permissions')
+            .delete()
+            .eq('id', rowId)
+            .eq('permission', 'meta.eddy_link.' + code);
+        if (error) throw error;
+        return res.json({ success: true });
+    } catch (error) {
+        console.error('Minecraft link cleanup error:', error?.message || error);
+        return res.status(500).json({ success: false, message: 'החשבון חובר, אך לא הצלחנו לנקות את קוד החיבור' });
+    }
+});
+
 async function ensureSiteContentTable(conn) {
     await conn.execute(`
         CREATE TABLE IF NOT EXISTS site_content (
