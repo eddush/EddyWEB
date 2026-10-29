@@ -72,7 +72,18 @@
       minecraftLinkExpired: 'לא הצלחנו לאמת את הקוד. צור קוד חדש ונסה שוב.',
       minecraftLinkError: 'לא ניתן לבדוק את הקוד כרגע. נסה שוב בעוד רגע.',
       minecraftLinkCopied: 'הפקודה הועתקה.',
-      minecraftAlreadyLinked: 'Minecraft מחובר לחשבון זה:'
+      minecraftAlreadyLinked: 'Minecraft מחובר לחשבון זה:',
+      disconnectMinecraft: 'נתק חשבון Minecraft',
+      disconnectMinecraftConfirm: 'לנתק את חשבון Minecraft מחשבון EddyWEB? אפשר לחבר אותו שוב מאוחר יותר.',
+      minecraftDisconnected: 'חשבון Minecraft נותק בהצלחה.',
+      deleteAccountTitle: 'מחיקת חשבון EddyWEB',
+      deleteAccountDescription: 'מחיקת החשבון היא פעולה קבועה ולא ניתן לשחזר אותו.',
+      deleteAccount: 'מחק את החשבון שלי',
+      deleteAccountConfirm: 'למחוק לצמיתות את חשבון EddyWEB? כל פרטי ההתחברות והחשבון יימחקו. לא ניתן לבטל פעולה זו.',
+      deletingAccount: 'מוחק את החשבון...',
+      accountDeleted: 'החשבון נמחק בהצלחה.',
+      disconnectError: 'לא ניתן לנתק את חשבון Minecraft כרגע. נסה שוב.',
+      deleteAccountError: 'לא ניתן למחוק את החשבון כרגע. נסה שוב.'
     },
     en: {
       back: '← Back to EddyWEB',
@@ -133,7 +144,18 @@
       minecraftLinkExpired: 'We could not verify the code. Generate a new one and try again.',
       minecraftLinkError: 'Could not check the code right now. Try again shortly.',
       minecraftLinkCopied: 'Command copied.',
-      minecraftAlreadyLinked: 'Minecraft connected to this account:'
+      minecraftAlreadyLinked: 'Minecraft connected to this account:',
+      disconnectMinecraft: 'Disconnect Minecraft account',
+      disconnectMinecraftConfirm: 'Disconnect the Minecraft account from EddyWEB? You can link it again later.',
+      minecraftDisconnected: 'Minecraft account disconnected successfully.',
+      deleteAccountTitle: 'Delete EddyWEB account',
+      deleteAccountDescription: 'Deleting your account is permanent and cannot be undone.',
+      deleteAccount: 'Delete my account',
+      deleteAccountConfirm: 'Permanently delete your EddyWEB account? Your account and sign-in details will be deleted. This cannot be undone.',
+      deletingAccount: 'Deleting account...',
+      accountDeleted: 'Your account has been deleted.',
+      disconnectError: 'Could not disconnect Minecraft right now. Please try again.',
+      deleteAccountError: 'Could not delete the account right now. Please try again.'
     }
   };
 
@@ -172,6 +194,10 @@
       'label-profile-minecraft': x.minecraft,
       'save-profile': x.saveProfile,
       'logout-button': x.logout,
+      'minecraft-disconnect': x.disconnectMinecraft,
+      'delete-account-heading': x.deleteAccountTitle,
+      'delete-account-description': x.deleteAccountDescription,
+      'delete-account-button': x.deleteAccount,
       'recovery-heading': x.recoveryTitle,
       'recovery-intro': x.recoveryIntro,
       'label-new-password': x.newPassword,
@@ -347,11 +373,14 @@
     const status = $('minecraft-linked-status');
     if (!startButton || !codeWrap || !status) return;
 
+    const disconnectButton = $('minecraft-disconnect');
     if (uuid && username) {
+      if (disconnectButton) disconnectButton.hidden = false;
       status.textContent = `${t().minecraftAlreadyLinked} ${username}`;
       status.dataset.kind = 'success';
       startButton.textContent = language === 'he' ? 'חבר חשבון Minecraft אחר' : 'Link another Minecraft account';
     } else {
+      if (disconnectButton) disconnectButton.hidden = true;
       status.textContent = t().minecraftLinkDescription;
       status.dataset.kind = '';
       startButton.textContent = t().linkMinecraft;
@@ -467,6 +496,65 @@
       $('minecraft-link-waiting').dataset.kind = 'success';
     } catch (_) {
       $('minecraft-link-waiting').textContent = command;
+    }
+  });
+
+  $('minecraft-disconnect').addEventListener('click', async () => {
+    if (!currentUser) return;
+    if (!window.confirm(t().disconnectMinecraftConfirm)) return;
+
+    const button = $('minecraft-disconnect');
+    button.disabled = true;
+    setStatus('profile-status', t().savingProfile, 'loading');
+    try {
+      const token = await getAccountAccessToken();
+      if (!token) throw new Error('No active session');
+      const response = await fetch('/api/account/disconnect-minecraft', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Disconnect failed');
+
+      const { data, error } = await client.auth.getUser();
+      if (error) throw error;
+      showProfile(data.user, t().minecraftDisconnected);
+    } catch (error) {
+      console.warn('Minecraft disconnect failed:', error);
+      setStatus('profile-status', t().disconnectError, 'error');
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  $('delete-account-button').addEventListener('click', async () => {
+    if (!currentUser) return;
+    if (!window.confirm(t().deleteAccountConfirm)) return;
+
+    const button = $('delete-account-button');
+    button.disabled = true;
+    setStatus('profile-status', t().deletingAccount, 'loading');
+    try {
+      const token = await getAccountAccessToken();
+      if (!token) throw new Error('No active session');
+      const response = await fetch('/api/account/delete', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Delete account failed');
+
+      stopMinecraftLinkPolling();
+      activeMinecraftCode = '';
+      currentUser = null;
+      try { await client.auth.signOut(); } catch (_) {}
+      showAuth();
+      setStatus('auth-status', t().accountDeleted, 'success');
+    } catch (error) {
+      console.error('Account deletion failed:', error);
+      setStatus('profile-status', t().deleteAccountError, 'error');
+    } finally {
+      button.disabled = false;
     }
   });
 
