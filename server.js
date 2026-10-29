@@ -459,7 +459,7 @@ app.get('/api/minecraft-link/status', async (req, res) => {
             .from('luckperms_user_permissions')
             .select('id,uuid,permission,value,expiry')
             .eq('permission', 'meta.eddy_link.' + code)
-            .eq('value', true)
+            .eq('value', 'true')
             .order('id', { ascending: false })
             .limit(1);
         if (error) throw error;
