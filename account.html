@@ -66,6 +66,19 @@
     <section class="info-card account-card" id="profile-panel" hidden>
       <h2 id="profile-heading">החשבון שלי</h2>
       <p class="account-email-line"><span id="profile-email-label">מחובר בתור:</span> <strong id="profile-email"></strong></p>
+
+      <section class="minecraft-link-box" aria-labelledby="minecraft-link-heading">
+        <h3 id="minecraft-link-heading">חיבור חשבון Minecraft</h3>
+        <p id="minecraft-link-description">חבר את חשבון Minecraft שלך לחשבון EDDYWEB.</p>
+        <p id="minecraft-linked-status" class="account-status" role="status" aria-live="polite"></p>
+        <button class="btn primary" id="minecraft-link-start" type="button">חבר חשבון Minecraft</button>
+        <div id="minecraft-link-code-wrap" hidden>
+          <p id="minecraft-link-instructions">היכנס לשרת Minecraft וכתוב את הפקודה הבאה:</p>
+          <p><code id="minecraft-link-command"></code></p>
+          <button class="btn" id="minecraft-link-copy" type="button">העתק פקודה</button>
+          <p id="minecraft-link-waiting" class="account-status" role="status" aria-live="polite"></p>
+        </div>
+      </section>
       <form id="profile-form">
         <div class="account-field">
           <label for="profile-display-name" id="label-profile-display-name">שם תצוגה</label>
