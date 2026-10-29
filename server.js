@@ -415,7 +415,9 @@ app.post('/api/account/link-email', async (req, res) => {
         if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             return res.status(400).json({ success: false, message: 'כתובת דוא״ל לא תקינה' });
         }
-        if (!String(user.email || '').endsWith('@minecraft.eddyweb.invalid')) {
+        const isMinecraftInternalEmail = String(user.email || '').endsWith('@minecraft.eddyweb.invalid');
+        const isPendingEmailRetry = String(user.email || '').toLowerCase() === email && !user.email_confirmed_at;
+        if (!isMinecraftInternalEmail && !isPendingEmailRetry) {
             return res.status(409).json({ success: false, message: 'לחשבון כבר מוגדרת כתובת דוא״ל' });
         }
         let redirect;
@@ -431,19 +433,21 @@ app.post('/api/account/link-email', async (req, res) => {
 
         // Minecraft-only accounts use an internal, undeliverable address. Replace it
         // server-side so Supabase doesn't require confirmation from that inaccessible address.
-        const { error: updateError } = await supabaseClient.auth.admin.updateUserById(user.id, {
-            email,
-            email_confirm: false
-        });
-        if (updateError) {
-            const message = String(updateError.message || '');
-            if (/already registered|already been registered|email_exists/i.test(message) || updateError.code === 'email_exists') {
-                return res.status(409).json({ success: false, message: 'כתובת הדוא״ל כבר משויכת לחשבון אחר' });
+        if (isMinecraftInternalEmail) {
+            const { error: updateError } = await supabaseClient.auth.admin.updateUserById(user.id, {
+                email,
+                email_confirm: false
+            });
+            if (updateError) {
+                const message = String(updateError.message || '');
+                if (/already registered|already been registered|email_exists/i.test(message) || updateError.code === 'email_exists') {
+                    return res.status(409).json({ success: false, message: 'כתובת הדוא״ל כבר משויכת לחשבון אחר' });
+                }
+                throw updateError;
             }
-            throw updateError;
         }
 
-        // Send a verification email to the newly added address. The email stays unverified
+        // Send (or resend) a verification email to the new address. It stays unverified
         // until its owner opens the Supabase confirmation link.
         const { error: resendError } = await supabaseClient.auth.resend({
             type: 'signup',
