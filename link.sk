@@ -1,0 +1,27 @@
+options:
+    link-prefix: &8[&bEDDYWEB&8] &7
+
+command /link <text>:
+    executable by: players
+    trigger:
+        # EDDYWEB link codes contain exactly 8 characters.
+        if length of argument 1 is not 8:
+            send "{@link-prefix}&cקוד לא תקין. חזור לאתר EDDYWEB וצור קוד חדש." to player
+            stop
+
+        if argument 1 does not match regex "^[A-Za-z0-9]{8}$":
+            send "{@link-prefix}&cהקוד יכול להכיל רק אותיות באנגלית ומספרים." to player
+            stop
+
+        set {_code} to uppercase argument 1
+        set {_uuid} to uuid of player
+
+        # Save the code as a LuckPerms user permission for the website to verify.
+        execute console command "lp user %{_uuid}% permission set meta.eddy_link.%{_code}% true"
+
+        send "" to player
+        send "&8&m--------------------------------" to player
+        send "&aקוד החיבור נשלח ל-LuckPerms!" to player
+        send "&7חזור לאתר EDDYWEB; הוא יבדוק את החיבור אוטומטית." to player
+        send "&8&m--------------------------------" to player
+        send "" to player
