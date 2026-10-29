@@ -3,6 +3,7 @@
 
   const SUPABASE_URL = 'https://vnhgkatsfpjyqpdppqrf.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_N6amZaYaWj7AdF8wQAHpEA_Qd2TAyp6';
+  const ACCOUNT_PROFILE_STORAGE_KEY = 'eddyweb.account.profile.v1';
 
   const $ = (id) => document.getElementById(id);
   const supabaseLib = window.supabase;
@@ -271,9 +272,39 @@
     if (recoveryMode) recoveryMode = false;
   }
 
+  // Share only public display information with the homepage; never copy auth tokens or passwords.
+  function persistAccountProfile(user) {
+    if (!user) return;
+    const metadata = user.user_metadata || {};
+    const internalMatch = String(user.email || '').match(/^([a-z0-9_]{3,16})@minecraft\.eddyweb\.invalid$/i);
+    const minecraftUsername = String(
+      metadata.minecraft_username ||
+      user.app_metadata?.minecraft_username ||
+      (internalMatch && internalMatch[1]) ||
+      ''
+    ).trim();
+    const displayName = String(
+      minecraftUsername ||
+      metadata.display_name ||
+      metadata.full_name ||
+      metadata.name ||
+      String(user.email || '').split('@')[0] ||
+      (language === 'he' ? 'החשבון שלי' : 'My account')
+    ).trim();
+    const uuid = String(metadata.minecraft_uuid || user.app_metadata?.minecraft_uuid || '').replace(/-/g, '').trim();
+    try {
+      localStorage.setItem(ACCOUNT_PROFILE_STORAGE_KEY, JSON.stringify({ displayName, minecraftUsername, uuid }));
+    } catch (_) {}
+  }
+
+  function clearAccountProfile() {
+    try { localStorage.removeItem(ACCOUNT_PROFILE_STORAGE_KEY); } catch (_) {}
+  }
+
   function showProfile(user, statusText = '') {
     if (!user) return;
     currentUser = user;
+    persistAccountProfile(user);
     $('auth-panel').hidden = true;
     $('recovery-panel').hidden = true;
     $('profile-panel').hidden = false;
@@ -343,7 +374,12 @@
   }
 
   const client = supabaseLib.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storageKey: 'sb-vnhgkatsfpjyqpdppqrf-auth-token'
+    }
   });
 
   $('account-language').addEventListener('click', () => {
@@ -725,6 +761,7 @@
       stopMinecraftLinkPolling();
       activeMinecraftCode = '';
       currentUser = null;
+      clearAccountProfile();
       try { await client.auth.signOut(); } catch (_) {}
       showAuth();
       setStatus('auth-status', t().accountDeleted, 'success');
@@ -771,6 +808,7 @@
       const { error } = await client.auth.signOut();
       if (error) throw error;
       currentUser = null;
+      clearAccountProfile();
       showAuth();
       setStatus('auth-status', t().signedOut, 'success');
     } catch (error) {
@@ -817,6 +855,7 @@
     if (recoveryMode) return;
     if (event === 'SIGNED_OUT') {
       currentUser = null;
+      clearAccountProfile();
       showAuth();
       return;
     }
