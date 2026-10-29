@@ -404,6 +404,54 @@ async function getAuthenticatedSupabaseUser(req) {
     return { conn, user: data.user };
 }
 
+app.post('/api/account/disconnect-minecraft', async (req, res) => {
+    try {
+        const { conn, user } = await getAuthenticatedSupabaseUser(req);
+        if (!conn) return res.status(503).json({ success: false, message: 'חיבור מסד הנתונים אינו זמין' });
+        if (!user) return res.status(401).json({ success: false, message: 'יש להתחבר מחדש לאתר' });
+
+        // Remove only the Minecraft identity attached to this website account.
+        // Minecraft/LuckPerms player data itself is not deleted or modified.
+        const { error: metadataError } = await supabaseClient.auth.admin.updateUserById(user.id, {
+            user_metadata: {
+                ...(user.user_metadata || {}),
+                minecraft_username: null,
+                minecraft_uuid: null
+            }
+        });
+        if (metadataError) throw metadataError;
+
+        const { error: codesError } = await supabaseClient
+            .from('minecraft_link_codes')
+            .delete()
+            .eq('user_id', user.id);
+        if (codesError) throw codesError;
+
+        return res.json({ success: true });
+    } catch (error) {
+        console.error('Minecraft account disconnect error:', error?.message || error);
+        return res.status(500).json({ success: false, message: 'לא ניתן לנתק את חשבון Minecraft כרגע' });
+    }
+});
+
+app.post('/api/account/delete', async (req, res) => {
+    try {
+        const { conn, user } = await getAuthenticatedSupabaseUser(req);
+        if (!conn) return res.status(503).json({ success: false, message: 'חיבור מסד הנתונים אינו זמין' });
+        if (!user) return res.status(401).json({ success: false, message: 'יש להתחבר מחדש לאתר' });
+
+        // The service-role key never leaves the server. Supabase cascades deletion
+        // to the user's temporary Minecraft link-code rows via the foreign key.
+        const { error } = await supabaseClient.auth.admin.deleteUser(user.id);
+        if (error) throw error;
+
+        return res.json({ success: true });
+    } catch (error) {
+        console.error('EddyWEB account deletion error:', error?.message || error);
+        return res.status(500).json({ success: false, message: 'לא ניתן למחוק את החשבון כרגע' });
+    }
+});
+
 app.post('/api/minecraft-link/create', async (req, res) => {
     try {
         const { conn, user } = await getAuthenticatedSupabaseUser(req);
