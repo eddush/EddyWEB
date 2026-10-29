@@ -313,7 +313,8 @@
     if (emailInput && !emailInput.value) {
       emailInput.value = internalMinecraftEmail ? '' : (user.email || '');
     }
-    $('link-email-form').hidden = !internalMinecraftEmail && Boolean(user.email);
+    // Keep the form available until the new address has actually been verified.
+    $('link-email-form').hidden = !internalMinecraftEmail && Boolean(user.email_confirmed_at);
 
     $('profile-display-name').value = metadata.display_name || '';
     $('profile-minecraft').value = metadata.minecraft_username || '';
