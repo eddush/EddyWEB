@@ -61,7 +61,18 @@
       sessionExpired: 'הקישור אינו תקף או שפג תוקפו. בקש קישור חדש.',
       accountCreated: 'החשבון נוצר.',
       fillRequired: 'יש למלא את כל השדות הנדרשים.',
-      profileUpdated: 'פרטי המשתמש עודכנו.'
+      profileUpdated: 'פרטי המשתמש עודכנו.',
+      linkMinecraft: 'חבר חשבון Minecraft',
+      minecraftLinked: 'חשבון Minecraft מחובר:',
+      minecraftLinkDescription: 'חבר את חשבון Minecraft שלך לחשבון EDDYWEB.',
+      minecraftLinkInstructions: 'היכנס לשרת Minecraft וכתוב את הפקודה הבאה:',
+      minecraftCopyCommand: 'העתק פקודה',
+      minecraftLinkWaiting: 'ממתין שהשרת יאמת את הקוד…',
+      minecraftLinkSuccess: 'חשבון Minecraft חובר בהצלחה!',
+      minecraftLinkExpired: 'לא הצלחנו לאמת את הקוד. צור קוד חדש ונסה שוב.',
+      minecraftLinkError: 'לא ניתן לבדוק את הקוד כרגע. נסה שוב בעוד רגע.',
+      minecraftLinkCopied: 'הפקודה הועתקה.',
+      minecraftAlreadyLinked: 'Minecraft מחובר לחשבון זה:'
     },
     en: {
       back: '← Back to EddyWEB',
@@ -111,7 +122,18 @@
       sessionExpired: 'This link is invalid or expired. Request a new one.',
       accountCreated: 'Account created.',
       fillRequired: 'Please complete all required fields.',
-      profileUpdated: 'Your profile has been updated.'
+      profileUpdated: 'Your profile has been updated.',
+      linkMinecraft: 'Link Minecraft account',
+      minecraftLinked: 'Minecraft account connected:',
+      minecraftLinkDescription: 'Connect your Minecraft account to your EDDYWEB account.',
+      minecraftLinkInstructions: 'Join the Minecraft server and enter this command:',
+      minecraftCopyCommand: 'Copy command',
+      minecraftLinkWaiting: 'Waiting for the server to verify the code…',
+      minecraftLinkSuccess: 'Minecraft account linked successfully!',
+      minecraftLinkExpired: 'We could not verify the code. Generate a new one and try again.',
+      minecraftLinkError: 'Could not check the code right now. Try again shortly.',
+      minecraftLinkCopied: 'Command copied.',
+      minecraftAlreadyLinked: 'Minecraft connected to this account:'
     }
   };
 
@@ -199,6 +221,7 @@
     $('profile-display-name').value = metadata.display_name || '';
     $('profile-minecraft').value = metadata.minecraft_username || '';
     setStatus('profile-status', statusText, statusText ? 'success' : '');
+    renderMinecraftLink(user);
   }
 
   function showRecovery() {
@@ -309,6 +332,109 @@
       setStatus('auth-status', explainError(error), 'error');
     } finally {
       $('forgot-password').disabled = false;
+    }
+  });
+
+  let minecraftLinkPoll = null;
+  let activeMinecraftCode = '';
+
+  function renderMinecraftLink(user) {
+    const metadata = user?.user_metadata || {};
+    const username = String(metadata.minecraft_username || '').trim();
+    const uuid = String(metadata.minecraft_uuid || '').trim();
+    const startButton = $('minecraft-link-start');
+    const codeWrap = $('minecraft-link-code-wrap');
+    const status = $('minecraft-linked-status');
+    if (!startButton || !codeWrap || !status) return;
+
+    if (uuid && username) {
+      status.textContent = `${t().minecraftAlreadyLinked} ${username}`;
+      status.dataset.kind = 'success';
+      startButton.textContent = language === 'he' ? 'חבר חשבון Minecraft אחר' : 'Link another Minecraft account';
+    } else {
+      status.textContent = t().minecraftLinkDescription;
+      status.dataset.kind = '';
+      startButton.textContent = t().linkMinecraft;
+    }
+  }
+
+  function stopMinecraftLinkPolling() {
+    if (minecraftLinkPoll) {
+      clearInterval(minecraftLinkPoll);
+      minecraftLinkPoll = null;
+    }
+  }
+
+  $('minecraft-link-start').addEventListener('click', async () => {
+    if (!currentUser) return;
+    stopMinecraftLinkPolling();
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ2346789';
+    const bytes = new Uint8Array(8);
+    if (window.crypto?.getRandomValues) window.crypto.getRandomValues(bytes);
+    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+    activeMinecraftCode = Array.from(bytes, b => alphabet[b % alphabet.length]).join('');
+    $('minecraft-link-command').textContent = '/link ' + activeMinecraftCode;
+    $('minecraft-link-code-wrap').hidden = false;
+    $('minecraft-link-waiting').textContent = t().minecraftLinkWaiting;
+    $('minecraft-link-start').disabled = true;
+
+    const checkStatus = async () => {
+      if (!currentUser || !activeMinecraftCode) return;
+      try {
+        const { data: sessionData } = await client.auth.getSession();
+        const accessToken = sessionData?.session?.access_token;
+        if (!accessToken) throw new Error('No active session');
+        const response = await fetch('/api/minecraft-link/status?code=' + encodeURIComponent(activeMinecraftCode), {
+          headers: { Authorization: 'Bearer ' + accessToken }
+        });
+        const result = await response.json();
+        if (response.ok && result.success && result.player?.uuid && result.player?.username) {
+          const { data, error } = await client.auth.updateUser({
+            data: {
+              minecraft_username: result.player.username,
+              minecraft_uuid: result.player.uuid
+            }
+          });
+          if (error) throw error;
+          const completeResponse = await fetch('/api/minecraft-link/complete', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: 'Bearer ' + accessToken
+            },
+            body: JSON.stringify({ code: activeMinecraftCode, rowId: result.rowId })
+          });
+          if (!completeResponse.ok) console.warn('Minecraft link cleanup did not complete.');
+          stopMinecraftLinkPolling();
+          activeMinecraftCode = '';
+          $('minecraft-link-waiting').textContent = t().minecraftLinkSuccess;
+          $('minecraft-link-waiting').dataset.kind = 'success';
+          showProfile(data.user, t().minecraftLinkSuccess);
+          $('minecraft-link-start').disabled = false;
+        } else if (response.status === 404) {
+          // Code has not reached LuckPerms yet; keep polling.
+        } else if (!response.ok) {
+          throw new Error(result.message || 'Link status request failed');
+        }
+      } catch (error) {
+        console.warn('Minecraft link check failed:', error);
+        $('minecraft-link-waiting').textContent = t().minecraftLinkError;
+        $('minecraft-link-waiting').dataset.kind = 'error';
+      }
+    };
+
+    await checkStatus();
+    minecraftLinkPoll = setInterval(checkStatus, 3000);
+  });
+
+  $('minecraft-link-copy').addEventListener('click', async () => {
+    const command = $('minecraft-link-command').textContent;
+    try {
+      await navigator.clipboard.writeText(command);
+      $('minecraft-link-waiting').textContent = t().minecraftLinkCopied;
+      $('minecraft-link-waiting').dataset.kind = 'success';
+    } catch (_) {
+      $('minecraft-link-waiting').textContent = command;
     }
   });
 
