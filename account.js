@@ -351,6 +351,87 @@
     $('profile-minecraft').value = metadata.minecraft_username || '';
     setStatus('profile-status', statusText, statusText ? 'success' : '');
     renderMinecraftLink(user);
+    loadLinkedMinecraftPlayer(user);
+  }
+
+  async function loadLinkedMinecraftPlayer(user) {
+    const section = $('linked-player-info');
+    if (!section) return;
+
+    const metadata = user?.user_metadata || {};
+    const username = String(metadata.minecraft_username || '').trim();
+    section.hidden = !username;
+    if (!username) return;
+
+    const status = $('linked-player-info-status');
+    status.textContent = language === 'he' ? 'טוען מידע על השחקן…' : 'Loading player information…';
+    const fullProfileLink = $('linked-player-full-profile');
+    if (fullProfileLink) {
+      fullProfileLink.href = 'player.html?username=' + encodeURIComponent(username);
+      fullProfileLink.hidden = false;
+    }
+
+    try {
+      const response = await fetch('/api/player-profile?username=' + encodeURIComponent(username), { cache: 'no-store' });
+      const data = await response.json();
+      if (!response.ok || !data.success || !data.player) {
+        throw new Error(data.message || 'Player profile unavailable');
+      }
+
+      // Ignore a late response if the account was switched to a different Minecraft player.
+      if (String(currentUser?.user_metadata?.minecraft_username || '').toLowerCase() !== username.toLowerCase()) return;
+
+      const player = data.player;
+      const rank = String(player.rank_label || player.rank || '').trim();
+      $('linked-player-username').textContent = player.username || username;
+      $('linked-player-rank').textContent = rank && rank.toLowerCase() !== 'default' ? rank : (language === 'he' ? 'ללא דרגה מיוחדת' : 'No special rank');
+      $('linked-player-money').textContent = formatLinkedMoney(player.money);
+      $('linked-player-playtime').textContent = formatLinkedPlaytime(player.playtime);
+      const discord = player.discord;
+      $('linked-player-discord').textContent = discord && (discord.username || discord.tag)
+        ? (discord.username || discord.tag)
+        : discord && discord.id
+          ? (language === 'he' ? 'מחובר' : 'Connected')
+          : (language === 'he' ? 'לא מחובר' : 'Not connected');
+      status.textContent = language === 'he' ? 'המידע נטען לפי חשבון Minecraft המקושר.' : 'Information loaded for the linked Minecraft account.';
+      status.dataset.kind = 'success';
+    } catch (error) {
+      $('linked-player-username').textContent = username;
+      status.textContent = language === 'he'
+        ? 'לא ניתן לטעון את נתוני השחקן כרגע. אפשר לנסות שוב בעמוד הפרופיל המלא.'
+        : 'Player data is unavailable right now. Try again on the full profile page.';
+      status.dataset.kind = 'error';
+      console.warn('Could not load linked Minecraft player information:', error);
+    }
+  }
+
+  function formatLinkedMoney(value) {
+    if (value === null || value === undefined || value === '') return language === 'he' ? 'לא זמין' : 'Unavailable';
+    const number = Number(String(value).replace(/[$,\\]/g, '').trim());
+    if (!Number.isFinite(number)) return String(value);
+    const abs = Math.abs(number);
+    const units = [{ value: 1e12, suffix: 'T' }, { value: 1e9, suffix: 'B' }, { value: 1e6, suffix: 'M' }, { value: 1e3, suffix: 'K' }];
+    const unit = units.find(item => abs >= item.value);
+    if (!unit) return number.toLocaleString(language === 'he' ? 'he-IL' : 'en-US');
+    return (Math.round((number / unit.value) * 100) / 100).toLocaleString(language === 'he' ? 'he-IL' : 'en-US', { maximumFractionDigits: 2 }) + unit.suffix;
+  }
+
+  function formatLinkedPlaytime(value) {
+    if (value === null || value === undefined || String(value).trim() === '') return language === 'he' ? 'לא זמין' : 'Unavailable';
+    const text = String(value).trim();
+    const matches = [
+      [/[\\d.]+\\s*days?/i, language === 'he' ? 'ימים' : 'days'],
+      [/[\\d.]+\\s*hours?/i, language === 'he' ? 'שעות' : 'hours'],
+      [/[\\d.]+\\s*minutes?/i, language === 'he' ? 'דקות' : 'minutes'],
+      [/[\\d.]+\\s*seconds?/i, language === 'he' ? 'שניות' : 'seconds']
+    ];
+    const parts = matches.map(([pattern, unit]) => {
+      const found = text.match(pattern);
+      if (!found) return '';
+      const number = found[0].match(/[\\d.]+/)[0];
+      return number + ' ' + unit;
+    }).filter(Boolean);
+    return parts.length ? parts.join(' ') : text;
   }
 
   function showRecovery() {
