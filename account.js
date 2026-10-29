@@ -535,7 +535,8 @@
       setStatus('link-email-status', t().linkEmailSent, 'success');
     } catch (error) {
       console.warn('Email linking failed:', error);
-      setStatus('link-email-status', t().linkEmailError, 'error');
+      const message = String(error?.message || '').trim();
+      setStatus('link-email-status', message && message !== 'Email link failed' && message !== 'No active session' ? message : t().linkEmailError, 'error');
     } finally {
       button.disabled = false;
     }
