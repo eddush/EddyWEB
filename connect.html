@@ -28,37 +28,59 @@
   </style>
 </head>
 <body>
+  <button id="language-toggle" class="lang-btn" type="button" style="position:fixed;top:16px;left:16px;z-index:20">English</button>
   <button id="theme-toggle" class="lang-btn theme-btn theme-floating-toggle" type="button" aria-label="החלפת מצב תצוגה">☀️ מצב בהיר</button>
   <div class="grid"></div>
   <main class="connect-page">
-    <a class="info-back" href="index.html">→ חזרה ל-EddyWEB</a>
+    <a class="info-back" id="connect-back" href="index.html">→ חזרה ל-EddyWEB</a>
     <section class="connect-panel">
       <div class="connect-icon"><i class="fa-solid fa-cube" aria-hidden="true"></i></div>
       <div class="badge"><i class="fa-brands fa-java" aria-hidden="true"></i> MINECRAFT JAVA EDITION</div>
-      <h1>מתחברים ל־<span>Eddydev</span></h1>
-      <p>העתק את כתובת השרת והתחבר אליו דרך תפריט Multiplayer בתוך Minecraft Java Edition.</p>
-      <div class="server-address" aria-label="כתובת השרת"><span>eddydev.ddns.net:25565</span></div>
+      <h1 id="connect-title">מתחברים ל־<span>Eddydev</span></h1>
+      <p id="connect-intro">העתק את כתובת השרת והתחבר אליו דרך תפריט Multiplayer בתוך Minecraft Java Edition.</p>
+      <div class="server-address" id="server-address" aria-label="כתובת השרת"><span>eddydev.ddns.net:25565</span></div>
       <div class="connect-actions">
-        <button id="copy-server" class="btn primary" type="button"><i class="fa-regular fa-copy" aria-hidden="true"></i> העתק כתובת שרת</button>
+        <button id="copy-server" class="btn primary" type="button"><i class="fa-regular fa-copy" aria-hidden="true"></i> <span id="copy-label">העתק כתובת שרת</span></button>
       </div>
       <p id="connect-status" class="connect-status" role="status" aria-live="polite"></p>
       <div class="connect-note">
-        <strong><i class="fa-solid fa-circle-info" aria-hidden="true"></i> חשוב לדעת</strong>
-        <p>ב־Minecraft Java Edition מתחברים ידנית דרך תפריט Multiplayer. האתר אינו מנסה לפתוח את המשחק.</p>
+        <strong><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span id="note-title">חשוב לדעת</span></strong>
+        <p id="note-text">ב־Minecraft Java Edition מתחברים ידנית דרך תפריט Multiplayer. האתר אינו מנסה לפתוח את המשחק.</p>
       </div>
-      <h2>איך מתחברים לשרת</h2>
+      <h2 id="steps-title">איך מתחברים לשרת</h2>
       <ol class="connect-steps">
-        <li>פתח ב־Minecraft את <strong>Multiplayer</strong>.</li>
-        <li>בחר <strong>Direct Connection</strong>.</li>
-        <li>הדבק <code>eddydev.ddns.net:25565</code> ולחץ <strong>Join Server</strong>.</li>
+        <li id="step-one">פתח ב־Minecraft את <strong>Multiplayer</strong>.</li>
+        <li id="step-two">בחר <strong>Direct Connection</strong>.</li>
+        <li id="step-three">הדבק <code>eddydev.ddns.net:25565</code> ולחץ <strong>Join Server</strong>.</li>
       </ol>
     </section>
   </main>
   <script src="theme.js"></script>
   <script>
     (() => {
-      const address='eddydev.ddns.net:25565';
-      const status=document.getElementById('connect-status');
+      const address='eddydev.ddns.net:25565', status=document.getElementById('connect-status');
+      let lang=localStorage.getItem('eddy-language')||'en';
+      const tr={
+        he:{back:'→ חזרה ל-EddyWEB',title:'מתחברים ל־<span>Eddydev</span>',intro:'העתק את כתובת השרת והתחבר אליו דרך תפריט Multiplayer בתוך Minecraft Java Edition.',copy:'העתק כתובת שרת',address:'כתובת השרת',noteTitle:'חשוב לדעת',noteText:'ב־Minecraft Java Edition מתחברים ידנית דרך תפריט Multiplayer. האתר אינו מנסה לפתוח את המשחק.',stepsTitle:'איך מתחברים לשרת',one:'פתח ב־Minecraft את <strong>Multiplayer</strong>.',two:'בחר <strong>Direct Connection</strong>.',three:'הדבק <code>eddydev.ddns.net:25565</code> ולחץ <strong>Join Server</strong>.',copied:'כתובת השרת הועתקה. הדבק אותה ב־Multiplayer → Direct Connection.',failed:'לא הצלחנו להעתיק אוטומטית. סמן והעתק את הכתובת שמופיעה למעלה.',switch:'English'},
+        en:{back:'← Back to EddyWEB',title:'Connect to <span>Eddydev</span>',intro:'Copy the server address and connect through Multiplayer in Minecraft Java Edition.',copy:'Copy server address',address:'Server address',noteTitle:'Good to know',noteText:'Minecraft Java Edition connects manually through Multiplayer. This website does not try to launch the game.',stepsTitle:'How to join the server',one:'Open <strong>Multiplayer</strong> in Minecraft.',two:'Choose <strong>Direct Connection</strong>.',three:'Paste <code>eddydev.ddns.net:25565</code> and select <strong>Join Server</strong>.',copied:'Server address copied. Paste it into Multiplayer → Direct Connection.',failed:'Could not copy automatically. Select and copy the address shown above.',switch:'עברית'}
+      };
+      function applyLanguage(){
+        const x=tr[lang]; document.documentElement.lang=lang; document.documentElement.dir=lang==='he'?'rtl':'ltr';
+        document.title=lang==='he'?'EddyWEB | התחברות לשרת':'EddyWEB | Connect to Server';
+        document.getElementById('language-toggle').textContent=x.switch;
+        document.getElementById('connect-back').textContent=x.back;
+        document.getElementById('connect-title').innerHTML=x.title;
+        document.getElementById('connect-intro').textContent=x.intro;
+        document.getElementById('copy-label').textContent=x.copy;
+        document.getElementById('server-address').setAttribute('aria-label',x.address);
+        document.getElementById('note-title').textContent=x.noteTitle;
+        document.getElementById('note-text').textContent=x.noteText;
+        document.getElementById('steps-title').textContent=x.stepsTitle;
+        document.getElementById('step-one').innerHTML=x.one;
+        document.getElementById('step-two').innerHTML=x.two;
+        document.getElementById('step-three').innerHTML=x.three;
+      }
+      document.getElementById('language-toggle').addEventListener('click',()=>{lang=lang==='he'?'en':'he';try{localStorage.setItem('eddy-language',lang)}catch(_){}applyLanguage()});
       async function copyAddress(){
         try {
           if(navigator.clipboard&&window.isSecureContext) await navigator.clipboard.writeText(address);
@@ -71,13 +93,8 @@
           return true;
         } catch(_){ return false; }
       }
-      document.getElementById('copy-server').addEventListener('click',async()=>{
-        status.textContent=await copyAddress()
-          ?'כתובת השרת הועתקה. הדבק אותה ב־Multiplayer → Direct Connection.'
-          :'לא הצלחנו להעתיק אוטומטית. סמן והעתק את הכתובת שמופיעה למעלה.';
-      });
-
+      document.getElementById('copy-server').addEventListener('click',async()=>{const x=tr[lang];status.textContent=await copyAddress()?x.copied:x.failed;});
+      applyLanguage();
     })();
-  </script>
-</body>
+  </script></body>
 </html>
