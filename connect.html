@@ -77,12 +77,17 @@
           ?'כתובת השרת הועתקה. הדבק אותה ב־Multiplayer → Direct Connection.'
           :'לא הצלחנו להעתיק אוטומטית. סמן והעתק את הכתובת שמופיעה למעלה.';
       });
-      document.getElementById('open-minecraft').addEventListener('click',async()=>{
-        const copied=await copyAddress();
-        status.textContent=copied
-          ?'ניסינו לפתוח את Minecraft והעתקנו את כתובת השרת. אם המשחק לא נפתח או לא התחבר, הדבק אותה ב־Multiplayer → Direct Connection.'
-          :'ננסה לפתוח את Minecraft. אם לא התחבר, העתק את כתובת השרת שמופיעה למעלה.';
+      document.getElementById('open-minecraft').addEventListener('click',()=>{
+        // Start clipboard writing from the click, but do not await it before
+        // invoking the external protocol: browsers may drop user activation
+        // across an asynchronous boundary.
+        const copyTask=copyAddress();
+        status.textContent='מנסה לפתוח את Minecraft… אם לא נפתח חלון אישור, ייתכן שאין במחשב פרוטוקול Minecraft רשום ל־Java Edition.';
         window.location.href='minecraft://';
+        copyTask.then(copied=>{
+          if(copied) status.textContent='ניסינו לפתוח את Minecraft וכתובת השרת הועתקה. אם לא נפתח חלון אישור או שהמשחק לא התחבר, פתח Multiplayer → Direct Connection והדבק את הכתובת.';
+          else status.textContent='ניסינו לפתוח את Minecraft. אם לא נפתח חלון אישור, הדפדפן או מערכת ההפעלה לא זיהו את הקישור; העתק את הכתובת והתחבר דרך Multiplayer → Direct Connection.';
+        });
       });
     })();
   </script>
