@@ -112,7 +112,7 @@
 
 <body>
     <main class="article-container">
-        <a href="index.html" class="back-btn">→ חזרה לדף הראשי</a>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><a href="index.html" class="back-btn" id="article-back">→ חזרה לדף הראשי</a><button class="btn" id="article-language" type="button">English</button></div>
 
         <div class="article-header">
             <div>
@@ -122,14 +122,14 @@
             <div class="author-box" id="author-box">
                 <canvas id="author-skin-canvas" width="200" height="200" class="author-skin-canvas"></canvas>
                 <div class="author-info">
-                    <span>נכתב על ידי:</span>
+                    <span id="article-author-label">נכתב על ידי:</span>
                     <h4 id="author-name">-</h4>
                 </div>
             </div>
         </div>
 
         <div id="article-body" class="article-content">
-            <p>טוען את תוכן המאמר...</p>
+            <p id="article-loading">טוען את תוכן המאמר...</p>
         </div>
     </main>
 
@@ -173,6 +173,13 @@
             const urlParams = new URLSearchParams(window.location.search);
             const articleId = urlParams.get('id');
             const isHe = localStorage.getItem('eddy-language') !== 'en';
+            document.documentElement.lang = isHe ? 'he' : 'en';
+            document.documentElement.dir = isHe ? 'rtl' : 'ltr';
+            document.title = isHe ? 'EddyWEB | מאמר' : 'EddyWEB | Article';
+            document.getElementById('article-language').textContent = isHe ? 'English' : 'עברית';
+            document.getElementById('article-back').textContent = isHe ? '→ חזרה לדף הראשי' : '← Back to Home';
+            document.getElementById('article-author-label').textContent = isHe ? 'נכתב על ידי:' : 'Written by:';
+            document.getElementById('article-loading').textContent = isHe ? 'טוען את תוכן המאמר...' : 'Loading article content...';
 
             try {
                 const res = await fetch('news.json');
@@ -203,6 +210,12 @@
                 document.getElementById('article-body').innerHTML = '<p style="color:#ff6b8a;">אירעה שגיאה בטעינת המאמר.</p>';
             }
         }
+
+        document.getElementById('article-language').addEventListener('click', () => {
+            const next = localStorage.getItem('eddy-language') === 'en' ? 'he' : 'en';
+            localStorage.setItem('eddy-language', next);
+            window.location.reload();
+        });
 
         loadArticle();
     </script>
