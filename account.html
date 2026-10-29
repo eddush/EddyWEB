@@ -13,6 +13,9 @@
     .minecraft-login-divider { display:flex; align-items:center; gap:.75rem; margin:1rem 0; opacity:.75; }
     .minecraft-login-divider::before, .minecraft-login-divider::after { content:""; height:1px; flex:1; background:currentColor; opacity:.3; }
     #minecraft-login-start { width:100%; }
+    .account-linked-player-grid { margin-top:1rem; }
+    #linked-player-info .player-info-card { min-width:0; }
+    #linked-player-info .player-info-card strong { overflow-wrap:anywhere; }
   </style>
 </head>
 <body>
@@ -86,6 +89,39 @@
           <p class="account-email-line"><span id="profile-email-label">מחובר בתור:</span> <strong id="profile-email"></strong></p>
         </div>
       </div>
+      <section id="linked-player-info" class="minecraft-link-box" aria-labelledby="linked-player-info-heading" hidden>
+        <h3 id="linked-player-info-heading">מידע על שחקן Minecraft</h3>
+        <p id="linked-player-info-status" class="account-status" role="status" aria-live="polite">טוען מידע על השחקן…</p>
+        <div class="player-info-grid account-linked-player-grid">
+          <article class="player-info-card">
+            <div class="icon"><i class="fa-solid fa-user" aria-hidden="true"></i></div>
+            <span>שם שחקן</span>
+            <strong id="linked-player-username">—</strong>
+          </article>
+          <article class="player-info-card">
+            <div class="icon"><i class="fa-solid fa-ranking-star" aria-hidden="true"></i></div>
+            <span>דרגה</span>
+            <strong id="linked-player-rank">—</strong>
+          </article>
+          <article class="player-info-card">
+            <div class="icon"><i class="fa-solid fa-coins" aria-hidden="true"></i></div>
+            <span>כסף</span>
+            <strong id="linked-player-money">לא זמין</strong>
+          </article>
+          <article class="player-info-card">
+            <div class="icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></div>
+            <span>זמן משחק</span>
+            <strong id="linked-player-playtime">לא זמין</strong>
+          </article>
+          <article class="player-info-card">
+            <div class="icon"><i class="fa-brands fa-discord" aria-hidden="true"></i></div>
+            <span>Discord</span>
+            <strong id="linked-player-discord">לא מחובר</strong>
+          </article>
+        </div>
+        <a id="linked-player-full-profile" class="btn" href="player.html" hidden>לצפייה בפרופיל המלא</a>
+      </section>
+
       <form id="link-email-form" class="minecraft-link-box">
         <h3 id="link-email-heading">חיבור דוא״ל לחשבון</h3>
         <p id="link-email-description">אפשר להוסיף כתובת דוא״ל בהמשך כדי להשתמש בה בחשבון.</p>
