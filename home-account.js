@@ -17,7 +17,7 @@
     avatar.hidden = true;
     avatar.removeAttribute('src');
     if (icon) icon.hidden = false;
-    if (label) label.textContent = (localStorage.getItem('eddy-language') || 'en') === 'he' ? 'חשבון' : 'Account';
+    if (label) label.textContent = (localStorage.getItem('eddy-language') || 'he') === 'he' ? 'התחברות / כניסה' : 'Sign in / Log in';
   }
 
   function showUser(user) {
