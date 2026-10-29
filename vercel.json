@@ -26,6 +26,10 @@
       "use": "@vercel/static"
     },
     {
+      "src": "home-account.js",
+      "use": "@vercel/static"
+    },
+    {
       "src": "account.js",
       "use": "@vercel/static"
     },
