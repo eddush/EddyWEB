@@ -412,25 +412,30 @@
             });
             if (error) throw error;
 
-            const completeResponse = await fetch('/api/minecraft-link/complete', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: 'Bearer ' + token
-              },
-              body: JSON.stringify({ code: activeMinecraftCode, rowId: result.rowId })
-            });
-            if (!completeResponse.ok) {
-              const completeResult = await completeResponse.json().catch(() => ({}));
-              throw new Error(completeResult.message || 'Could not finalize linking');
-            }
-
+            // The account is linked once Supabase metadata has been saved. Cleanup is best-effort:
+            // a cleanup failure must not make the UI report that a successful link failed.
             stopMinecraftLinkPolling();
             activeMinecraftCode = '';
             $('minecraft-link-waiting').textContent = t().minecraftLinkSuccess;
             $('minecraft-link-waiting').dataset.kind = 'success';
             showProfile(data.user, t().minecraftLinkSuccess);
             $('minecraft-link-start').disabled = false;
+
+            try {
+              const completeResponse = await fetch('/api/minecraft-link/complete', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: 'Bearer ' + token
+                },
+                body: JSON.stringify({ code: activeMinecraftCode || created.code, rowId: result.rowId })
+              });
+              if (!completeResponse.ok) {
+                console.warn('Minecraft link succeeded, but temporary-code cleanup failed:', await completeResponse.text());
+              }
+            } catch (cleanupError) {
+              console.warn('Minecraft link succeeded, but temporary-code cleanup failed:', cleanupError);
+            }
           } else if (response.status === 404) {
             // Code has not reached LuckPerms yet; keep polling until the code expires.
           } else if (!response.ok) {
