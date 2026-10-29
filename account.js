@@ -18,6 +18,20 @@
       badge: 'חשבון EddyWEB',
       title: 'החשבון שלך',
       intro: 'התחברות, הרשמה וניהול פרטי החשבון שלך.',
+      minecraftLogin: 'התחברות דרך Minecraft',
+      minecraftLoginInstructions: 'היכנס לשרת Minecraft והקלד את הפקודה הבאה:',
+      minecraftLoginWaiting: 'ממתין לאימות בשרת Minecraft…',
+      minecraftLoginCopied: 'הפקודה הועתקה.',
+      minecraftLoginError: 'לא ניתן להתחבר דרך Minecraft כרגע. נסה שוב.',
+      minecraftLoginSuccess: 'התחברת דרך Minecraft בהצלחה.',
+      minecraftLoginOr: 'או',
+      linkEmailHeading: 'חיבור דוא״ל לחשבון',
+      linkEmailDescription: 'אפשר להוסיף כתובת דוא״ל בהמשך כדי להשתמש בה בחשבון. ייתכן שתצטרך לאמת אותה.',
+      linkEmail: 'כתובת דוא״ל',
+      linkEmailSubmit: 'חבר דוא״ל',
+      linkEmailSending: 'שולח הודעת אימות…',
+      linkEmailSent: 'נשלח קישור אימות לכתובת הדוא״ל. פתח אותו כדי להשלים את החיבור.',
+      linkEmailError: 'לא ניתן לחבר את כתובת הדוא״ל כרגע. נסה שוב.',
       language: 'English',
       login: 'התחברות',
       signup: 'יצירת חשבון',
@@ -90,6 +104,20 @@
       badge: 'EDDYWEB ACCOUNT',
       title: 'Your account',
       intro: 'Sign in, create an account, and manage your profile.',
+      minecraftLogin: 'Sign in with Minecraft',
+      minecraftLoginInstructions: 'Join the Minecraft server and enter this command:',
+      minecraftLoginWaiting: 'Waiting for Minecraft server verification…',
+      minecraftLoginCopied: 'Command copied.',
+      minecraftLoginError: 'Minecraft sign-in is unavailable right now. Try again.',
+      minecraftLoginSuccess: 'You signed in with Minecraft.',
+      minecraftLoginOr: 'or',
+      linkEmailHeading: 'Add an email to your account',
+      linkEmailDescription: 'You can add an email later to use it with your account. Verification may be required.',
+      linkEmail: 'Email address',
+      linkEmailSubmit: 'Add email',
+      linkEmailSending: 'Sending verification email…',
+      linkEmailSent: 'A verification link was sent. Open it to finish linking your email.',
+      linkEmailError: 'Could not add this email right now. Please try again.',
       language: 'עברית',
       login: 'Sign in',
       signup: 'Create account',
@@ -179,6 +207,13 @@
       'account-badge': x.badge,
       'account-title': x.title,
       'account-intro': x.intro,
+      'minecraft-login-label': x.minecraftLogin,
+      'minecraft-login-instructions': x.minecraftLoginInstructions,
+      'minecraft-login-or': x.minecraftLoginOr,
+      'link-email-heading': x.linkEmailHeading,
+      'link-email-description': x.linkEmailDescription,
+      'label-link-email': x.linkEmail,
+      'link-email-submit': x.linkEmailSubmit,
       'account-language': x.language,
       'tab-login': x.login,
       'tab-signup': x.signup,
@@ -242,8 +277,27 @@
     $('auth-panel').hidden = true;
     $('recovery-panel').hidden = true;
     $('profile-panel').hidden = false;
-    $('profile-email').textContent = user.email || '';
     const metadata = user.user_metadata || {};
+    const internalMinecraftEmail = String(user.email || '').endsWith('@minecraft.eddyweb.invalid');
+    $('profile-email').textContent = internalMinecraftEmail ? (metadata.minecraft_username || (language === 'he' ? 'חשבון Minecraft' : 'Minecraft account')) : (user.email || '');
+    const avatar = $('profile-avatar');
+    const uuid = String(metadata.minecraft_uuid || '').replace(/-/g, '').trim();
+    if (avatar) {
+      if (uuid) {
+        avatar.src = 'https://mc-heads.net/avatar/' + encodeURIComponent(uuid) + '/64';
+        avatar.hidden = false;
+        avatar.alt = (metadata.minecraft_username || 'Minecraft') + ' skin head';
+      } else {
+        avatar.removeAttribute('src');
+        avatar.hidden = true;
+      }
+    }
+    const emailInput = $('link-email-input');
+    if (emailInput && !emailInput.value) {
+      emailInput.value = internalMinecraftEmail ? '' : (user.email || '');
+    }
+    $('link-email-form').hidden = !internalMinecraftEmail && Boolean(user.email);
+
     $('profile-display-name').value = metadata.display_name || '';
     $('profile-minecraft').value = metadata.minecraft_username || '';
     setStatus('profile-status', statusText, statusText ? 'success' : '');
@@ -363,6 +417,101 @@
 
   let minecraftLinkPoll = null;
   let activeMinecraftCode = '';
+  let minecraftLoginPoll = null;
+  let activeMinecraftLoginCode = '';
+
+  function stopMinecraftLoginPolling() {
+    if (minecraftLoginPoll) {
+      clearInterval(minecraftLoginPoll);
+      minecraftLoginPoll = null;
+    }
+  }
+
+  $('minecraft-login-start').addEventListener('click', async () => {
+    stopMinecraftLoginPolling();
+    $('minecraft-login-start').disabled = true;
+    $('minecraft-login-code-wrap').hidden = true;
+    setStatus('minecraft-login-status', t().minecraftLoginWaiting, 'loading');
+    try {
+      const response = await fetch('/api/minecraft-auth/create', { method: 'POST' });
+      const created = await response.json();
+      if (!response.ok || !created.success || !created.code) throw new Error(created.message || 'Unable to create login code');
+      activeMinecraftLoginCode = created.code;
+      $('minecraft-login-command').textContent = '/link ' + created.code;
+      $('minecraft-login-code-wrap').hidden = false;
+
+      const checkLogin = async () => {
+        if (!activeMinecraftLoginCode) return;
+        try {
+          const statusResponse = await fetch('/api/minecraft-auth/status?code=' + encodeURIComponent(activeMinecraftLoginCode));
+          const result = await statusResponse.json();
+          if (statusResponse.ok && result.success && result.tokenHash) {
+            stopMinecraftLoginPolling();
+            activeMinecraftLoginCode = '';
+            const { data, error } = await client.auth.verifyOtp({
+              token_hash: result.tokenHash,
+              type: 'magiclink'
+            });
+            if (error) throw error;
+            $('minecraft-login-start').disabled = false;
+            $('minecraft-login-code-wrap').hidden = true;
+            if (data?.user) showProfile(data.user, t().minecraftLoginSuccess);
+            return;
+          }
+          if (statusResponse.status !== 404 && !statusResponse.ok) throw new Error(result.message || 'Minecraft login status failed');
+        } catch (error) {
+          console.warn('Minecraft login check failed:', error);
+          stopMinecraftLoginPolling();
+          activeMinecraftLoginCode = '';
+          $('minecraft-login-start').disabled = false;
+          setStatus('minecraft-login-status', t().minecraftLoginError, 'error');
+        }
+      };
+      await checkLogin();
+      if (activeMinecraftLoginCode) minecraftLoginPoll = setInterval(checkLogin, 3000);
+    } catch (error) {
+      console.warn('Minecraft login start failed:', error);
+      activeMinecraftLoginCode = '';
+      $('minecraft-login-start').disabled = false;
+      setStatus('minecraft-login-status', t().minecraftLoginError, 'error');
+      $('minecraft-login-code-wrap').hidden = false;
+    }
+  });
+
+  $('minecraft-login-copy').addEventListener('click', async () => {
+    const command = $('minecraft-login-command').textContent;
+    try {
+      await navigator.clipboard.writeText(command);
+      setStatus('minecraft-login-status', t().minecraftLoginCopied, 'success');
+    } catch (_) {
+      setStatus('minecraft-login-status', command, '');
+    }
+  });
+
+  $('link-email-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!currentUser) return;
+    const email = $('link-email-input').value.trim();
+    if (!email) return;
+    const button = $('link-email-submit');
+    button.disabled = true;
+    setStatus('link-email-status', t().linkEmailSending, 'loading');
+    try {
+      const redirectTo = new URL('/account.html', window.location.origin).href;
+      const { data, error } = await client.auth.updateUser({ email }, { emailRedirectTo: redirectTo });
+      if (error) throw error;
+      if (data?.user) {
+        currentUser = data.user;
+        showProfile(data.user);
+      }
+      setStatus('link-email-status', t().linkEmailSent, 'success');
+    } catch (error) {
+      console.warn('Email linking failed:', error);
+      setStatus('link-email-status', t().linkEmailError, 'error');
+    } finally {
+      button.disabled = false;
+    }
+  });
 
   function renderMinecraftLink(user) {
     const metadata = user?.user_metadata || {};
