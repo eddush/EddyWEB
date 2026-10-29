@@ -404,6 +404,64 @@ async function getAuthenticatedSupabaseUser(req) {
     return { conn, user: data.user };
 }
 
+app.post('/api/account/link-email', async (req, res) => {
+    try {
+        const { conn, user } = await getAuthenticatedSupabaseUser(req);
+        if (!conn) return res.status(503).json({ success: false, message: 'חיבור מסד הנתונים אינו זמין' });
+        if (!user) return res.status(401).json({ success: false, message: 'יש להתחבר מחדש לאתר' });
+
+        const email = String(req.body?.email || '').trim().toLowerCase();
+        const emailRedirectTo = String(req.body?.emailRedirectTo || '');
+        if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return res.status(400).json({ success: false, message: 'כתובת דוא״ל לא תקינה' });
+        }
+        if (!String(user.email || '').endsWith('@minecraft.eddyweb.invalid')) {
+            return res.status(409).json({ success: false, message: 'לחשבון כבר מוגדרת כתובת דוא״ל' });
+        }
+        let redirect;
+        try {
+            redirect = new URL(emailRedirectTo);
+            if (redirect.protocol !== 'https:' && redirect.hostname !== 'localhost') throw new Error('Invalid protocol');
+            if (!['eddy-web-seven.vercel.app', 'localhost', '127.0.0.1'].includes(redirect.hostname)) {
+                throw new Error('Invalid redirect host');
+            }
+        } catch {
+            return res.status(400).json({ success: false, message: 'כתובת אימות לא תקינה' });
+        }
+
+        // Minecraft-only accounts use an internal, undeliverable address. Replace it
+        // server-side so Supabase doesn't require confirmation from that inaccessible address.
+        const { error: updateError } = await supabaseClient.auth.admin.updateUserById(user.id, {
+            email,
+            email_confirm: false
+        });
+        if (updateError) {
+            const message = String(updateError.message || '');
+            if (/already registered|already been registered|email_exists/i.test(message) || updateError.code === 'email_exists') {
+                return res.status(409).json({ success: false, message: 'כתובת הדוא״ל כבר משויכת לחשבון אחר' });
+            }
+            throw updateError;
+        }
+
+        // Send a verification email to the newly added address. The email stays unverified
+        // until its owner opens the Supabase confirmation link.
+        const { error: resendError } = await supabaseClient.auth.resend({
+            type: 'signup',
+            email,
+            options: { emailRedirectTo: redirect.href }
+        });
+        if (resendError) {
+            console.error('Email confirmation resend error:', resendError.message);
+            return res.status(502).json({ success: false, message: 'הכתובת נשמרה כממתינה לאימות, אך שליחת המייל נכשלה. נסה שוב מאוחר יותר.' });
+        }
+
+        return res.json({ success: true, pendingVerification: true });
+    } catch (error) {
+        console.error('Minecraft account email linking error:', error?.message || error);
+        return res.status(500).json({ success: false, message: 'לא ניתן לחבר את כתובת הדוא״ל כרגע' });
+    }
+});
+
 app.post('/api/account/disconnect-minecraft', async (req, res) => {
     try {
         const { conn, user } = await getAuthenticatedSupabaseUser(req);
