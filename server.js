@@ -452,6 +452,151 @@ app.post('/api/account/delete', async (req, res) => {
     }
 });
 
+// Minecraft-first sign-in. The browser receives a short-lived code, and the server
+// only issues a Supabase magic-link token after LuckPerms proves control of the Minecraft account.
+app.post('/api/minecraft-auth/create', async (req, res) => {
+    try {
+        const conn = getDatabaseConnection();
+        if (!conn) return res.status(503).json({ success: false, message: 'חיבור מסד הנתונים אינו זמין' });
+        await supabaseClient.from('minecraft_login_codes').delete().lt('expires_at', new Date().toISOString());
+
+        const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ2346789';
+        const crypto = require('crypto');
+        for (let attempt = 0; attempt < 6; attempt++) {
+            const code = Array.from(crypto.randomBytes(8), byte => alphabet[byte % alphabet.length]).join('');
+            const { error } = await supabaseClient.from('minecraft_login_codes').insert({
+                code,
+                expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString()
+            });
+            if (!error) return res.json({ success: true, code, expiresInSeconds: 600 });
+            if (error.code !== '23505') throw error;
+        }
+        return res.status(503).json({ success: false, message: 'לא ניתן ליצור קוד התחברות' });
+    } catch (error) {
+        console.error('Minecraft login code creation error:', error?.message || error);
+        return res.status(500).json({ success: false, message: 'לא ניתן ליצור קוד התחברות כרגע' });
+    }
+});
+
+async function findAuthUserByMinecraftUuid(uuid) {
+    const normalized = String(uuid || '').replace(/-/g, '').toLowerCase();
+    for (let page = 1; page <= 10; page++) {
+        const { data, error } = await supabaseClient.auth.admin.listUsers({ page, perPage: 1000 });
+        if (error) throw error;
+        const users = data?.users || [];
+        const match = users.find(user =>
+            String(user.user_metadata?.minecraft_uuid || '').replace(/-/g, '').toLowerCase() === normalized
+        );
+        if (match) return match;
+        if (users.length < 1000) break;
+    }
+    return null;
+}
+
+app.get('/api/minecraft-auth/status', async (req, res) => {
+    const code = String(req.query.code || '').trim().toUpperCase();
+    if (!/^[ABCDEFGHJKLMNPQRSTUVWXYZ2346789]{8}$/.test(code)) {
+        return res.status(400).json({ success: false, message: 'קוד התחברות לא תקין' });
+    }
+
+    try {
+        const conn = getDatabaseConnection();
+        if (!conn) return res.status(503).json({ success: false, message: 'חיבור מסד הנתונים אינו זמין' });
+        const { data: loginCode, error: codeError } = await supabaseClient
+            .from('minecraft_login_codes')
+            .select('code,expires_at')
+            .eq('code', code)
+            .gt('expires_at', new Date().toISOString())
+            .maybeSingle();
+        if (codeError) throw codeError;
+        if (!loginCode) return res.status(404).json({ success: false, pending: true });
+
+        const { data: rows, error: permissionError } = await supabaseClient
+            .from('luckperms_user_permissions')
+            .select('id,uuid,permission,value,expiry')
+            .eq('permission', 'meta.eddy_link.' + code)
+            .eq('value', true)
+            .order('id', { ascending: false })
+            .limit(1);
+        if (permissionError) throw permissionError;
+        if (!rows?.length) return res.status(404).json({ success: false, pending: true });
+
+        const row = rows[0];
+        if (row.expiry && Number(row.expiry) > 0 && Number(row.expiry) < Math.floor(Date.now() / 1000)) {
+            return res.status(404).json({ success: false, pending: true });
+        }
+
+        const { data: players, error: playerError } = await supabaseClient
+            .from('luckperms_players')
+            .select('uuid,username')
+            .eq('uuid', row.uuid)
+            .limit(1);
+        if (playerError) throw playerError;
+        const player = players?.[0];
+        if (!player?.username || !player?.uuid) return res.status(404).json({ success: false, pending: true });
+
+        let user = await findAuthUserByMinecraftUuid(player.uuid);
+        if (!user) {
+            const crypto = require('crypto');
+            const cleanUuid = String(player.uuid).replace(/-/g, '').toLowerCase();
+            const email = 'mc_' + cleanUuid + '@minecraft.eddyweb.invalid';
+            const password = crypto.randomBytes(48).toString('base64url') + 'aA1!';
+            const { data: created, error: createError } = await supabaseClient.auth.admin.createUser({
+                email,
+                password,
+                email_confirm: true,
+                user_metadata: {
+                    display_name: player.username,
+                    minecraft_username: player.username,
+                    minecraft_uuid: player.uuid
+                }
+            });
+            if (createError) {
+                // A concurrent login may have created the user after the first lookup.
+                if (createError.code === 'email_exists' || /already been registered|already exists/i.test(createError.message || '')) {
+                    user = await findAuthUserByMinecraftUuid(player.uuid);
+                    if (!user) throw createError;
+                } else {
+                    throw createError;
+                }
+            } else {
+                user = created.user;
+            }
+        } else {
+            // Refresh the displayed Minecraft name without overwriting a real email or other profile fields.
+            const { data: updated, error: updateError } = await supabaseClient.auth.admin.updateUserById(user.id, {
+                user_metadata: {
+                    ...(user.user_metadata || {}),
+                    minecraft_username: player.username,
+                    minecraft_uuid: player.uuid
+                }
+            });
+            if (updateError) throw updateError;
+            user = updated.user;
+        }
+
+        if (!user?.email) throw new Error('Minecraft account has no associated auth identity');
+        const { data: magicLink, error: magicError } = await supabaseClient.auth.admin.generateLink({
+            type: 'magiclink',
+            email: user.email
+        });
+        if (magicError) throw magicError;
+        const tokenHash = magicLink?.properties?.hashed_token;
+        if (!tokenHash) throw new Error('Supabase did not return a magic-link token');
+
+        // Consume the code and temporary LuckPerms marker before returning the one-time login token.
+        const { error: deleteCodeError } = await supabaseClient.from('minecraft_login_codes').delete().eq('code', code);
+        if (deleteCodeError) throw deleteCodeError;
+        const { error: deletePermissionError } = await supabaseClient.from('luckperms_user_permissions').delete().eq('id', row.id);
+        if (deletePermissionError) console.warn('Could not remove consumed Minecraft login marker:', deletePermissionError.message);
+
+        return res.json({ success: true, tokenHash });
+    } catch (error) {
+        console.error('Minecraft login status error:', error?.message || error);
+        return res.status(500).json({ success: false, message: 'שגיאה בהתחברות דרך Minecraft' });
+    }
+});
+
 app.post('/api/minecraft-link/create', async (req, res) => {
     try {
         const { conn, user } = await getAuthenticatedSupabaseUser(req);
