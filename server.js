@@ -376,6 +376,28 @@ function getDatabaseConnection() {
 
 // Public staff list. Use the same LuckPerms user-permission source as the player profile lookup.
 // Only a direct, enabled group.staff node counts; expired assignments are ignored.
+async function getOnlineMinecraftNames() {
+    const servers = ['Eddydev.ddns.net:25565', 'Eddydev.ddns.net:25566'];
+    const results = await Promise.all(servers.map(async address => {
+        try {
+            const response = await fetch('https://api.mcstatus.io/v2/status/java/' + encodeURIComponent(address), {
+                headers: { 'Accept': 'application/json' },
+                signal: AbortSignal.timeout(4500)
+            });
+            if (!response.ok) return [];
+            const status = await response.json();
+            if (!status.online) return [];
+            return (status.players?.list || [])
+                .map(player => String(player.name_clean || player.name_raw || '').trim().toLowerCase())
+                .filter(Boolean);
+        } catch (error) {
+            console.warn('Minecraft status lookup failed for ' + address + ':', error?.message || error);
+            return [];
+        }
+    }));
+    return new Set(results.flat());
+}
+
 app.get('/api/minecraft/staff', async (req, res) => {
     const conn = getDatabaseConnection();
     if (!conn) return res.status(503).json({ success: false, message: 'Supabase server connection is not configured' });
@@ -407,12 +429,15 @@ app.get('/api/minecraft/staff', async (req, res) => {
             });
         }
 
-        const { data: players, error: playersError } = await supabaseClient
+        const [onlineMinecraftNames, playerResult] = await Promise.all([
+            getOnlineMinecraftNames(),
+            supabaseClient
             .from('luckperms_players')
             .select('uuid,username,primary_group')
             .in('uuid', uuids)
-            .order('username', { ascending: true });
-
+            .order('username', { ascending: true })
+        ]);
+        const { data: players, error: playersError } = playerResult;
         if (playersError) throw playersError;
 
         // Attach the Discord ID saved when the Minecraft account was linked to EddyWEB.
@@ -440,7 +465,8 @@ app.get('/api/minecraft/staff', async (req, res) => {
                 uuid: player.uuid,
                 username: player.username,
                 rank: player.primary_group || 'staff',
-                discordId: discordByUuid.get(String(player.uuid || '').toLowerCase()) || null
+                discordId: discordByUuid.get(String(player.uuid || '').toLowerCase()) || null,
+                minecraftOnline: onlineMinecraftNames.has(String(player.username || '').toLowerCase())
             }))
         });
     } catch (error) {
