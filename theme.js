@@ -17,8 +17,10 @@
     const button = document.getElementById('theme-toggle') || createButton();
     button.classList.add('theme-floating-toggle');
     button.type = 'button';
-    button.innerHTML = selected === DARK ? '<i class="fa-solid fa-moon" aria-hidden="true"></i> מצב כהה' : '<i class="fa-solid fa-sun" aria-hidden="true"></i> מצב בהיר';
-    button.setAttribute('aria-label', selected === DARK ? 'החלפה למצב בהיר' : 'החלפה למצב כהה');
+    const he = (() => { try { return localStorage.getItem('eddy-language') === 'he'; } catch (_) { return document.documentElement.lang === 'he'; } })();
+    const labels = he ? { dark: 'מצב כהה', light: 'מצב בהיר', toLight: 'החלפה למצב בהיר', toDark: 'החלפה למצב כהה' } : { dark: 'Dark mode', light: 'Light mode', toLight: 'Switch to light mode', toDark: 'Switch to dark mode' };
+    button.innerHTML = selected === DARK ? '<i class="fa-solid fa-moon" aria-hidden="true"></i> ' + labels.dark : '<i class="fa-solid fa-sun" aria-hidden="true"></i> ' + labels.light;
+    button.setAttribute('aria-label', selected === DARK ? labels.toLight : labels.toDark);
     button.setAttribute('aria-pressed', String(selected === DARK));
     button.onclick = (event) => {
       event.preventDefault();
