@@ -17,7 +17,7 @@
 <section class="rules-hero">
 <div class="rules-hero-content">
 <div class="rules-hero-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
-<div class="badge" id="rules-badge"><i class="fa-solid fa-book-open" aria-hidden="true"></i> חוקי השרת</div>
+<div class="badge" id="rules-badge"><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>חוקי השרת</span></div>
 <h1 id="rules-title">חוקי שרת EddyDev SMP</h1>
 <p id="rules-intro">יש לקרוא ולפעול לפי חוקי השרת.</p>
 <div class="rules-meta">
@@ -114,8 +114,8 @@ function applyRulesLanguage(){
 const x=data[lang]||data.he;const he=lang==='he';
 document.documentElement.lang=lang;document.documentElement.dir=he?'rtl':'ltr';
 document.title='EddyWEB | '+x.title;
-document.getElementById('rules-back').textContent=x.back;
-document.getElementById('rules-badge').textContent=x.badge;
+
+document.getElementById('rules-badge').querySelector('span').textContent=x.badge;
 document.getElementById('rules-title').textContent=x.title;
 document.getElementById('rules-intro').textContent=x.intro;
 document.getElementById('rules-lang').querySelector('span').textContent=x.switch;
@@ -126,7 +126,7 @@ document.getElementById('rules-meta-community').textContent=x.metaCommunity;
 document.getElementById('rules-meta-read').textContent=x.metaRead;
 const groups=x.groups.map(([title,items],i)=>'<section class="rule-group"><h2><span class="rule-icon"><i class="fa-solid '+sectionIcons[i]+'" aria-hidden="true"></i></span><span>'+title+'</span></h2><ol>'+renderList(items)+'</ol></section>').join('');
 const useful='<section class="rule-group"><h2><span class="rule-icon"><i class="fa-solid '+sectionIcons[9]+'" aria-hidden="true"></i></span><span>'+x.usefulTitle+'</span></h2><ul>'+renderList(x.useful)+'</ul></section>';
-const links='<section class="rule-group rules-wide"><h2><span class="rule-icon"><i class="fa-solid '+sectionIcons[10]+'" aria-hidden="true"></i></span><span>'+x.linksTitle+'</span></h2><div class="rules-links">'+x.links.map(([label,url],i)=>'<a href="'+url+'" target="_blank" rel="noopener noreferrer"><i class="fa-solid '+(i===0?'fa-globe':'fa-brands fa-discord')+'" aria-hidden="true"></i><span>'+label+'</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>').join('')+'</div></section>';
+const links='<section class="rule-group rules-wide"><h2><span class="rule-icon"><i class="fa-solid '+sectionIcons[10]+'" aria-hidden="true"></i></span><span>'+x.linksTitle+'</span></h2><div class="rules-links">'+x.links.map(([label,url],i)=>'<a href="'+url+'" target="_blank" rel="noopener noreferrer"><i class="'+(i===0?'fa-solid fa-globe':'fa-brands fa-discord')+'" aria-hidden="true"></i><span>'+label+'</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>').join('')+'</div></section>';
 document.getElementById('rules-list').innerHTML=groups+useful+links;
 }
 document.getElementById('rules-lang').addEventListener('click',()=>{
