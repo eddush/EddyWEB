@@ -1,35 +1,124 @@
 <!doctype html>
-<html lang="en" dir="ltr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071014"><title>EddyWEB | Rules</title><link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></head>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071014">
+<title>EddyWEB | חוקי השרת</title><link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<style>
+.rules-list{display:grid;gap:16px}.rule-group{padding:18px 20px;border:1px solid var(--card-border,rgba(255,255,255,.12));border-radius:16px;background:rgba(255,255,255,.035)}.rule-group h2{margin:0 0 12px;font-size:1.2rem}.rule-group ol{margin:0;padding-inline-start:1.5rem}.rule-group li{margin:8px 0;line-height:1.7}.rule-group a{color:var(--accent,#5fffe4);text-decoration:underline}.rule-note{margin-top:12px}.rules-links{display:flex;flex-wrap:wrap;gap:14px;margin-top:8px}.rules-links a{overflow-wrap:anywhere}
+</style>
+</head>
 <body><div class="grid"></div>
 <main class="info-page">
-<a class="info-back" href="index.html">← Back to EddyWEB</a>
-<section class="info-hero"><div class="badge" id="rules-badge">SERVER RULES</div><h1 id="rules-title">Server Rules</h1><p id="rules-intro">Please follow these rules to keep EddyWEB friendly, fair and enjoyable for everyone.</p><div class="page-lang"><button class="btn" id="rules-lang">עברית</button></div></section>
+<a class="info-back" href="index.html" id="rules-back">→ חזרה ל-EddyWEB</a>
+<section class="info-hero">
+<div class="badge" id="rules-badge">חוקי השרת</div>
+<h1 id="rules-title">חוקי שרת EddyDev SMP</h1>
+<p id="rules-intro">יש לקרוא ולפעול לפי חוקי השרת.</p>
+<div class="page-lang"><button class="btn" id="rules-lang" type="button">English</button></div>
+</section>
 <section class="info-card"><div id="rules-list" class="rules-list"></div></section>
 </main>
 <script>
-let lang=localStorage.getItem('eddy-language')||'en';
-const data={en:{back:'← Back to EddyWEB',badge:'SERVER RULES',title:'Server Rules',intro:'Please follow these rules to keep EddyWEB friendly, fair and enjoyable for everyone.',switch:'עברית',rules:[
-['Be respectful','Treat players and staff respectfully. Harassment, bullying and personal attacks are not allowed.'],
-['No cheating','Do not use cheats, hacks, exploits or unfair client modifications.'],
-['No griefing','Do not intentionally destroy, steal from or sabotage other players or their builds.'],
-['No spam','Avoid chat spam, flooding, excessive caps and repeated messages.'],
-['No advertising','Do not advertise other servers, services or communities without staff permission.'],
-['No inappropriate content','Keep usernames, builds, skins, messages and links appropriate for the community.'],
-['Respect staff','Follow reasonable staff instructions and use Discord or the appropriate support channel for disputes.'],
-['Use common sense','Staff may take action when behavior clearly harms the server or other players, even if a specific situation is not listed here.']
-]},he:{back:'→ חזרה ל-EddyWEB',badge:'חוקי השרת',title:'חוקי השרת',intro:'יש לפעול לפי החוקים כדי לשמור על EddyWEB קהילה נעימה, הוגנת ומהנה לכולם.',switch:'English',rules:[
-['כבוד הדדי','יש לכבד שחקנים ואנשי צוות. הטרדות, בריונות והתקפות אישיות אסורות.'],
-['ללא צ׳יטים','אין להשתמש בצ׳יטים, האקים, ניצולים או שינויים שנותנים יתרון לא הוגן.'],
-['ללא גריפינג','אין להרוס, לגנוב או לפגוע בכוונה בבנייה וברכוש של שחקנים אחרים.'],
-['ללא ספאם','אין להציף את הצ׳אט, לשלוח הודעות חוזרות או להשתמש בספאם מוגזם.'],
-['ללא פרסום','אין לפרסם שרתים, שירותים או קהילות אחרות ללא אישור הצוות.'],
-['תוכן הולם','יש לשמור על שמות, בניות, סקינים, הודעות וקישורים מתאימים לקהילה.'],
-['כבדו את הצוות','יש להקשיב להנחיות סבירות של הצוות ולהשתמש ב-Discord או בערוץ התמיכה המתאים במקרה של מחלוקת.'],
-['היגיון בריא','הצוות רשאי לטפל בהתנהגות שפוגעת בבירור בשרת או בשחקנים, גם אם המקרה הספציפי אינו מופיע ברשימה.']
-]}};
-function apply(){const x=data[lang];document.documentElement.lang=lang;document.documentElement.dir=lang==='he'?'rtl':'ltr';document.querySelector('.info-back').textContent=x.back;document.getElementById('rules-badge').textContent=x.badge;document.getElementById('rules-title').textContent=x.title;document.getElementById('rules-intro').textContent=x.intro;document.getElementById('rules-lang').textContent=x.switch;document.getElementById('rules-list').innerHTML=x.rules.map((r,i)=>'<article class="rule-item"><span class="rule-number">'+(i+1)+'</span><div><h3>'+r[0]+'</h3><p>'+r[1]+'</p></div></article>').join('');}
-document.getElementById('rules-lang').onclick=()=>{lang=lang==='en'?'he':'en';localStorage.setItem('eddy-language',lang);apply()};apply();
-</script><script src="theme.js"></script><script src="animations.js"></script>
-  <script src="account-nav.js"></script></body></html>
+let lang='he';
+try { lang=localStorage.getItem('eddy-language') || 'he'; } catch (_) {}
+const data={
+he:{
+back:'→ חזרה ל-EddyWEB',badge:'חוקי השרת',title:'חוקי שרת EddyDev SMP',intro:'יש לקרוא ולפעול לפי חוקי השרת כדי לשמור על סביבת משחק הוגנת ומהנה.',switch:'English',
+groups:[
+['ספאון (Spawn)',[
+'אין להגריף בספאון.','אין להרוג בספאון.','אין להספים בספאון.'
+]],
+['שטחים (Claims)',[
+'מנהלים יכולים להיות בכל שטח או לתת באן משטחים.','כדי לתת למישהו אישור לשטח צריך לכתוב /trust.','אין להרוג בשטחים.','אין לעשות טראפים (מלכודות) בשטחים.'
+]],
+['שחקנים',[
+'מותר להרוג שחקנים בכל מקום, חוץ מהמקומות האסורים לכך.','אין לעשות ספאון-קיל (להרוג מישהו כשהוא מזדמן ליד המיטה).',
+'דיווח על שחקנים למנהלים ייעשה רק בשרת הדיסקורד שלנו או באתר: <a href="https://eddy.42web.io/minkraft/index.html" target="_blank" rel="noopener noreferrer">https://eddy.42web.io/minkraft/index.html</a>'
+]],
+['צ\'אט',[
+'אין לכתוב מילים פוגעניות, קללות או תוכן לא הולם.','אין לשלוח קישורים או לפרסם שרתים ודברים אחרים ללא אישור.','אין להספים בצ\'אט.','❗️ אפשר לבקש מהמנהל הראשי אישור לפרסם בשרת.'
+]],
+['וויס צ\'אט',[
+'לא לקלל או להגיד מילים לא יפות או לא חוקיות.','יש לכבד את הדיבור בוויס צ\'אט.','צריך הוכחות על עבירה של החוקים בוויס צ\'אט.'
+]],
+['צ\'יטים והאקים',[
+'אין להשתמש בצ\'יטים (כמו X-Ray) או במודים של צ\'יטים.','מותר להשתמש רק במודים המאושרים על ידי השרת.','אין להשתמש בסקריפטים.','לשחקנים רגילים אסור לנסות להשתמש בפקודת /op.'
+]],
+['מנהלים (צוות השרת)',[
+'אין לתת באן ללא אזהרה מוקדמת.','יש לתת קיק (Kick) לפני מתן באן, אלא אם מדובר בבעיה חריגה.','אין לתת באן או קיק ללא סיבה מוצדקת.','אין לתת באן לשטחים ללא סיבה.','אין להשתמש בפקודת /op ללא צורך.'
+]],
+['כללי',[
+'אין להשתמש סתם בפקודת /helpop.','אם המנהלים אומרים להפסיק משהו - יש להישמע להם.','יש להישמע לחוקי ה-EULA של מיינקרפט: <a href="https://www.minecraft.net/en-us/eula" target="_blank" rel="noopener noreferrer">https://www.minecraft.net/en-us/eula</a>'
+]],
+['בטיחות והגנה',[
+'אין להתחזות לאנשים אחרים.','שימו לב: ה-Voice Chat פועל במצב Offline Mode.','אם מופיעה הודעה על ניסיון נטרול/פריצה לשרת, יש לדווח למנהלים מיידית!'
+]]
+],
+usefulTitle:'מידע שימושי ופקודות',useful:[
+'סקרים: /polls','עזרה ממנהלים: /helpop','רשימת פקודות ופלאגינים: /help','עזרה בפלאגין מסוים: /help <שם הפלגין> (דוגמה: /help voicechat)'
+],linksTitle:'קישורים',links:[
+['אתר האינטרנט','https://Eddy.42web.io'],['שרת הדיסקורד','https://discord.gg/zXq9E8FQCS']
+]},
+en:{
+back:'← Back to EddyWEB',badge:'SERVER RULES',title:'EddyDev SMP Server Rules',intro:'Please read and follow the server rules to keep gameplay fair and enjoyable.',switch:'עברית',
+groups:[
+['Spawn',[
+'No griefing in the spawn.','No killing in the spawn.','No spamming in the spawn.'
+]],
+['Claims',[
+'Administrators may enter any claim or ban players from claims.','To grant someone permission to a claim, type /trust.','No killing in claims.','No traps in claims.'
+]],
+['Players',[
+'Players may be killed anywhere, except in designated no-kill zones.','Do not perform spawn kills (killing someone when they spawn near a bed).',
+'Report players to the admins only on our Discord server or on the website: <a href="https://eddy.42web.io/minkraft/index.html" target="_blank" rel="noopener noreferrer">https://eddy.42web.io/minkraft/index.html</a>'
+]],
+['Chat',[
+'Do not use offensive language, swear words, or inappropriate content.','Do not send links or advertise servers or other things without permission.','Do not spam in chat.','❗️ You may ask the head admin for permission to advertise on the server.'
+]],
+['Voice Chat',[
+'Do not swear or use inappropriate or illegal language.','Be respectful when speaking in Voice Chat.','Evidence is required when reporting a Voice Chat rule violation.'
+]],
+['Cheats and Hacks',[
+'Do not use cheats (such as X-Ray) or cheat mods.','Only mods approved by the server may be used.','Do not use scripts.','Regular players are not allowed to attempt to use the /op command.'
+]],
+['Administrators (Server Staff)',[
+'Do not issue a ban without a prior warning.','Issue a kick before banning, unless it is an exceptional case.','Do not ban or kick without a valid reason.','Do not ban players from claims without a reason.','Do not use the /op command unnecessarily.'
+]],
+['General',[
+'Do not use the /helpop command frivolously.','If the administrators tell you to stop something, you must obey them.','You must comply with the Minecraft EULA: <a href="https://www.minecraft.net/en-us/eula" target="_blank" rel="noopener noreferrer">https://www.minecraft.net/en-us/eula</a>'
+]],
+['Safety and Protection',[
+'Do not impersonate other people.','Note: Voice Chat is currently running in Offline Mode.','If a message appears regarding an attempt to disable or hack the server, report it to the admins immediately!'
+]]
+],
+usefulTitle:'Useful Information and Commands',useful:[
+'Polls: /polls','Help from admins: /helpop','List of commands and plugins: /help','Help with a specific plugin: /help <plugin name> (example: /help voicechat)'
+],linksTitle:'Links',links:[
+['Website','https://Eddy.42web.io'],['Discord server','https://discord.gg/zXq9E8FQCS']
+]}
+};
+function renderList(items){return items.map((item)=>'<li>'+item+'</li>').join('')}
+function applyRulesLanguage(){
+const x=data[lang]||data.he;const he=lang==='he';
+document.documentElement.lang=lang;document.documentElement.dir=he?'rtl':'ltr';
+document.title='EddyWEB | '+x.title;
+document.getElementById('rules-back').textContent=x.back;
+document.getElementById('rules-badge').textContent=x.badge;
+document.getElementById('rules-title').textContent=x.title;
+document.getElementById('rules-intro').textContent=x.intro;
+document.getElementById('rules-lang').textContent=x.switch;
+const groups=x.groups.map(([title,items])=>'<section class="rule-group"><h2>'+title+'</h2><ol>'+renderList(items)+'</ol></section>').join('');
+const useful='<section class="rule-group"><h2>'+x.usefulTitle+'</h2><ul>'+renderList(x.useful)+'</ul></section>';
+const links='<section class="rule-group"><h2>'+x.linksTitle+'</h2><div class="rules-links">'+x.links.map(([label,url])=>'<a href="'+url+'" target="_blank" rel="noopener noreferrer">'+label+': '+url+'</a>').join('')+'</div></section>';
+document.getElementById('rules-list').innerHTML=groups+useful+links;
+}
+document.getElementById('rules-lang').addEventListener('click',()=>{
+lang=lang==='he'?'en':'he';
+try{localStorage.setItem('eddy-language',lang)}catch(_){}
+applyRulesLanguage();
+});
+applyRulesLanguage();
+</script>
+<script src="theme.js"></script><script src="animations.js"></script><script src="account-nav.js"></script>
+</body></html>
