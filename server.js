@@ -374,6 +374,48 @@ function getDatabaseConnection() {
     };
 }
 
+// Public staff list: only users with the exact direct LuckPerms node group.staff are included.
+app.get('/api/minecraft/staff', async (req, res) => {
+    const conn = getDatabaseConnection();
+    if (!conn) return res.status(503).json({ success: false, message: 'Supabase server connection is not configured' });
+    try {
+        const { data: permissions, error: permissionError } = await supabaseClient
+            .from('luckperms_user_permissions')
+            .select('uuid,expiry')
+            .eq('permission', 'group.staff')
+            .eq('value', true)
+            .eq('server', 'global')
+            .eq('world', 'global')
+            .eq('contexts', '{}')
+            .order('id', { ascending: false });
+        if (permissionError) throw permissionError;
+        const now = Math.floor(Date.now() / 1000);
+        const uuids = [...new Set((permissions || [])
+            .filter(row => !Number(row.expiry) || Number(row.expiry) === 0 || Number(row.expiry) > now)
+            .map(row => String(row.uuid || '').toLowerCase())
+            .filter(uuid => /^[0-9a-f-]{36}$/.test(uuid)))];
+        if (!uuids.length) return res.set('Cache-Control', 'no-store').json({ success: true, group: 'staff', members: [] });
+        const { data: players, error: playersError } = await supabaseClient
+            .from('luckperms_players')
+            .select('uuid,username,primary_group')
+            .in('uuid', uuids)
+            .order('username', { ascending: true });
+        if (playersError) throw playersError;
+        return res.set('Cache-Control', 'no-store').json({
+            success: true,
+            group: 'staff',
+            members: (players || []).map(player => ({
+                uuid: player.uuid,
+                username: player.username,
+                rank: player.primary_group || 'staff'
+            }))
+        });
+    } catch (error) {
+        console.error('Minecraft staff list error:', error?.message || error);
+        return res.status(503).json({ success: false, message: 'Unable to load Minecraft staff' });
+    }
+});
+
 // Minecraft account linking. Link codes are created and owned server-side by the signed-in user.
 function getBearerToken(req) {
     const header = String(req.headers.authorization || '');
