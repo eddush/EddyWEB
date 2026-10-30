@@ -415,13 +415,32 @@ app.get('/api/minecraft/staff', async (req, res) => {
 
         if (playersError) throw playersError;
 
+        // Attach the Discord ID saved when the Minecraft account was linked to EddyWEB.
+        let linkedProfiles = [];
+        try {
+            const { data, error } = await supabaseClient
+                .from('player_profiles')
+                .select('uuid,discord_id')
+                .in('uuid', uuids);
+            if (error) throw error;
+            linkedProfiles = data || [];
+        } catch (profileError) {
+            // The public staff list still works if optional account-link data is unavailable.
+            console.warn('Staff Discord-link lookup skipped:', profileError?.message || profileError);
+        }
+        const discordByUuid = new Map(linkedProfiles.map(profile => [
+            String(profile.uuid || '').toLowerCase(),
+            profile.discord_id ? String(profile.discord_id) : null
+        ]));
+
         return res.set('Cache-Control', 'no-store').json({
             success: true,
             group: 'staff',
             members: (players || []).map(player => ({
                 uuid: player.uuid,
                 username: player.username,
-                rank: player.primary_group || 'staff'
+                rank: player.primary_group || 'staff',
+                discordId: discordByUuid.get(String(player.uuid || '').toLowerCase()) || null
             }))
         });
     } catch (error) {
