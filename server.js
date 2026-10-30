@@ -42,19 +42,10 @@ app.use((req, res, next) => {
 });
 app.use(express.static(__dirname));
 
-app.post('/api/login', (req, res) => {
-    const { password } = req.body;
-    const adminPassword = process.env.ADMIN_PASSWORD;
-
-    if (!adminPassword) {
-        return res.status(500).json({ success: false, message: 'משתנה ADMIN_PASSWORD אינו מוגדר' });
-    }
-
-    if (password === adminPassword) {
-        return res.json({ success: true });
-    } else {
-        return res.status(401).json({ success: false, message: 'סיסמה שגויה' });
-    }
+app.post('/api/login', async (req, res) => {
+    const access = await checkMinecraftAdmin(req);
+    if (!access.ok) return res.status(access.status).json({ success: false, message: access.message });
+    return res.json({ success: true, username: access.username });
 });
 
 app.get('/api/news', async (req, res) => {
@@ -86,12 +77,9 @@ app.get('/api/news', async (req, res) => {
 });
 
 app.post('/api/save-news', async (req, res) => {
-    const { password, news } = req.body || {};
-    const adminPassword = process.env.ADMIN_PASSWORD;
-
-    if (!adminPassword || password !== adminPassword) {
-        return res.status(401).json({ success: false, message: 'אין הרשאה' });
-    }
+    const { news } = req.body || {};
+    const access = await checkMinecraftAdmin(req);
+    if (!access.ok) return res.status(access.status).json({ success: false, message: access.message });
 
     if (!Array.isArray(news)) {
         return res.status(400).json({ success: false, message: 'רשימת החדשות לא תקינה' });
@@ -144,13 +132,10 @@ app.post('/api/save-news', async (req, res) => {
 
 
 app.post('/api/improve-article', async (req, res) => {
-    const { password, article } = req.body;
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    const { article } = req.body || {};
     const groqApiKey = process.env.GROQ_API_KEY;
-
-    if (password !== adminPassword) {
-        return res.status(401).json({ success: false, message: 'אין הרשאה' });
-    }
+    const access = await checkMinecraftAdmin(req);
+    if (!access.ok) return res.status(access.status).json({ success: false, message: access.message });
 
     if (!groqApiKey) {
         return res.status(500).json({
@@ -402,6 +387,36 @@ async function getAuthenticatedSupabaseUser(req) {
     const { data, error } = await supabaseClient.auth.getUser(token);
     if (error || !data?.user) return { conn, user: null };
     return { conn, user: data.user };
+}
+
+// Admin access requires a signed-in EddyWEB account linked to a Minecraft UUID
+// that has the direct LuckPerms node eddyweb.admin.
+async function checkMinecraftAdmin(req) {
+    try {
+        const { conn, user } = await getAuthenticatedSupabaseUser(req);
+        if (!conn) return { ok: false, status: 503, message: 'חיבור מסד הנתונים אינו זמין' };
+        if (!user) return { ok: false, status: 401, message: 'יש להתחבר לחשבון EddyWEB' };
+        const rawUuid = String(user.app_metadata?.minecraft_uuid || '').trim().toLowerCase();
+        const cleanUuid = rawUuid.replace(/-/g, '');
+        if (!/^[0-9a-f]{32}$/.test(cleanUuid)) {
+            return { ok: false, status: 403, message: 'יש לחבר חשבון Minecraft לחשבון EddyWEB' };
+        }
+        const hyphenatedUuid = cleanUuid.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5');
+        const { data: rows, error } = await supabaseClient.from('luckperms_user_permissions')
+            .select('permission,value,expiry')
+            .in('uuid', [...new Set([rawUuid, cleanUuid, hyphenatedUuid])])
+            .eq('permission', 'eddyweb.admin').eq('value', true)
+            .order('id', { ascending: false }).limit(1);
+        if (error) throw error;
+        const permission = rows?.[0];
+        if (!permission || (Number(permission.expiry) > 0 && Number(permission.expiry) < Math.floor(Date.now() / 1000))) {
+            return { ok: false, status: 403, message: 'אין לחשבון שלך הרשאת eddyweb.admin ב-Minecraft' };
+        }
+        return { ok: true, user, username: user.user_metadata?.minecraft_username || 'Minecraft player' };
+    } catch (error) {
+        console.error('Minecraft admin authorization error:', error?.message || error);
+        return { ok: false, status: 503, message: 'לא ניתן לאמת הרשאות Minecraft כרגע' };
+    }
 }
 
 app.post('/api/account/link-email', async (req, res) => {
