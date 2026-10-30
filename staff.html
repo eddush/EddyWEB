@@ -1,135 +1,23 @@
 <!doctype html>
-<html lang="he" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#071014">
-  <title>EddyWEB | מידע על צוות</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-</head>
-<body>
-  <button id="language-toggle" class="lang-btn" type="button" style="position:fixed;top:16px;left:16px;z-index:20">עברית</button>
-  <button id="theme-toggle" class="lang-btn theme-btn theme-floating-toggle" type="button" aria-label="החלפת מצב תצוגה">☀️ מצב בהיר</button>
-  <div class="grid"></div>
-  <main class="player-page">
-    <a class="player-back" href="index.html">→ חזרה ל-EddyWEB</a>
-    <section class="player-search-panel">
-      <div class="badge">STAFF PROFILE</div>
-      <h1>מידע על הצוות</h1>
-      <p>הקלד שם משתמש כדי לבדוק אם הוא חבר צוות ב-Minecraft או ב-Discord.</p>
-      <form id="staff-search-form" class="player-search-form">
-        <input id="staff-name-input" name="username" type="text" maxlength="32" autocomplete="off" placeholder="שם משתמש..." required>
-        <button class="btn primary" type="submit">חפש איש צוות</button>
-      </form>
-      <div id="staff-status" class="player-status" aria-live="polite"></div>
-    </section>
-    <section id="staff-profile" class="player-profile hidden" aria-live="polite">
-      <div class="player-hero-card">
-        <div class="player-skin-wrap"><img id="staff-avatar" class="player-skin" alt="Staff profile"></div>
-        <div class="player-main-info">
-          <span class="news-date">EDDYWEB STAFF</span>
-          <h2 id="staff-username">-</h2>
-          <p id="staff-platforms" class="player-uuid"></p>
-          <div class="player-rank-pill"><span>תפקיד</span><strong id="staff-role">-</strong></div>
-        </div>
-      </div>
-      <div class="player-info-grid">
-        <article class="player-info-card">
-          <div class="icon"><i class="fa-brands fa-discord" aria-hidden="true"></i></div>
-          <span>Discord</span><strong id="staff-discord">-</strong><small id="staff-discord-status"></small>
-        </article>
-        <article class="player-info-card">
-          <div class="icon"><i class="fa-solid fa-cube" aria-hidden="true"></i></div>
-          <span>Minecraft</span><strong id="staff-minecraft">-</strong><small id="staff-minecraft-rank"></small>
-        </article>
-      </div>
-    </section>
-  </main>
+<html lang="en" dir="ltr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071014"><title>EddyWEB | Staff</title><link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></head>
+<body><div class="grid"></div>
+<main class="info-page">
+<a class="info-back" href="index.html">← Back to EddyWEB</a>
+<section class="info-hero"><div class="badge" id="staff-badge">SERVER STAFF</div><h1 id="staff-title">Our Staff</h1><p id="staff-intro">Meet the people who help manage and support the EddyWEB Minecraft community.</p><div class="page-lang"><button class="btn" id="staff-lang">עברית</button></div></section>
+<section class="info-card"><h2 id="staff-heading">Staff Team</h2><div id="staff-list" class="staff-list"><div class="staff-empty" id="staff-loading">Loading staff...</div></div></section>
+</main>
 <script>
 const DISCORD_API='https://eddy-bot-lyvo.onrender.com/api/discord';
 const MINECRAFT_API='/api/minecraft/staff';
-const form=document.getElementById('staff-search-form');
-const input=document.getElementById('staff-name-input');
-const statusEl=document.getElementById('staff-status');
-const profile=document.getElementById('staff-profile');
 let lang=localStorage.getItem('eddy-language')||'en';
-let staffData=null;
-const words={
- en:{back:'← Back to EddyWEB',badge:'STAFF PROFILE',title:'Staff Profile',intro:'Enter a username to check whether they are staff on Minecraft or Discord.',placeholder:'Username...',search:'Search Staff',loading:'Loading staff information...',success:'✓ Staff profile found.',notFound:'No staff member with that username was found.',failed:'Unable to load staff information.',role:'Role',discord:'Discord',minecraft:'Minecraft',yes:'Staff member',no:'Not staff',online:'Online',offline:'Offline',discordOnly:'Discord only',minecraftOnly:'Minecraft only',both:'Minecraft + Discord',avatar:'EDDYWEB STAFF',switch:'עברית'},
- he:{back:'→ חזרה ל-EddyWEB',badge:'פרופיל צוות',title:'בדיקת מידע על צוות',intro:'הקלד שם משתמש כדי לבדוק אם הוא חבר צוות ב-Minecraft או ב-Discord.',placeholder:'שם משתמש...',search:'חפש איש צוות',loading:'טוען את פרטי הצוות...',success:'✓ איש הצוות נמצא.',notFound:'לא נמצא איש צוות בשם המשתמש הזה.',failed:'לא ניתן לטעון את מידע הצוות.',role:'תפקיד',discord:'Discord',minecraft:'Minecraft',yes:'חבר צוות',no:'לא חבר צוות',online:'מחובר',offline:'לא מחובר',discordOnly:'צוות Discord בלבד',minecraftOnly:'צוות Minecraft בלבד',both:'צוות Minecraft ו-Discord',avatar:'צוות EDDYWEB',switch:'English'}
-};
-function t(){return words[lang]}
-function safe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function applyLanguage(){
- const x=t(),he=lang==='he';
- document.documentElement.lang=lang;document.documentElement.dir=he?'rtl':'ltr';
- document.querySelector('.player-back').textContent=x.back;
- document.querySelector('.player-search-panel .badge').textContent=x.badge;
- document.querySelector('.player-search-panel h1').textContent=x.title;
- document.querySelector('.player-search-panel p').textContent=x.intro;
- input.placeholder=x.placeholder;
- document.querySelector('#staff-search-form .btn').textContent=x.search;
- document.querySelector('.news-date').textContent=x.avatar;
- document.querySelector('.player-rank-pill span').textContent=x.role;
- document.querySelector('.player-info-card:nth-child(1) span').textContent=x.discord;
- document.querySelector('.player-info-card:nth-child(2) span').textContent=x.minecraft;
- document.getElementById('language-toggle').textContent=x.switch;
-}
-function setStatus(message,kind){statusEl.className='player-status'+(kind?' '+kind:'');statusEl.textContent=message}
-function extractStaff(data){
- const discord=[];
- const roles=data?.staff?.roles||{};
- Object.entries(roles).forEach(([key,role])=>{
-  (role?.members||[]).forEach(person=>discord.push({...person,staffRole:role.name||role.label||key}));
- });
- const minecraft=(data?.members||[]).map(person=>({...person}));
- return {discord,minecraft};
-}
-async function loadStaff(){
- const [dr,mr]=await Promise.all([fetch(DISCORD_API,{cache:'no-store'}),fetch(MINECRAFT_API,{cache:'no-store'})]);
- if(!dr.ok||!mr.ok)throw new Error('API error');
- const [d,m]=await Promise.all([dr.json(),mr.json()]);
- if(d.ok===false||m.success===false)throw new Error('Invalid API response');
- return extractStaff(d).discord.length||extractStaff(m).minecraft.length?extractStaff(d):extractStaff(d);
-}
-function findProfile(query,data){
- const q=query.toLowerCase();
- const discord=data.discord.find(p=>[p.username,p.displayName,p.name,p.id].some(v=>String(v||'').toLowerCase()===q||String(v||'').toLowerCase().includes(q)));
- const minecraft=data.minecraft.find(p=>[p.username,p.uuid].some(v=>String(v||'').toLowerCase()===q));
- return {discord,minecraft: minecraft || (discord?.minecraftUsername ? data.minecraft.find(p=>String(p.username).toLowerCase()===String(discord.minecraftUsername).toLowerCase()):null)};
-}
-function showProfile(found){
- const x=t(),d=found.discord,m=found.minecraft;
- const displayName=m?.username||d?.minecraftUsername||d?.displayName||d?.username||d?.name||'';
- document.getElementById('staff-username').textContent=displayName;
- document.getElementById('staff-platforms').textContent=d&&m?x.both:d?x.discordOnly:x.minecraftOnly;
- document.getElementById('staff-role').textContent=[m?.rank||m?.primary_group,d?.staffRole].filter(Boolean).join(' • ')||x.yes;
- document.getElementById('staff-discord').textContent=d?(d.displayName||d.username||d.name||d.id):x.no;
- document.getElementById('staff-discord-status').textContent=d?(d.online?x.online:x.offline):'';
- document.getElementById('staff-minecraft').textContent=m?m.username:x.no;
- document.getElementById('staff-minecraft-rank').textContent=m?(m.rank||m.primary_group||'staff'):'';
- const avatar=document.getElementById('staff-avatar');
- if(m?.username){avatar.src='https://mc-heads.net/body/'+encodeURIComponent(m.username)+'/300';avatar.onerror=()=>{avatar.onerror=null;avatar.src='https://mc-heads.net/avatar/'+encodeURIComponent(m.username)+'/200'}}
- else if(d?.avatar){avatar.src=d.avatar}
- else {avatar.src='https://mc-heads.net/avatar/'+encodeURIComponent(displayName)+'/200'}
- profile.classList.remove('hidden');requestAnimationFrame(()=>profile.classList.add('is-loaded'));
-}
-form.addEventListener('submit',async e=>{
- e.preventDefault();const query=input.value.trim();if(!query)return;
- profile.classList.add('hidden');profile.classList.remove('is-loaded');setStatus(t().loading,'loading');
- try{
-  if(!staffData)staffData=await loadStaff();
-  const found=findProfile(query,staffData);
-  if(!found.discord&&!found.minecraft)throw new Error(t().notFound);
-  showProfile(found);setStatus(t().success,'success');
- }catch(err){setStatus('✕ '+(err.message||t().failed),'error')}
-});
-document.getElementById('language-toggle').addEventListener('click',()=>{lang=lang==='en'?'he':'en';try{localStorage.setItem('eddy-language',lang)}catch(_){}applyLanguage()});
-applyLanguage();
-</script>
-<script src="theme.js"></script>
-<script src="animations.js"></script>
-<script src="account-nav.js"></script>
-</body>
-</html>
+const tr={en:{back:'← Back to EddyWEB',badge:'SERVER STAFF',title:'Our Staff',intro:'Meet the people who help manage and support the EddyWEB community.',heading:'Staff Team',loading:'Loading staff...',failed:'Unable to load staff information.',discord:'Discord Staff',minecraft:'Minecraft Staff',roles:{team:'Team',developers:'Developers',helpers:'Helpers',moderators:'Moderators'},empty:'No staff members found.',switch:'עברית'},
+he:{back:'→ חזרה ל-EddyWEB',badge:'צוות השרת',title:'צוות השרת',intro:'הכירו את האנשים שעוזרים לנהל ולתמוך בקהילת EddyWEB.',heading:'צוות השרת',loading:'טוען את הצוות...',failed:'לא ניתן לטעון את מידע הצוות.',discord:'צוות Discord',minecraft:'צוות Minecraft',roles:{team:'צוות',developers:'מתכנתים',helpers:'הלפרים',moderators:'מודרטורים'},empty:'לא נמצאו אנשי צוות.',switch:'English'}};
+function safe(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function memberCard(name,role,avatar,status){return '<div class="staff-member" style="display:flex;align-items:center;gap:12px">'+(avatar?'<img src="'+safe(avatar)+'" alt="" width="42" height="42" style="border-radius:50%;object-fit:cover">':'')+'<div style="flex:1;min-width:0"><strong>'+safe(name)+'</strong>'+(status?'<div class="staff-role">'+safe(status)+'</div>':'')+'</div><span class="staff-role">'+safe(role)+'</span></div>';}
+function section(title,content){return '<section class="staff-source"><h3>'+safe(title)+'</h3>'+(content||'<div class="staff-empty">'+tr[lang].empty+'</div>')+'</section>';}
+function apply(){const x=tr[lang];document.documentElement.lang=lang;document.documentElement.dir=lang==='he'?'rtl':'ltr';document.querySelector('.info-back').textContent=x.back;document.getElementById('staff-badge').textContent=x.badge;document.getElementById('staff-title').textContent=x.title;document.getElementById('staff-intro').textContent=x.intro;document.getElementById('staff-heading').textContent=x.heading;document.getElementById('staff-lang').textContent=x.switch;load();}
+async function load(){const el=document.getElementById('staff-list'),x=tr[lang];el.innerHTML='<div class="staff-empty">'+x.loading+'</div>';try{const [dr,mr]=await Promise.all([fetch(DISCORD_API,{cache:'no-store'}),fetch(MINECRAFT_API,{cache:'no-store'})]);if(!dr.ok||!mr.ok)throw new Error('Staff API unavailable');const [d,m]=await Promise.all([dr.json(),mr.json()]);if(!d.ok||!m.success)throw new Error('Invalid staff API response');const roles=d.staff?.roles||{};let discordHtml='';Object.keys(x.roles).forEach(k=>{const role=roles[k];if(!role||!Array.isArray(role.members))return;const cards=role.members.map(person=>memberCard(person.displayName||person.username||person.name,x.roles[k],person.avatar,person.online?'Online':'')).join('');if(cards)discordHtml+=cards;});const minecraftHtml=(m.members||[]).map(person=>memberCard(person.username,person.rank||'staff','', '')).join('');el.innerHTML=section(x.discord,discordHtml)+section(x.minecraft,minecraftHtml);}catch(e){console.error('Staff page load error:',e);el.innerHTML='<div class="staff-empty">'+x.failed+'</div>';}}
+document.getElementById('staff-lang').onclick=()=>{lang=lang==='en'?'he':'en';localStorage.setItem('eddy-language',lang);apply()};apply();</script><script src="theme.js"></script><script src="animations.js"></script>
+  <script src="account-nav.js"></script></body></html>
