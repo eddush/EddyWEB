@@ -98,6 +98,18 @@ usefulTitle:'Useful Information and Commands',useful:[
 ['Website','https://Eddy.42web.io'],['Discord server','https://discord.gg/zXq9E8FQCS']
 ]}
 };
+const ruleIcons={
+'Spawn':'fa-house','ספאון (Spawn)':'fa-house',
+'Claims':'fa-shield-halved','שטחים (Claims)':'fa-shield-halved',
+'Players':'fa-users','שחקנים':'fa-users',
+'Chat':'fa-comments','צ\'אט':'fa-comments',
+'Voice Chat':'fa-microphone','וויס צ\'אט':'fa-microphone',
+'Cheats and Hacks':'fa-ban','צ\'יטים והאקים':'fa-ban',
+'Administrators (Server Staff)':'fa-user-shield','מנהלים (צוות השרת)':'fa-user-shield',
+'General':'fa-list-check','כללי':'fa-list-check',
+'Safety and Protection':'fa-lock','בטיחות והגנה':'fa-lock'
+};
+function headingIcon(title,icon){return '<i class="fa-solid '+icon+'" aria-hidden="true"></i> '+title}
 function renderList(items){return items.map((item)=>'<li>'+item+'</li>').join('')}
 function applyRulesLanguage(){
 const x=data[lang]||data.he;const he=lang==='he';
@@ -108,9 +120,9 @@ document.getElementById('rules-badge').textContent=x.badge;
 document.getElementById('rules-title').textContent=x.title;
 document.getElementById('rules-intro').textContent=x.intro;
 document.getElementById('rules-lang').textContent=x.switch;
-const groups=x.groups.map(([title,items])=>'<section class="rule-group"><h2>'+title+'</h2><ol>'+renderList(items)+'</ol></section>').join('');
-const useful='<section class="rule-group"><h2>'+x.usefulTitle+'</h2><ul>'+renderList(x.useful)+'</ul></section>';
-const links='<section class="rule-group"><h2>'+x.linksTitle+'</h2><div class="rules-links">'+x.links.map(([label,url])=>'<a href="'+url+'" target="_blank" rel="noopener noreferrer">'+label+': '+url+'</a>').join('')+'</div></section>';
+const groups=x.groups.map(([title,items])=>'<section class="rule-group"><h2>'+headingIcon(title,ruleIcons[title]||'fa-circle-info')+'</h2><ol>'+renderList(items)+'</ol></section>').join('');
+const useful='<section class="rule-group"><h2>'+headingIcon(x.usefulTitle,'fa-terminal')+'</h2><ul>'+renderList(x.useful)+'</ul></section>';
+const links='<section class="rule-group"><h2>'+headingIcon(x.linksTitle,'fa-link')+'</h2><div class="rules-links">'+x.links.map(([label,url])=>'<a href="'+url+'" target="_blank" rel="noopener noreferrer">'+label+': '+url+'</a>').join('')+'</div></section>';
 document.getElementById('rules-list').innerHTML=groups+useful+links;
 }
 document.getElementById('rules-lang').addEventListener('click',()=>{
