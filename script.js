@@ -90,7 +90,7 @@ function renderNews() {
 
 function applyLanguage() {
   const x = t(); document.documentElement.lang = language; document.documentElement.dir = language === 'he' ? 'rtl' : 'ltr';
-  const nav = document.querySelectorAll('nav a'); nav[0].textContent = x.navServer; nav[2].textContent = x.navContact; nav[3].textContent = x.navNews; nav[4].textContent = x.navPlayer; if (nav[5]) nav[5].textContent = x.navStaff; if (nav[6]) nav[6].textContent = x.navRules;
+  const navServer = document.querySelector('nav a[href="#server"]'); if (navServer) navServer.textContent = x.navServer; const navDiscord = document.querySelector('nav a[href="#community"]'); if (navDiscord) navDiscord.textContent = x.navDiscord; const navContact = document.querySelector('nav a[href="#contact"]'); if (navContact) navContact.textContent = x.navContact; const navNews = document.querySelector('nav a[href="#news"]'); if (navNews) navNews.textContent = x.navNews; const navPlayer = document.getElementById('player-info-nav'); if (navPlayer) navPlayer.textContent = x.navPlayer; const navStaff = document.querySelector('nav a[href="staff.html"]'); if (navStaff) navStaff.textContent = x.navStaff; const navRules = document.querySelector('nav a[href="rules.html"]'); if (navRules) navRules.textContent = x.navRules;
   const accountLabel = document.getElementById('account-nav-label');
   const accountLink = document.getElementById('account-nav-link');
   if (accountLabel && accountLink?.dataset.authenticated !== 'true') {
