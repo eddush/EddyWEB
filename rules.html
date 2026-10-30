@@ -9,22 +9,32 @@
 </style>
 </head>
 <body><div class="grid"></div>
-<main class="info-page">
-<a class="info-back" href="index.html" id="rules-back">→ חזרה ל-EddyWEB</a>
-<section class="info-hero">
-<div class="badge" id="rules-badge">חוקי השרת</div>
+<main class="rules-page">
+<div class="rules-topbar">
+<a class="info-back" href="index.html" id="rules-back"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i><span>חזרה ל-EddyWEB</span></a>
+<button class="btn rules-lang-btn" id="rules-lang" type="button"><i class="fa-solid fa-language" aria-hidden="true"></i><span>English</span></button>
+</div>
+<section class="rules-hero">
+<div class="rules-hero-content">
+<div class="rules-hero-icon"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></div>
+<div class="badge" id="rules-badge"><i class="fa-solid fa-book-open" aria-hidden="true"></i> חוקי השרת</div>
 <h1 id="rules-title">חוקי שרת EddyDev SMP</h1>
 <p id="rules-intro">יש לקרוא ולפעול לפי חוקי השרת.</p>
-<div class="page-lang"><button class="btn" id="rules-lang" type="button">English</button></div>
+<div class="rules-meta">
+<span><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i><span id="rules-meta-fair">משחק הוגן לכולם</span></span>
+<span><i class="fa-solid fa-users" aria-hidden="true"></i><span id="rules-meta-community">קהילה מכבדת</span></span>
+<span><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i><span id="rules-meta-read">חשוב לקרוא לפני המשחק</span></span>
+</div>
+</div>
 </section>
-<section class="info-card"><div id="rules-list" class="rules-list"></div></section>
+<section class="rules-list-wrap"><div id="rules-list" class="rules-list"></div></section>
 </main>
 <script>
 let lang='he';
 try { lang=localStorage.getItem('eddy-language') || 'he'; } catch (_) {}
 const data={
 he:{
-back:'→ חזרה ל-EddyWEB',badge:'חוקי השרת',title:'חוקי שרת EddyDev SMP',intro:'יש לקרוא ולפעול לפי חוקי השרת כדי לשמור על סביבת משחק הוגנת ומהנה.',switch:'English',
+back:'חזרה ל-EddyWEB',badge:'חוקי השרת',title:'חוקי שרת EddyDev SMP',intro:'יש לקרוא ולפעול לפי חוקי השרת כדי לשמור על סביבת משחק הוגנת ומהנה.',switch:'English',metaFair:'משחק הוגן לכולם',metaCommunity:'קהילה מכבדת',metaRead:'חשוב לקרוא לפני המשחק',
 groups:[
 ['ספאון (Spawn)',[
 'אין להגריף בספאון.','אין להרוג בספאון.','אין להספים בספאון.'
@@ -61,7 +71,7 @@ usefulTitle:'מידע שימושי ופקודות',useful:[
 ['אתר האינטרנט','https://Eddy.42web.io'],['שרת הדיסקורד','https://discord.gg/zXq9E8FQCS']
 ]},
 en:{
-back:'← Back to EddyWEB',badge:'SERVER RULES',title:'EddyDev SMP Server Rules',intro:'Please read and follow the server rules to keep gameplay fair and enjoyable.',switch:'עברית',
+back:'Back to EddyWEB',badge:'SERVER RULES',title:'EddyDev SMP Server Rules',intro:'Please read and follow the server rules to keep gameplay fair and enjoyable.',switch:'עברית',metaFair:'Fair play for everyone',metaCommunity:'Respectful community',metaRead:'Read before playing',
 groups:[
 ['Spawn',[
 'No griefing in the spawn.','No killing in the spawn.','No spamming in the spawn.'
@@ -98,6 +108,7 @@ usefulTitle:'Useful Information and Commands',useful:[
 ['Website','https://Eddy.42web.io'],['Discord server','https://discord.gg/zXq9E8FQCS']
 ]}
 };
+const sectionIcons=['fa-house-flag','fa-map-location-dot','fa-user-group','fa-comments','fa-microphone-lines','fa-ban','fa-user-shield','fa-book','fa-shield-heart','fa-terminal','fa-link'];
 function renderList(items){return items.map((item)=>'<li>'+item+'</li>').join('')}
 function applyRulesLanguage(){
 const x=data[lang]||data.he;const he=lang==='he';
@@ -107,10 +118,15 @@ document.getElementById('rules-back').textContent=x.back;
 document.getElementById('rules-badge').textContent=x.badge;
 document.getElementById('rules-title').textContent=x.title;
 document.getElementById('rules-intro').textContent=x.intro;
-document.getElementById('rules-lang').textContent=x.switch;
-const groups=x.groups.map(([title,items])=>'<section class="rule-group"><h2>'+title+'</h2><ol>'+renderList(items)+'</ol></section>').join('');
-const useful='<section class="rule-group"><h2>'+x.usefulTitle+'</h2><ul>'+renderList(x.useful)+'</ul></section>';
-const links='<section class="rule-group"><h2>'+x.linksTitle+'</h2><div class="rules-links">'+x.links.map(([label,url])=>'<a href="'+url+'" target="_blank" rel="noopener noreferrer">'+label+': '+url+'</a>').join('')+'</div></section>';
+document.getElementById('rules-lang').querySelector('span').textContent=x.switch;
+document.getElementById('rules-back').querySelector('span').textContent=x.back;
+document.getElementById('rules-back').querySelector('i').className=he?'fa-solid fa-arrow-right':'fa-solid fa-arrow-left';
+document.getElementById('rules-meta-fair').textContent=x.metaFair;
+document.getElementById('rules-meta-community').textContent=x.metaCommunity;
+document.getElementById('rules-meta-read').textContent=x.metaRead;
+const groups=x.groups.map(([title,items],i)=>'<section class="rule-group"><h2><span class="rule-icon"><i class="fa-solid '+sectionIcons[i]+'" aria-hidden="true"></i></span><span>'+title+'</span></h2><ol>'+renderList(items)+'</ol></section>').join('');
+const useful='<section class="rule-group"><h2><span class="rule-icon"><i class="fa-solid '+sectionIcons[9]+'" aria-hidden="true"></i></span><span>'+x.usefulTitle+'</span></h2><ul>'+renderList(x.useful)+'</ul></section>';
+const links='<section class="rule-group rules-wide"><h2><span class="rule-icon"><i class="fa-solid '+sectionIcons[10]+'" aria-hidden="true"></i></span><span>'+x.linksTitle+'</span></h2><div class="rules-links">'+x.links.map(([label,url],i)=>'<a href="'+url+'" target="_blank" rel="noopener noreferrer"><i class="fa-solid '+(i===0?'fa-globe':'fa-brands fa-discord')+'" aria-hidden="true"></i><span>'+label+'</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a>').join('')+'</div></section>';
 document.getElementById('rules-list').innerHTML=groups+useful+links;
 }
 document.getElementById('rules-lang').addEventListener('click',()=>{
