@@ -157,11 +157,10 @@
     <div class="grid"></div>
     <div class="admin-container">
         <div id="login-section" class="login-box">
-            <h3 id="admin-login-heading">התחברות למערכת</h3>
-            <div class="form-group">
-                <input type="password" id="admin-pass" placeholder="הכנס סיסמה...">
-            </div>
-            <button class="btn primary" id="admin-login-button" onclick="login()">התחבר</button>
+            <h3 id="admin-login-heading">כניסה למערכת הניהול</h3>
+            <p id="admin-login-description">יש להתחבר לחשבון EddyWEB שמקושר לשחקן Minecraft עם הרשאת eddyweb.admin.</p>
+            <a class="btn primary" id="admin-account-link" href="/account.html">התחברות לחשבון EddyWEB</a>
+            <button class="btn" id="admin-login-button" type="button" onclick="login()">בדיקת הרשאה</button>
             <p id="login-error" style="color: #ff6b8a; margin-top: 10px;"></p>
         </div>
 
@@ -176,6 +175,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script>
 
@@ -186,9 +186,10 @@
             document.documentElement.dir = he ? 'rtl' : 'ltr';
             document.title = he ? 'EddyWEB | ניהול עדכונים ומאמרים' : 'EddyWEB | News & Article Admin';
             document.getElementById('admin-language-toggle').textContent = he ? 'English' : 'עברית';
-            document.getElementById('admin-login-heading').textContent = he ? 'התחברות למערכת' : 'Admin Login';
-            document.getElementById('admin-pass').placeholder = he ? 'הכנס סיסמה...' : 'Enter password...';
-            document.getElementById('admin-login-button').textContent = he ? 'התחבר' : 'Log in';
+            document.getElementById('admin-login-heading').textContent = he ? 'כניסה למערכת הניהול' : 'Admin Panel Access';
+            document.getElementById('admin-login-description').textContent = he ? 'יש להתחבר לחשבון EddyWEB שמקושר לשחקן Minecraft עם הרשאת eddyweb.admin.' : 'Sign in to the EddyWEB account linked to a Minecraft player with the eddyweb.admin permission.';
+            document.getElementById('admin-account-link').textContent = he ? 'התחברות לחשבון EddyWEB' : 'Sign in to EddyWEB';
+            document.getElementById('admin-login-button').textContent = he ? 'בדיקת הרשאה' : 'Check permission';
             document.getElementById('admin-editor-heading').textContent = he ? 'יצירת מאמר Changelog' : 'Create Changelog Article';
             document.getElementById('admin-add-button').textContent = he ? '+ צור מאמר חדש' : '+ Create Article';
             document.getElementById('admin-save-button').textContent = he ? 'שמור מאמרים' : 'Save Articles';
@@ -197,8 +198,13 @@
             adminLang = adminLang === 'he' ? 'en' : 'he';
             try { localStorage.setItem('eddy-language', adminLang); } catch (_) {}
             applyAdminLanguage();
+        adminSupabase.auth.getSession().then(({ data }) => { if (data?.session) login(); });
         });
 
+        const adminSupabase = window.supabase.createClient(
+            'https://vnhgkatsfpjyqpdppqrf.supabase.co',
+            'sb_publishable_N6amZaYaWj7AdF8wQAHpEA_Qd2TAyp6'
+        );
         let authToken = '';
         let newsItems = [];
         let editors = {};
@@ -233,16 +239,27 @@
         }
 
         async function login() {
-            const password = document.getElementById('admin-pass').value;
-            const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password }) });
+            const error = document.getElementById('login-error');
+            error.textContent = adminLang === 'he' ? 'בודק חשבון והרשאות...' : 'Checking account and permissions...';
+            const { data: sessionData } = await adminSupabase.auth.getSession();
+            authToken = sessionData?.session?.access_token || '';
+            if (!authToken) {
+                error.textContent = adminLang === 'he' ? 'יש להתחבר תחילה לחשבון EddyWEB.' : 'Please sign in to your EddyWEB account first.';
+                return;
+            }
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            });
             const data = await res.json();
             if (res.ok && data.success) {
-                authToken = password;
                 document.getElementById('login-section').classList.add('hidden');
                 document.getElementById('editor-section').classList.remove('hidden');
                 loadNews();
             } else {
-                document.getElementById('login-error').textContent = adminLang === 'he' ? 'סיסמה שגויה' : 'Incorrect password';
+                authToken = '';
+                error.textContent = data.message || (adminLang === 'he' ? 'אין הרשאה למערכת הניהול.' : 'You do not have admin permission.');
             }
         }
 
@@ -349,11 +366,8 @@
             try {
                 const res = await fetch('/api/improve-article', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        password: authToken,
-                        article: currentArticle
-                    })
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+                    body: JSON.stringify({ article: currentArticle })
                 });
 
                 const data = await res.json();
@@ -422,8 +436,8 @@
 
             const res = await fetch('/api/save-news', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: authToken, news: newsItems })
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + authToken },
+                body: JSON.stringify({ news: newsItems })
             });
             const data = await res.json();
 
