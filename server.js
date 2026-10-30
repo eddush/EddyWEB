@@ -374,33 +374,47 @@ function getDatabaseConnection() {
     };
 }
 
-// Public staff list: only users with the exact direct LuckPerms node group.staff are included.
+// Public staff list. Use the same LuckPerms user-permission source as the player profile lookup.
+// Only a direct, enabled group.staff node counts; expired assignments are ignored.
 app.get('/api/minecraft/staff', async (req, res) => {
     const conn = getDatabaseConnection();
     if (!conn) return res.status(503).json({ success: false, message: 'Supabase server connection is not configured' });
+
     try {
         const { data: permissions, error: permissionError } = await supabaseClient
             .from('luckperms_user_permissions')
-            .select('uuid,expiry')
-            .eq('permission', 'group.staff')
+            .select('uuid,permission,value,expiry')
+            .ilike('permission', 'group.staff')
             .eq('value', true)
-            .eq('server', 'global')
-            .eq('world', 'global')
-            .eq('contexts', '{}')
             .order('id', { ascending: false });
+
         if (permissionError) throw permissionError;
+
         const now = Math.floor(Date.now() / 1000);
         const uuids = [...new Set((permissions || [])
-            .filter(row => !Number(row.expiry) || Number(row.expiry) === 0 || Number(row.expiry) > now)
+            .filter(row => {
+                const expiry = Number(row.expiry || 0);
+                return !expiry || expiry === 0 || expiry > now;
+            })
             .map(row => String(row.uuid || '').toLowerCase())
             .filter(uuid => /^[0-9a-f-]{36}$/.test(uuid)))];
-        if (!uuids.length) return res.set('Cache-Control', 'no-store').json({ success: true, group: 'staff', members: [] });
+
+        if (!uuids.length) {
+            return res.set('Cache-Control', 'no-store').json({
+                success: true,
+                group: 'staff',
+                members: []
+            });
+        }
+
         const { data: players, error: playersError } = await supabaseClient
             .from('luckperms_players')
             .select('uuid,username,primary_group')
             .in('uuid', uuids)
             .order('username', { ascending: true });
+
         if (playersError) throw playersError;
+
         return res.set('Cache-Control', 'no-store').json({
             success: true,
             group: 'staff',
