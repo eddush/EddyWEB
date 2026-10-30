@@ -242,7 +242,7 @@
                 document.getElementById('editor-section').classList.remove('hidden');
                 loadNews();
             } else {
-                document.getElementById('login-error').textContent = 'סיסמה שגויה';
+                document.getElementById('login-error').textContent = adminLang === 'he' ? 'סיסמה שגויה' : 'Incorrect password';
             }
         }
 
@@ -264,7 +264,7 @@
                 div.innerHTML = `
           <div class="row-2">
             <div class="form-group">
-              <label>שם הכותב במיינקרפט (סגנון Drops):</label>
+              <label>${adminLang === 'he' ? 'שם הכותב במיינקרפט (סגנון Drops):' : 'Minecraft author name (Drops style):'}</label>
               <input type="text" value="${item.author || 'Steve'}" oninput="updateAuthor(${i}, this.value)">
             </div>
             <div class="skin-preview-box">
@@ -273,36 +273,36 @@
           </div>
 
           <div class="row-2">
-            <div class="form-group"><label>כותרת מאמר (עברית):</label><input type="text" value="${item.title_he || ''}" onchange="updateItem(${i},'title_he',this.value)"></div>
-            <div class="form-group"><label>כותרת מאמר (אנגלית):</label><input type="text" value="${item.title_en || ''}" onchange="updateItem(${i},'title_en',this.value)"></div>
+            <div class="form-group"><label>${adminLang === 'he' ? 'כותרת מאמר (עברית):' : 'Article title (Hebrew):'}</label><input type="text" value="${item.title_he || ''}" onchange="updateItem(${i},'title_he',this.value)"></div>
+            <div class="form-group"><label>${adminLang === 'he' ? 'כותרת מאמר (אנגלית):' : 'Article title (English):'}</label><input type="text" value="${item.title_en || ''}" onchange="updateItem(${i},'title_en',this.value)"></div>
           </div>
 
           <div class="row-2">
-            <div class="form-group"><label>תגית (עברית):</label><input type="text" value="${item.badge_he || 'עדכון'}" onchange="updateItem(${i},'badge_he',this.value)"></div>
-            <div class="form-group"><label>תגית (אנגלית):</label><input type="text" value="${item.badge_en || 'UPDATE'}" onchange="updateItem(${i},'badge_en',this.value)"></div>
+            <div class="form-group"><label>${adminLang === 'he' ? 'תגית (עברית):' : 'Badge (Hebrew):'}</label><input type="text" value="${item.badge_he || 'עדכון'}" onchange="updateItem(${i},'badge_he',this.value)"></div>
+            <div class="form-group"><label>${adminLang === 'he' ? 'תגית (אנגלית):' : 'Badge (English):'}</label><input type="text" value="${item.badge_en || 'UPDATE'}" onchange="updateItem(${i},'badge_en',this.value)"></div>
           </div>
 
           <div class="row-2">
-            <div class="form-group"><label>תיאור קצר לדף הבית (עברית):</label><textarea rows="2" onchange="updateItem(${i},'text_he',this.value)">${item.text_he || ''}</textarea></div>
-            <div class="form-group"><label>תיאור קצר לדף הבית (אנגלית):</label><textarea rows="2" onchange="updateItem(${i},'text_en',this.value)">${item.text_en || ''}</textarea></div>
+            <div class="form-group"><label>${adminLang === 'he' ? 'תיאור קצר לדף הבית (עברית):' : 'Short homepage description (Hebrew):'}</label><textarea rows="2" onchange="updateItem(${i},'text_he',this.value)">${item.text_he || ''}</textarea></div>
+            <div class="form-group"><label>${adminLang === 'he' ? 'תיאור קצר לדף הבית (אנגלית):' : 'Short homepage description (English):'}</label><textarea rows="2" onchange="updateItem(${i},'text_en',this.value)">${item.text_en || ''}</textarea></div>
           </div>
 
           <div class="editor-wrapper">
-            <label style="color:#5fffe4; font-weight:bold; margin-bottom:5px; display:block;">תוכן המאמר המלא (עברית):</label>
+            <label style="color:#5fffe4; font-weight:bold; margin-bottom:5px; display:block;">${adminLang === 'he' ? 'תוכן המאמר המלא (עברית):' : 'Full article content (Hebrew):'}</label>
             <div id="editor-he-${i}"></div>
           </div>
           
           <div class="editor-wrapper">
-            <label style="color:#5fffe4; font-weight:bold; margin-bottom:5px; display:block;">תוכן המאמר המלא (אנגלית):</label>
+            <label style="color:#5fffe4; font-weight:bold; margin-bottom:5px; display:block;">${adminLang === 'he' ? 'תוכן המאמר המלא (אנגלית):' : 'Full article content (English):'}</label>
             <div id="editor-en-${i}"></div>
           </div>
 
           <div class="ai-improve-row">
-            <button class="btn btn-ai" type="button" onclick="improveArticle(${i})"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> שפר את המאמר עם AI</button>
+            <button class="btn btn-ai" type="button" onclick="improveArticle(${i})"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> ${adminLang === 'he' ? 'שפר את המאמר עם AI' : 'Improve article with AI'}</button>
             <span id="ai-status-${i}" class="ai-status" aria-live="polite"></span>
           </div>
 
-          <button class="btn-danger" onclick="deleteItem(${i})">מחק מאמר</button>
+          <button class="btn-danger" onclick="deleteItem(${i})">${adminLang === 'he' ? 'מחק מאמר' : 'Delete article'}</button>
         `;
                 list.appendChild(div);
 
@@ -334,7 +334,7 @@
             }
             if (status) {
                 status.className = 'ai-status';
-                status.textContent = 'משפר את המאמר...';
+                status.textContent = adminLang === 'he' ? 'משפר את המאמר...' : 'Improving article...';
             }
 
             const currentArticle = {
@@ -359,7 +359,7 @@
                 const data = await res.json();
 
                 if (!res.ok || !data.success || !data.article) {
-                    throw new Error(data.message || 'שגיאת AI');
+                    throw new Error(data.message || (adminLang === 'he' ? 'שגיאת AI' : 'AI error'));
                 }
 
                 const improved = data.article;
@@ -376,13 +376,13 @@
                 const nextStatus = document.getElementById('ai-status-' + i);
                 if (nextStatus) {
                     nextStatus.className = 'ai-status success';
-                    nextStatus.textContent = '✓ המאמר שופר — בדוק אותו לפני השמירה';
+                    nextStatus.textContent = adminLang === 'he' ? '✓ המאמר שופר — בדוק אותו לפני השמירה' : '✓ Article improved — review it before saving';
                 }
             } catch (error) {
                 console.error(error);
                 if (status) {
                     status.className = 'ai-status error';
-                    status.textContent = '✕ ' + (error.message || 'לא ניתן לשפר כרגע');
+                    status.textContent = '✕ ' + (error.message || (adminLang === 'he' ? 'לא ניתן לשפר כרגע' : 'Unable to improve right now'));
                 }
             } finally {
                 const activeButton = document.querySelector('[onclick="improveArticle(' + i + ')"]');
@@ -413,7 +413,7 @@
 
         async function saveNewsToServer() {
             const status = document.getElementById('save-status');
-            status.textContent = 'שומר...';
+            status.textContent = adminLang === 'he' ? 'שומר...' : 'Saving...';
 
             newsItems.forEach((item, i) => {
                 item.content_he = editors[i].he.root.innerHTML;
@@ -429,10 +429,10 @@
 
             if (res.ok && data.success) {
                 status.style.color = '#5fffe4';
-                status.textContent = '✓ המאמרים נשמרו בהצלחה!';
+                status.textContent = adminLang === 'he' ? '✓ המאמרים נשמרו בהצלחה!' : '✓ Articles saved successfully!';
             } else {
                 status.style.color = '#ff6b8a';
-                status.textContent = data.message || 'שגיאה בשמירה';
+                status.textContent = data.message || (adminLang === 'he' ? 'שגיאה בשמירה' : 'Save failed');
             }
         }
         applyAdminLanguage();
