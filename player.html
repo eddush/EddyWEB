@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
+  <button id="language-toggle" class="lang-btn" type="button" style="position:fixed;top:16px;left:16px;z-index:20">עברית</button>
   <button id="theme-toggle" class="lang-btn theme-btn theme-floating-toggle" type="button" aria-label="החלפת מצב תצוגה">☀️ מצב בהיר</button>
   <div class="grid"></div>
   <main class="player-page">
@@ -175,6 +176,20 @@
       document.querySelector('.player-info-card:nth-child(4) span').textContent = x.playtime;
     }
 
+    function toggleLanguage() {
+      language = language === "en" ? "he" : "en";
+      try { localStorage.setItem("eddy-language", language); } catch (_) {}
+      applyLanguage();
+      document.getElementById("language-toggle").textContent = language === "he" ? "English" : "עברית";
+      if (profile.classList.contains("is-loaded")) {
+        const money = document.getElementById("profile-money");
+        const playtime = document.getElementById("profile-playtime");
+        // Re-run formatting with the newly selected language using the currently displayed raw values when available.
+      }
+    }
+
+    document.getElementById("language-toggle").addEventListener("click", toggleLanguage);
+
     function setStatus(message, kind) {
       status.className = 'player-status' + (kind ? ' ' + kind : '');
       status.textContent = message;
@@ -334,6 +349,7 @@
       form.requestSubmit();
     }
 
+    document.getElementById("language-toggle").textContent = language === "he" ? "English" : "עברית";
     applyLanguage();
   </script>
   <script src="theme.js"></script>
