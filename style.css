@@ -2031,3 +2031,19 @@ body[data-theme="light"] .account-site-link { background: #f7ffffe8; color: #087
 .large-news-card,.news-card,.player-info-card,.staff-member,.rule-group{content-visibility:auto;contain-intrinsic-size:auto 260px;}
 .large-news-container{content-visibility:auto;contain-intrinsic-size:auto 600px;}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+
+/* Keep the complete Minecraft background visible consistently on every page.
+   "cover" crops the sides on tall/narrow pages; width-based sizing preserves the image. */
+html[data-theme] body {
+  background-position: center top !important;
+  background-size: 100% auto !important;
+  background-repeat: no-repeat !important;
+  background-attachment: scroll !important;
+}
+@media (max-width: 700px) {
+  html[data-theme] body {
+    background-size: auto 100vh !important;
+    background-position: center top !important;
+  }
+}
