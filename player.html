@@ -6,7 +6,13 @@
   <meta name="theme-color" content="#071014">
   <title>EddyWEB | מידע על שחקן</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;600;700;800&display=swap"></noscript>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></noscript>
 </head>
 <body>
   <button id="language-toggle" class="lang-btn" type="button" style="position:fixed;top:16px;left:16px;z-index:20">עברית</button>
@@ -352,8 +358,8 @@
     document.getElementById("language-toggle").textContent = language === "he" ? "English" : "עברית";
     applyLanguage();
   </script>
-  <script src="theme.js"></script>
-  <script src="animations.js"></script>
-  <script src="account-nav.js"></script>
+  <script src="theme.js" defer></script>
+  <script src="animations.js" defer></script>
+  <script src="account-nav.js" defer></script>
 </body>
 </html>
