@@ -6,7 +6,13 @@
   <meta name="theme-color" content="#071014">
   <title>EddyWEB | התחברות לשרת</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;600;700;800&display=swap"></noscript>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></noscript>
   <style>
     .connect-page{width:min(100%,900px);margin:0 auto;padding:34px 18px 70px;position:relative;z-index:2}
     .connect-panel{padding:clamp(22px,5vw,42px);text-align:center;background:linear-gradient(145deg,#0d181deF,#0a1115F2);border:1px solid #ffffff18;border-radius:22px;box-shadow:0 18px 60px #0008}
@@ -56,7 +62,7 @@
       </ol>
     </section>
   </main>
-  <script src="theme.js"></script>
+  <script src="theme.js" defer></script>
   <script>
     (() => {
       const address='eddydev.ddns.net:25565', status=document.getElementById('connect-status');
