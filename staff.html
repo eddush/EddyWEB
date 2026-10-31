@@ -1,7 +1,13 @@
 <!doctype html>
 <html lang="en" dir="ltr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071014"><title>EddyWEB | Staff</title><link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;600;700;800&display=swap"></noscript>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></noscript></head>
 <body><div class="grid"></div>
 <style>
 #staff-dvd-layer{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:20}
@@ -32,5 +38,5 @@ async function load(){const el=document.getElementById('staff-list'),x=tr[lang];
         onlineMinecraftMembers.forEach(person=>{const id='minecraft:'+String(person.uuid||person.username||'');if(seen.has(id))return;seen.add(id);floating.push({username:person.username||'Minecraft staff'});});
         startStaffDvd(floating);}catch(e){console.error('Staff page load error:',e);el.innerHTML='<div class="staff-empty">'+x.failed+'</div>';}}
 let staffDvdFrame=0;function startStaffDvd(members){const layer=document.getElementById('staff-dvd-layer');layer.innerHTML='';if(staffDvdFrame)cancelAnimationFrame(staffDvdFrame);if(!members.length)return;const items=members.map((person,index)=>{const img=document.createElement('img');img.className='staff-dvd-head';img.alt='';img.src=person.avatar||('https://mc-heads.net/avatar/'+encodeURIComponent(person.username)+'/128');img.onerror=()=>{if(person.avatar){img.onerror=null;img.src='https://mc-heads.net/avatar/'+encodeURIComponent(person.username)+'/128';}else{img.style.display='none';}};layer.appendChild(img);return {el:img,x:24+(index*97)%Math.max(100,innerWidth-90),y:70+(index*71)%Math.max(100,innerHeight-90),vx:(index%2?1:-1)*(1.25+index%3*.35),vy:(index%2?-1:1)*(1.1+index%2*.4),size:58};});let last=0;function animate(time){if(time-last>16){last=time;const w=innerWidth,h=innerHeight;for(const item of items){item.x+=item.vx;item.y+=item.vy;if(item.x<=0||item.x+item.size>=w)item.vx*=-1;if(item.y<=0||item.y+item.size>=h)item.vy*=-1;item.x=Math.max(0,Math.min(w-item.size,item.x));item.y=Math.max(0,Math.min(h-item.size,item.y));item.el.style.transform='translate('+item.x+'px,'+item.y+'px)';}}staffDvdFrame=requestAnimationFrame(animate);}staffDvdFrame=requestAnimationFrame(animate);}
-document.getElementById('staff-lang').onclick=()=>{lang=lang==='en'?'he':'en';localStorage.setItem('eddy-language',lang);apply()};apply();</script><script src="theme.js"></script><script src="animations.js"></script>
-  <script src="account-nav.js"></script></body></html>
+document.getElementById('staff-lang').onclick=()=>{lang=lang==='en'?'he':'en';localStorage.setItem('eddy-language',lang);apply()};apply();</script><script src="theme.js" defer></script><script src="animations.js" defer></script>
+  <script src="account-nav.js" defer></script></body></html>
