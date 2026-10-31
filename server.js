@@ -440,6 +440,35 @@ app.get('/api/minecraft/staff', async (req, res) => {
         const { data: players, error: playersError } = playerResult;
         if (playersError) throw playersError;
 
+        // If LuckPerms primary_group is default, resolve a directly assigned
+        // non-default group so the staff page displays the player's actual rank.
+        const rankByUuid = new Map((players || []).map(player => [
+            String(player.uuid || '').toLowerCase(),
+            String(player.primary_group || 'default').trim()
+        ]));
+        const defaultRankUuids = (players || [])
+            .filter(player => !player.primary_group || String(player.primary_group).toLowerCase() === 'default')
+            .map(player => String(player.uuid || '').toLowerCase());
+        if (defaultRankUuids.length) {
+            const { data: groupPermissions, error: groupPermissionsError } = await supabaseClient
+                .from('luckperms_user_permissions')
+                .select('uuid,permission,value,expiry,id')
+                .in('uuid', defaultRankUuids)
+                .ilike('permission', 'group.%')
+                .eq('value', true)
+                .order('id', { ascending: false });
+            if (groupPermissionsError) throw groupPermissionsError;
+            const now = Math.floor(Date.now() / 1000);
+            for (const row of (groupPermissions || [])) {
+                const uuid = String(row.uuid || '').toLowerCase();
+                const permission = String(row.permission || '');
+                const expiry = Number(row.expiry || 0);
+                const match = permission.match(/^group\.([A-Za-z0-9_-]+)$/i);
+                if (!match || match[1].toLowerCase() === 'default' || (expiry > 0 && expiry <= now)) continue;
+                if (rankByUuid.get(uuid)?.toLowerCase() === 'default') rankByUuid.set(uuid, match[1]);
+            }
+        }
+
         // Attach the Discord ID saved when the Minecraft account was linked to EddyWEB.
         let linkedProfiles = [];
         try {
@@ -464,7 +493,7 @@ app.get('/api/minecraft/staff', async (req, res) => {
             members: (players || []).map(player => ({
                 uuid: player.uuid,
                 username: player.username,
-                rank: player.primary_group || 'staff',
+                rank: rankByUuid.get(String(player.uuid || '').toLowerCase()) || player.primary_group || 'staff',
                 discordId: discordByUuid.get(String(player.uuid || '').toLowerCase()) || null,
                 minecraftOnline: onlineMinecraftNames.has(String(player.username || '').toLowerCase())
             }))
