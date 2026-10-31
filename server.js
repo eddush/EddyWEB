@@ -440,32 +440,48 @@ app.get('/api/minecraft/staff', async (req, res) => {
         const { data: players, error: playersError } = playerResult;
         if (playersError) throw playersError;
 
-        // If LuckPerms primary_group is default, resolve a directly assigned
-        // non-default group so the staff page displays the player's actual rank.
+        // Resolve the highest directly assigned LuckPerms group for every staff
+        // member, even when primary_group is already set to a lower group (e.g. staff).
         const rankByUuid = new Map((players || []).map(player => [
             String(player.uuid || '').toLowerCase(),
             String(player.primary_group || 'default').trim()
         ]));
-        const defaultRankUuids = (players || [])
-            .filter(player => !player.primary_group || String(player.primary_group).toLowerCase() === 'default')
-            .map(player => String(player.uuid || '').toLowerCase());
-        if (defaultRankUuids.length) {
+        const playerUuids = (players || []).map(player => String(player.uuid || '').toLowerCase()).filter(Boolean);
+        if (playerUuids.length) {
             const { data: groupPermissions, error: groupPermissionsError } = await supabaseClient
                 .from('luckperms_user_permissions')
                 .select('uuid,permission,value,expiry,id')
-                .in('uuid', defaultRankUuids)
+                .in('uuid', playerUuids)
                 .ilike('permission', 'group.%')
                 .eq('value', true)
                 .order('id', { ascending: false });
             if (groupPermissionsError) throw groupPermissionsError;
             const now = Math.floor(Date.now() / 1000);
+            const priority = name => {
+                const n = String(name || '').toLowerCase();
+                if (n === 'owner' || n === 'founder') return 1000;
+                if (n === 'manager' || n === 'admin' || n === 'administrator') return 900;
+                if (n === 'developer' || n === 'dev') return 800;
+                if (n === 'moderator' || n === 'mod') return 700;
+                if (n === 'helper' || n === 'support') return 600;
+                if (n === 'staff') return 500;
+                if (n === 'vip' || n === 'mvp' || n === 'premium') return 300;
+                if (n === 'default') return 0;
+                return 100;
+            };
+            const bestPriority = new Map();
             for (const row of (groupPermissions || [])) {
                 const uuid = String(row.uuid || '').toLowerCase();
                 const permission = String(row.permission || '');
                 const expiry = Number(row.expiry || 0);
                 const match = permission.match(/^group\.([A-Za-z0-9_-]+)$/i);
-                if (!match || match[1].toLowerCase() === 'default' || (expiry > 0 && expiry <= now)) continue;
-                if (rankByUuid.get(uuid)?.toLowerCase() === 'default') rankByUuid.set(uuid, match[1]);
+                if (!match || (expiry > 0 && expiry <= now)) continue;
+                const candidate = match[1];
+                const score = priority(candidate);
+                if (score > (bestPriority.get(uuid) ?? priority(rankByUuid.get(uuid)))) {
+                    rankByUuid.set(uuid, candidate);
+                    bestPriority.set(uuid, score);
+                }
             }
         }
 
