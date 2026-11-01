@@ -44,6 +44,10 @@
     {
       "src": "*.jpg",
       "use": "@vercel/static"
+    },
+    {
+      "src": "fonts/*.ttf",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
