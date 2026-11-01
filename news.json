@@ -1,15 +1,28 @@
 [
-    {
-        "id": "post-1",
-        "author": "Eddy_SH",
-        "badge_he": "עדכון",
-        "badge_en": "UPDATE",
-        "title_he": "עדכון גרסה 1.20 - Changelog",
-        "title_en": "Version 1.20 Changelog",
-        "text_he": "להלן רשימת השינויים והתיקונים בעדכון החדש של השרת.",
-        "text_en": "Here is the list of changes and fixes in the new server update.",
-        "content_he": "<h2>שינויים מרכזיים</h2><ul><li>נוספו בלוקים חדשים.</li><li>תוקנו בעיות לאג בפורטלים.</li></ul>",
-        "content_en": "<h2>Key Changes</h2><ul><li>Added new blocks.</li><li>Fixed portal lag issues.</li></ul>",
-        "url": "article.html?id=post-1"
-    }
+  {
+    "id": "post-1",
+    "author": "Eddy_SH",
+    "badge_he": "עדכון",
+    "badge_en": "UPDATE",
+    "title_he": "עדכון גרסה 1.20 - Changelog",
+    "title_en": "Version 1.20 Changelog",
+    "text_he": "להלן רשימת השינויים והתיקונים בעדכון החדש של השרת.",
+    "text_en": "Here is the list of changes and fixes in the new server update.",
+    "content_he": "<h2>שינויים מרכזיים</h2><ul><li>נוספו בלוקים חדשים.</li><li>תוקנו בעיות לאג בפורטלים.</li></ul>",
+    "content_en": "<h2>Key Changes</h2><ul><li>Added new blocks.</li><li>Fixed portal lag issues.</li></ul>",
+    "url": "article.html?id=post-1"
+  },
+  {
+    "id": "post-2",
+    "author": "Eddy_SH",
+    "badge_he": "דרושים",
+    "badge_en": "CREATOR WANTED",
+    "title_he": "מחפשים יוצרי תוכן ויוטיוברים לשרת Eddydev!",
+    "title_en": "Eddydev Is Looking for YouTube Creators!",
+    "text_he": "יש לכם ערוץ YouTube ואוהבים Minecraft? אנחנו מחפשים יוצרים שיכינו סרטונים על השרת ויעזרו לנו להכיר אותו לשחקנים חדשים.",
+    "text_en": "Have a YouTube channel and love Minecraft? We're looking for creators to make videos about our server and introduce it to new players.",
+    "content_he": "<p>קהילת <strong>Eddydev</strong> מחפשת יוטיובר או יוטיוברית שאוהבים Minecraft ורוצים ליצור סרטונים על השרת שלנו!</p><p>המטרה שלנו היא להכיר את השרת לשחקנים חדשים, להגדיל את הקהילה וליצור תוכן מעניין ומהנה ביחד.</p><h2>מה אנחנו מחפשים?</h2><ul><li>ערוץ YouTube פעיל.</li><li>אהבה למשחק Minecraft.</li><li>יכולת ליצור סרטונים מעניינים על השרת.</li><li>רצון לשתף פעולה ולהיות חלק מהקהילה.</li></ul><h2>מה אנחנו מציעים?</h2><ul><li>הזדמנות לשיתוף פעולה עם צוות Eddydev.</li><li>אפשרות לקבל מעמד מיוחד בשרת, בהתאם לשיתוף הפעולה.</li><li>השתתפות באירועים ובפעילויות מיוחדות.</li><li>הזדמנות לצמוח יחד עם הקהילה.</li></ul><h2>איך מצטרפים?</h2><p>מעוניינים? היכנסו לשרת ה-Discord שלנו, פנו לצוות ושלחו קישור לערוץ YouTube שלכם וכמה מילים על סוג הסרטונים שתרצו ליצור.</p><p><strong>Discord:</strong> <a href=\"https://discord.gg/zXq9E8FQCS\" target=\"_blank\" rel=\"noopener noreferrer\">הצטרפו לשרת Eddydev</a></p><p>נשמח להכיר אתכם וליצור ביחד תוכן מעולה! 🎬</p>",
+    "content_en": "<p>The <strong>Eddydev</strong> community is looking for a YouTuber or content creator who loves Minecraft and wants to make videos about our server!</p><p>Our goal is to introduce the server to new players, grow the community, and create fun and interesting content together.</p><h2>Who are we looking for?</h2><ul><li>An active YouTube channel.</li><li>A passion for Minecraft.</li><li>The ability to create engaging videos about the server.</li><li>A willingness to collaborate and become part of the community.</li></ul><h2>What do we offer?</h2><ul><li>An opportunity to collaborate with the Eddydev team.</li><li>The possibility of receiving a special in-game status, depending on the collaboration.</li><li>Participation in special events and activities.</li><li>A chance to grow together with the community.</li></ul><h2>How to apply</h2><p>Interested? Join our Discord server, contact the staff, and send us a link to your YouTube channel along with a few words about the videos you'd like to create.</p><p><strong>Discord:</strong> <a href=\"https://discord.gg/zXq9E8FQCS\" target=\"_blank\" rel=\"noopener noreferrer\">Join the Eddydev server</a></p><p>We look forward to meeting you and creating great content together! 🎬</p>",
+    "url": "article.html?id=post-2"
+  }
 ]
