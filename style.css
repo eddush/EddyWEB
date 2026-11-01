@@ -2041,27 +2041,20 @@ body[data-theme="light"] .account-site-link { background: #f7ffffe8; color: #087
   font-display: swap;
 }
 
-/* Basis33 for Hebrew/RTL pages; keep the EddyWEB pixel logo and icons intact. */
-html[dir="rtl"] body,
-html[dir="rtl"] body :not(i):not(svg):not(path):not(.logo):not([class*="fa-"]) {
-  font-family: 'Basis33', 'Rubik', Arial, sans-serif;
-}
-
-html[dir="rtl"] .logo {
-  font-family: 'Press Start 2P', 'Courier New', monospace;
-}
-
-
-/* Apply the uploaded pixel font whenever the site is displayed in Hebrew. */
+/* Hebrew typography: pixel font only for display elements, regular font for readable text. */
 html[lang="he"] body,
-html[lang="he"] body :not(i):not(svg):not(path):not(.logo):not([class*="fa-"]) {
-  font-family: 'Basis33', monospace !important;
+html[dir="rtl"] body {
+  font-family: 'Rubik', Arial, sans-serif;
 }
-html[dir="rtl"] body,
-html[dir="rtl"] body :not(i):not(svg):not(path):not(.logo):not([class*="fa-"]) {
-  font-family: 'Basis33', monospace !important;
+
+/* Keep the Minecraft/pixel look on titles and prominent actions only. */
+html[lang="he"] :is(h1, h2, h3, .logo, .btn),
+html[dir="rtl"] :is(h1, h2, h3, .logo, .btn) {
+  font-family: 'Basis33', 'Press Start 2P', monospace !important;
 }
-html[lang="he"] .logo,
-html[dir="rtl"] .logo {
-  font-family: 'Press Start 2P', 'Courier New', monospace !important;
+
+/* Navigation, paragraphs, labels, forms and other text stay smooth and readable. */
+html[lang="he"] :is(nav a, p, small, label, input, textarea, select, button, .badge, .staff-row, .news-date, .news-author, .textbtn, .news-btn, footer),
+html[dir="rtl"] :is(nav a, p, small, label, input, textarea, select, button, .badge, .staff-row, .news-date, .news-author, .textbtn, .news-btn, footer) {
+  font-family: 'Rubik', Arial, sans-serif !important;
 }
