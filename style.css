@@ -2050,3 +2050,18 @@ html[dir="rtl"] body :not(i):not(svg):not(path):not(.logo):not([class*="fa-"]) {
 html[dir="rtl"] .logo {
   font-family: 'Press Start 2P', 'Courier New', monospace;
 }
+
+
+/* Apply the uploaded pixel font whenever the site is displayed in Hebrew. */
+html[lang="he"] body,
+html[lang="he"] body :not(i):not(svg):not(path):not(.logo):not([class*="fa-"]) {
+  font-family: 'Basis33', monospace !important;
+}
+html[dir="rtl"] body,
+html[dir="rtl"] body :not(i):not(svg):not(path):not(.logo):not([class*="fa-"]) {
+  font-family: 'Basis33', monospace !important;
+}
+html[lang="he"] .logo,
+html[dir="rtl"] .logo {
+  font-family: 'Press Start 2P', 'Courier New', monospace !important;
+}
