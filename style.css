@@ -2058,3 +2058,23 @@ html[lang="he"] :is(nav a, p, small, label, input, textarea, select, button, .ba
 html[dir="rtl"] :is(nav a, p, small, label, input, textarea, select, button, .badge, .staff-row, .news-date, .news-author, .textbtn, .news-btn, footer) {
   font-family: 'Rubik', Arial, sans-serif !important;
 }
+
+/* Homepage: keep the language switch beside, not underneath, the fixed theme switch. */
+body:has(#lang-toggle) #lang-toggle {
+  position: fixed !important;
+  top: max(16px, env(safe-area-inset-top)) !important;
+  right: max(138px, calc(env(safe-area-inset-right) + 128px)) !important;
+  left: auto !important;
+  z-index: 2147483001 !important;
+  min-height: 42px;
+  margin: 0 !important;
+}
+@media (max-width: 520px) {
+  body:has(#lang-toggle) #lang-toggle {
+    top: max(10px, env(safe-area-inset-top)) !important;
+    right: max(120px, calc(env(safe-area-inset-right) + 114px)) !important;
+    min-height: 40px;
+    padding: 8px 10px !important;
+  }
+}
+
