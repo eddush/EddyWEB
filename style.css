@@ -1156,7 +1156,7 @@ html[dir="ltr"] .large-news-card {
 }
 
 /* ===================================================
-   Global Motion System — EddyWEB
+   Global Motion System — EddyDev
    =================================================== */
 html {
   scroll-behavior: smooth;
@@ -1802,7 +1802,7 @@ body[data-theme="dark"] .staff-title {
 
 
 /* =========================================================
-   EddyWEB shared theme system — applies to every page
+   EddyDev shared theme system — applies to every page
    ========================================================= */
 :root {
   --site-text: #e9ffff;
@@ -1960,7 +1960,7 @@ html[dir="rtl"][data-theme] .theme-floating-toggle {
 }
 
 
-/* EddyWEB account area */
+/* EddyDev account area */
 .account-page { max-width: 980px; }
 .account-page [hidden] { display: none !important; }
 .account-card { width: min(100%, 720px); margin: 0 auto 22px; text-align: start; }
