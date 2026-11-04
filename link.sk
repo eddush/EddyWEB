@@ -1,12 +1,12 @@
 options:
-    link-prefix: &8[&bEDDYWEB&8] &7
+    link-prefix: &8[&bEDDYDEV&8] &7
 
 command /link <text>:
     executable by: players
     trigger:
-        # EDDYWEB link codes contain exactly 8 characters.
+        # EDDYDEV link codes contain exactly 8 characters.
         if length of argument 1 is not 8:
-            send "{@link-prefix}&cקוד לא תקין. חזור לאתר EDDYWEB וצור קוד חדש." to player
+            send "{@link-prefix}&cקוד לא תקין. חזור לאתר EDDYDEV וצור קוד חדש." to player
             stop
 
         if argument 1 does not match regex "^[A-Za-z0-9]{8}$":
@@ -22,6 +22,6 @@ command /link <text>:
         send "" to player
         send "&8&m--------------------------------" to player
         send "&aקוד החיבור נשלח ל-LuckPerms!" to player
-        send "&7חזור לאתר EDDYWEB; הוא יבדוק את החיבור אוטומטית." to player
+        send "&7חזור לאתר EDDYDEV; הוא יבדוק את החיבור אוטומטית." to player
         send "&8&m--------------------------------" to player
         send "" to player
