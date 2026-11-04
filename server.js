@@ -348,6 +348,10 @@ function getDatabaseConnection() {
             } else if (/^SELECT uuid, username, primary_group FROM luckperms_players WHERE LOWER\(username\) = LOWER\(\?\) LIMIT 1$/i.test(q)) {
                 result = await supabaseClient.from('luckperms_players')
                     .select('uuid,username,primary_group').ilike('username', params[0]).limit(1);
+            } else if (/^SELECT permission, expiry FROM [a-zA-Z0-9_]+ WHERE uuid = \? AND value = 1 AND permission LIKE \? ORDER BY id DESC$/i.test(q)) {
+                const table = q.match(/^SELECT permission, expiry FROM ([a-zA-Z0-9_]+)/i)[1];
+                result = await supabaseClient.from(table).select('permission,expiry')
+                    .eq('uuid', params[0]).eq('value', true).like('permission', params[1]).order('id', { ascending: false });
             } else if (/^SELECT permission FROM [a-zA-Z0-9_]+ WHERE uuid = \? AND value = 1 AND permission LIKE \? ORDER BY id DESC$/i.test(q)) {
                 const table = q.match(/^SELECT permission FROM ([a-zA-Z0-9_]+)/i)[1];
                 result = await supabaseClient.from(table).select('permission')
