@@ -15,8 +15,8 @@
 
   const translations = {
     he: {
-      back: '← חזרה ל-EddyWEB',
-      badge: 'חשבון EddyWEB',
+      back: '← חזרה ל-EddyDev',
+      badge: 'חשבון EddyDev',
       title: 'החשבון שלך',
       intro: 'התחברות, הרשמה וניהול פרטי החשבון שלך.',
       minecraftLogin: 'התחברות דרך Minecraft',
@@ -79,7 +79,7 @@
       profileUpdated: 'פרטי המשתמש עודכנו.',
       linkMinecraft: 'חבר חשבון Minecraft',
       minecraftLinked: 'חשבון Minecraft מחובר:',
-      minecraftLinkDescription: 'חבר את חשבון Minecraft שלך לחשבון EDDYWEB.',
+      minecraftLinkDescription: 'חבר את חשבון Minecraft שלך לחשבון EDDYDEV.',
       minecraftLinkInstructions: 'היכנס לשרת Minecraft וכתוב את הפקודה הבאה:',
       minecraftCopyCommand: 'העתק פקודה',
       minecraftLinkWaiting: 'ממתין שהשרת יאמת את הקוד…',
@@ -89,20 +89,20 @@
       minecraftLinkCopied: 'הפקודה הועתקה.',
       minecraftAlreadyLinked: 'Minecraft מחובר לחשבון זה:',
       disconnectMinecraft: 'נתק חשבון Minecraft',
-      disconnectMinecraftConfirm: 'לנתק את חשבון Minecraft מחשבון EddyWEB? אפשר לחבר אותו שוב מאוחר יותר.',
+      disconnectMinecraftConfirm: 'לנתק את חשבון Minecraft מחשבון EddyDev? אפשר לחבר אותו שוב מאוחר יותר.',
       minecraftDisconnected: 'חשבון Minecraft נותק בהצלחה.',
-      deleteAccountTitle: 'מחיקת חשבון EddyWEB',
+      deleteAccountTitle: 'מחיקת חשבון EddyDev',
       deleteAccountDescription: 'מחיקת החשבון היא פעולה קבועה ולא ניתן לשחזר אותו.',
       deleteAccount: 'מחק את החשבון שלי',
-      deleteAccountConfirm: 'למחוק לצמיתות את חשבון EddyWEB? כל פרטי ההתחברות והחשבון יימחקו. לא ניתן לבטל פעולה זו.',
+      deleteAccountConfirm: 'למחוק לצמיתות את חשבון EddyDev? כל פרטי ההתחברות והחשבון יימחקו. לא ניתן לבטל פעולה זו.',
       deletingAccount: 'מוחק את החשבון...',
       accountDeleted: 'החשבון נמחק בהצלחה.',
       disconnectError: 'לא ניתן לנתק את חשבון Minecraft כרגע. נסה שוב.',
       deleteAccountError: 'לא ניתן למחוק את החשבון כרגע. נסה שוב.'
     },
     en: {
-      back: '← Back to EddyWEB',
-      badge: 'EDDYWEB ACCOUNT',
+      back: '← Back to EddyDev',
+      badge: 'EDDYDEV ACCOUNT',
       title: 'Your account',
       intro: 'Sign in, create an account, and manage your profile.',
       minecraftLogin: 'Sign in with Minecraft',
@@ -165,7 +165,7 @@
       profileUpdated: 'Your profile has been updated.',
       linkMinecraft: 'Link Minecraft account',
       minecraftLinked: 'Minecraft account connected:',
-      minecraftLinkDescription: 'Connect your Minecraft account to your EDDYWEB account.',
+      minecraftLinkDescription: 'Connect your Minecraft account to your EDDYDEV account.',
       minecraftLinkInstructions: 'Join the Minecraft server and enter this command:',
       minecraftCopyCommand: 'Copy command',
       minecraftLinkWaiting: 'Waiting for the server to verify the code…',
@@ -175,12 +175,12 @@
       minecraftLinkCopied: 'Command copied.',
       minecraftAlreadyLinked: 'Minecraft connected to this account:',
       disconnectMinecraft: 'Disconnect Minecraft account',
-      disconnectMinecraftConfirm: 'Disconnect the Minecraft account from EddyWEB? You can link it again later.',
+      disconnectMinecraftConfirm: 'Disconnect the Minecraft account from EddyDev? You can link it again later.',
       minecraftDisconnected: 'Minecraft account disconnected successfully.',
-      deleteAccountTitle: 'Delete EddyWEB account',
+      deleteAccountTitle: 'Delete EddyDev account',
       deleteAccountDescription: 'Deleting your account is permanent and cannot be undone.',
       deleteAccount: 'Delete my account',
-      deleteAccountConfirm: 'Permanently delete your EddyWEB account? Your account and sign-in details will be deleted. This cannot be undone.',
+      deleteAccountConfirm: 'Permanently delete your EddyDev account? Your account and sign-in details will be deleted. This cannot be undone.',
       deletingAccount: 'Deleting account...',
       accountDeleted: 'Your account has been deleted.',
       disconnectError: 'Could not disconnect Minecraft right now. Please try again.',
@@ -201,7 +201,7 @@
     const x = t();
     document.documentElement.lang = language;
     document.documentElement.dir = language === 'he' ? 'rtl' : 'ltr';
-    document.title = language === 'he' ? 'EddyWEB | חשבון' : 'EddyWEB | Account';
+    document.title = language === 'he' ? 'EddyDev | חשבון' : 'EddyDev | Account';
 
     const textMap = {
       'account-back': x.back,
