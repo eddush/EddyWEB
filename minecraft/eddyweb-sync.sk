@@ -1,4 +1,4 @@
-# EddyWEB <-> Minecraft player sync
+# EddyDev <-> Minecraft player sync
 # Requires Skript + SkJson + Vault/VaultX Economy
 
 options:
@@ -8,17 +8,17 @@ options:
 
 function eddywebSync(p: player):
     if "{@eddyweb_token}" is "CHANGE_ME":
-        send "[EddyWEB] Token is not configured." to console
+        send "[EddyDev] Token is not configured." to console
         stop
 
     # VaultX Economy - this syntax is confirmed working on the server
     set {_money} to {_p}'s money
 
     if {_money} is not set:
-        send "[EddyWEB] Could not get money of %name of {_p}%." to console
+        send "[EddyDev] Could not get money of %name of {_p}%." to console
         stop
 
-    send "[EddyWEB] Syncing %name of {_p}% | Money: %{_money}%" to console
+    send "[EddyDev] Syncing %name of {_p}% | Money: %{_money}%" to console
 
     # IMPORTANT: body is a normal JSON string, not "json from ..."
     set {_json} to "{""username"":""%name of {_p}%"",""uuid"":""%uuid of {_p}%"",""money"":%{_money}%}"
@@ -48,7 +48,7 @@ command /eddywebsync [<player>]:
             send "&aסונכרן: &f%arg-1%" to player
         else:
             eddywebSync(player)
-            send "&aהסנכרון נשלח ל-EddyWEB." to player
+            send "&aהסנכרון נשלח ל-EddyDev." to player
 
 command /eddywebstatus:
     permission: eddyweb.sync
@@ -62,4 +62,4 @@ command /eddywebstatus:
             send "&aToken מוגדר." to player
 
 on script load:
-    send "[EddyWEB] player sync loaded." to console
+    send "[EddyDev] player sync loaded." to console
