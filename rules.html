@@ -5,7 +5,7 @@
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/logo.png">
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071014">
-<title>EddyWEB | חוקי השרת</title><link rel="stylesheet" href="style.css">
+<title>EddyDev | חוקי השרת</title><link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
@@ -19,7 +19,7 @@
 </head>
 <body><div class="grid"></div>
 <main class="info-page">
-<a class="info-back" href="index.html" id="rules-back">→ חזרה ל-EddyWEB</a>
+<a class="info-back" href="index.html" id="rules-back">→ חזרה ל-EddyDev</a>
 <section class="info-hero">
 <div class="badge" id="rules-badge">חוקי השרת</div>
 <h1 id="rules-title">חוקי שרת EddyDev SMP</h1>
@@ -33,7 +33,7 @@ let lang='he';
 try { lang=localStorage.getItem('eddy-language') || 'he'; } catch (_) {}
 const data={
 he:{
-back:'→ חזרה ל-EddyWEB',badge:'חוקי השרת',title:'חוקי שרת EddyDev SMP',intro:'יש לקרוא ולפעול לפי חוקי השרת כדי לשמור על סביבת משחק הוגנת ומהנה.',switch:'English',
+back:'→ חזרה ל-EddyDev',badge:'חוקי השרת',title:'חוקי שרת EddyDev SMP',intro:'יש לקרוא ולפעול לפי חוקי השרת כדי לשמור על סביבת משחק הוגנת ומהנה.',switch:'English',
 groups:[
 ['ספאון (Spawn)',[
 'אין להגריף בספאון.','אין להרוג בספאון.','אין להספים בספאון.'
@@ -70,7 +70,7 @@ usefulTitle:'מידע שימושי ופקודות',useful:[
 ['אתר האינטרנט','https://Eddy.42web.io'],['שרת הדיסקורד','https://discord.gg/zXq9E8FQCS']
 ]},
 en:{
-back:'← Back to EddyWEB',badge:'SERVER RULES',title:'EddyDev SMP Server Rules',intro:'Please read and follow the server rules to keep gameplay fair and enjoyable.',switch:'עברית',
+back:'← Back to EddyDev',badge:'SERVER RULES',title:'EddyDev SMP Server Rules',intro:'Please read and follow the server rules to keep gameplay fair and enjoyable.',switch:'עברית',
 groups:[
 ['Spawn',[
 'No griefing in the spawn.','No killing in the spawn.','No spamming in the spawn.'
@@ -123,7 +123,7 @@ function renderList(items){return items.map((item)=>'<li>'+item+'</li>').join(''
 function applyRulesLanguage(){
 const x=data[lang]||data.he;const he=lang==='he';
 document.documentElement.lang=lang;document.documentElement.dir=he?'rtl':'ltr';
-document.title='EddyWEB | '+x.title;
+document.title='EddyDev | '+x.title;
 document.getElementById('rules-back').textContent=x.back;
 document.getElementById('rules-badge').textContent=x.badge;
 document.getElementById('rules-title').textContent=x.title;
