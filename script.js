@@ -4,7 +4,7 @@ const DISCORD_API = 'https://eddy-bot-lyvo.onrender.com/api/discord';
 const translations = {
   en: {
     navServer: 'Server', navDiscord: 'Discord', navContact: 'Contact', navNews: 'News', navPlayer: 'Player Info', navStaff: 'Staff', navRules: 'Rules', navAccount: 'Sign in / Log in', lang: 'עברית',
-    badge: 'MINECRAFT COMMUNITY', heroTitle: 'Welcome to <span>EddyWEB</span>',
+    badge: 'MINECRAFT COMMUNITY', heroTitle: 'Welcome to <span>EddyDev</span>',
     heroText: 'The home of our Minecraft community. Join, play, and become part of the community.',
     copy: 'Copy IP', copied: '✓ IP copied!', join: 'Join Server', statusTitle: 'Server Status', online: 'Online', offline: 'Offline',
     checking: 'Checking...', discordChecking: 'Checking member count...', staffChecking: 'Checking available staff...',
@@ -21,7 +21,7 @@ const translations = {
   },
   he: {
     navServer: 'השרת', navDiscord: 'Discord', navContact: 'צור קשר', navNews: 'חדשות', navPlayer: 'מידע על השחקן', navStaff: 'צוות', navRules: 'חוקים', navAccount: 'התחברות / כניסה', lang: 'English',
-    badge: 'קהילת MINECRAFT', heroTitle: 'ברוכים הבאים ל־<span>EddyWEB</span>',
+    badge: 'קהילת MINECRAFT', heroTitle: 'ברוכים הבאים ל־<span>EddyDev</span>',
     heroText: 'הבית של קהילת Minecraft שלנו. היכנסו, שחקו והצטרפו לקהילה.',
     copy: 'העתק IP', copied: '✓ ה־IP הועתק!', join: 'כניסה לשרת', statusTitle: 'סטטוס השרת', online: 'מחובר', offline: 'לא מחובר',
     checking: 'בודק...', discordChecking: 'בודק מספר חברים...', staffChecking: 'בודק צוות זמין...',
