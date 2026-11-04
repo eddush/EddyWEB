@@ -158,7 +158,7 @@ app.post('/api/improve-article', async (req, res) => {
     };
 
     const systemPrompt = [
-        'אתה עורך תוכן בלבד עבור EddyWEB. אתה מקבל מאמר קיים מהמשתמש ועליך לערוך ולשפר את המאמר הקיים, לא להמציא מאמר חדש.',
+        'אתה עורך תוכן בלבד עבור EddyDev. אתה מקבל מאמר קיים מהמשתמש ועליך לערוך ולשפר את המאמר הקיים, לא להמציא מאמר חדש.',
         'הכלל החשוב ביותר: נשארים בדיוק באותו נושא, באותו אירוע ובאותו מוצר או פיצר שעליהם המשתמש כתב.',
         'אסור להחליף את הנושא בשום מצב. אסור להוסיף נושא חדש, אירוע חדש, פיצר חדש או סיפור חדש.',
         'שמור על כל הפרטים העובדתיים שהמשתמש כתב: שמות, מספרים, תאריכים, פקודות Minecraft, כתובות, קישורים, שמות פלאגינים, שמות מפות, שמות שחקנים ופרטים טכניים.',
@@ -485,7 +485,7 @@ app.get('/api/minecraft/staff', async (req, res) => {
             }
         }
 
-        // Attach the Discord ID saved when the Minecraft account was linked to EddyWEB.
+        // Attach the Discord ID saved when the Minecraft account was linked to EddyDev.
         let linkedProfiles = [];
         try {
             const { data, error } = await supabaseClient
@@ -535,17 +535,17 @@ async function getAuthenticatedSupabaseUser(req) {
     return { conn, user: data.user };
 }
 
-// Admin access requires a signed-in EddyWEB account linked to a Minecraft UUID
+// Admin access requires a signed-in EddyDev account linked to a Minecraft UUID
 // that has the direct LuckPerms node eddyweb.admin.
 async function checkMinecraftAdmin(req) {
     try {
         const { conn, user } = await getAuthenticatedSupabaseUser(req);
         if (!conn) return { ok: false, status: 503, message: 'חיבור מסד הנתונים אינו זמין' };
-        if (!user) return { ok: false, status: 401, message: 'יש להתחבר לחשבון EddyWEB' };
+        if (!user) return { ok: false, status: 401, message: 'יש להתחבר לחשבון EddyDev' };
         const rawUuid = String(user.app_metadata?.minecraft_uuid || '').trim().toLowerCase();
         const cleanUuid = rawUuid.replace(/-/g, '');
         if (!/^[0-9a-f]{32}$/.test(cleanUuid)) {
-            return { ok: false, status: 403, message: 'יש לחבר חשבון Minecraft לחשבון EddyWEB' };
+            return { ok: false, status: 403, message: 'יש לחבר חשבון Minecraft לחשבון EddyDev' };
         }
         const hyphenatedUuid = cleanUuid.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, '$1-$2-$3-$4-$5');
         const { data: rows, error } = await supabaseClient.from('luckperms_user_permissions')
@@ -674,7 +674,7 @@ app.post('/api/account/delete', async (req, res) => {
 
         return res.json({ success: true });
     } catch (error) {
-        console.error('EddyWEB account deletion error:', error?.message || error);
+        console.error('EddyDev account deletion error:', error?.message || error);
         return res.status(500).json({ success: false, message: 'לא ניתן למחוק את החשבון כרגע' });
     }
 });
@@ -717,7 +717,7 @@ async function findAuthUserByMinecraftUuid(uuid) {
         );
         if (trusted) return trusted;
 
-        // Existing EDDYWEB accounts predate protected app_metadata. Only accept a unique legacy
+        // Existing EDDYDEV accounts predate protected app_metadata. Only accept a unique legacy
         // metadata match; the Minecraft server proof is required before it is promoted to app_metadata.
         legacyMatches.push(...users.filter(user =>
             String(user.user_metadata?.minecraft_uuid || '').replace(/-/g, '').toLowerCase() === normalized
