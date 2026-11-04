@@ -1113,14 +1113,10 @@ app.get('/api/player-profile', async (req, res) => {
         // Always inspect direct LuckPerms group assignments, not only when
         // primary_group is default. A player may have primary_group=staff while
         // also holding group.owner; display the highest active group.
-        const { data: groupPermissions, error: groupPermissionsError } = await supabaseClient
-            .from('luckperms_user_permissions')
-            .select('permission,value,expiry,id')
-            .eq('uuid', uuid)
-            .ilike('permission', 'group.%')
-            .eq('value', true)
-            .order('id', { ascending: false });
-        if (groupPermissionsError) throw groupPermissionsError;
+        const groupPermissions = await conn.execute(
+            'SELECT permission, expiry FROM ' + prefix + 'user_permissions WHERE uuid = ? AND value = 1 AND permission LIKE ? ORDER BY id DESC',
+            [uuid, 'group.%']
+        );
 
         const rankPriority = name => {
             const n = String(name || '').toLowerCase();
