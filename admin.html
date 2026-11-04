@@ -7,7 +7,7 @@
   <link rel="apple-touch-icon" href="/logo.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EddyWEB | ניהול עדכונים ומאמרים</title>
+    <title>EddyDev | ניהול עדכונים ומאמרים</title>
     <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -161,8 +161,8 @@
     <div class="admin-container">
         <div id="login-section" class="login-box">
             <h3 id="admin-login-heading">כניסה למערכת הניהול</h3>
-            <p id="admin-login-description">יש להתחבר לחשבון EddyWEB שמקושר לשחקן Minecraft עם הרשאת eddyweb.admin.</p>
-            <a class="btn primary" id="admin-account-link" href="/account.html">התחברות לחשבון EddyWEB</a>
+            <p id="admin-login-description">יש להתחבר לחשבון EddyDev שמקושר לשחקן Minecraft עם הרשאת eddyweb.admin.</p>
+            <a class="btn primary" id="admin-account-link" href="/account.html">התחברות לחשבון EddyDev</a>
             <button class="btn" id="admin-login-button" type="button" onclick="login()">בדיקת הרשאה</button>
             <p id="login-error" style="color: #ff6b8a; margin-top: 10px;"></p>
         </div>
@@ -187,11 +187,11 @@
             const he = adminLang === 'he';
             document.documentElement.lang = adminLang;
             document.documentElement.dir = he ? 'rtl' : 'ltr';
-            document.title = he ? 'EddyWEB | ניהול עדכונים ומאמרים' : 'EddyWEB | News & Article Admin';
+            document.title = he ? 'EddyDev | ניהול עדכונים ומאמרים' : 'EddyDev | News & Article Admin';
             document.getElementById('admin-language-toggle').textContent = he ? 'English' : 'עברית';
             document.getElementById('admin-login-heading').textContent = he ? 'כניסה למערכת הניהול' : 'Admin Panel Access';
-            document.getElementById('admin-login-description').textContent = he ? 'יש להתחבר לחשבון EddyWEB שמקושר לשחקן Minecraft עם הרשאת eddyweb.admin.' : 'Sign in to the EddyWEB account linked to a Minecraft player with the eddyweb.admin permission.';
-            document.getElementById('admin-account-link').textContent = he ? 'התחברות לחשבון EddyWEB' : 'Sign in to EddyWEB';
+            document.getElementById('admin-login-description').textContent = he ? 'יש להתחבר לחשבון EddyDev שמקושר לשחקן Minecraft עם הרשאת eddyweb.admin.' : 'Sign in to the EddyDev account linked to a Minecraft player with the eddyweb.admin permission.';
+            document.getElementById('admin-account-link').textContent = he ? 'התחברות לחשבון EddyDev' : 'Sign in to EddyDev';
             document.getElementById('admin-login-button').textContent = he ? 'בדיקת הרשאה' : 'Check permission';
             document.getElementById('admin-editor-heading').textContent = he ? 'יצירת מאמר Changelog' : 'Create Changelog Article';
             document.getElementById('admin-add-button').textContent = he ? '+ צור מאמר חדש' : '+ Create Article';
@@ -247,7 +247,7 @@
             const { data: sessionData } = await adminSupabase.auth.getSession();
             authToken = sessionData?.session?.access_token || '';
             if (!authToken) {
-                error.textContent = adminLang === 'he' ? 'יש להתחבר תחילה לחשבון EddyWEB.' : 'Please sign in to your EddyWEB account first.';
+                error.textContent = adminLang === 'he' ? 'יש להתחבר תחילה לחשבון EddyDev.' : 'Please sign in to your EddyDev account first.';
                 return;
             }
             const res = await fetch('/api/login', {
