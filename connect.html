@@ -7,7 +7,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#071014">
-  <title>EddyWEB | התחברות לשרת</title>
+  <title>EddyDev | התחברות לשרת</title>
   <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -41,7 +41,7 @@
   <button id="theme-toggle" class="lang-btn theme-btn theme-floating-toggle" type="button" aria-label="החלפת מצב תצוגה">☀️ מצב בהיר</button>
   <div class="grid"></div>
   <main class="connect-page">
-    <a class="info-back" id="connect-back" href="index.html">→ חזרה ל-EddyWEB</a>
+    <a class="info-back" id="connect-back" href="index.html">→ חזרה ל-EddyDev</a>
     <section class="connect-panel">
       <div class="connect-icon"><i class="fa-solid fa-cube" aria-hidden="true"></i></div>
       <div class="badge"><i class="fa-brands fa-java" aria-hidden="true"></i> MINECRAFT JAVA EDITION</div>
@@ -71,12 +71,12 @@
       const address='eddydev.ddns.net:25565', status=document.getElementById('connect-status');
       let lang=localStorage.getItem('eddy-language')||'en';
       const tr={
-        he:{back:'→ חזרה ל-EddyWEB',title:'מתחברים ל־<span>Eddydev</span>',intro:'לחץ כדי לנסות לפתוח את Minecraft Java Edition. כתובת השרת תועתק אוטומטית כגיבוי, למקרה שהמשחק לא יתחבר ישירות.',open:'פתח את Minecraft',copy:'העתק כתובת שרת',address:'כתובת השרת',noteTitle:'חשוב לדעת',noteText:'ב־Minecraft Java Edition אין קישור דפדפן רשמי ואמין שמחבר אוטומטית לשרת. הכפתור מנסה לפתוח את Minecraft אם הפרוטוקול מוגדר במחשב, ומעתיק את כתובת השרת כגיבוי. ייתכן שיהיה צורך לאשר פתיחת אפליקציה בדפדפן.',stepsTitle:'אם המשחק נפתח אבל לא התחבר',one:'פתח ב־Minecraft את <strong>Multiplayer</strong>.',two:'בחר <strong>Direct Connection</strong>.',three:'הדבק <code>eddydev.ddns.net:25565</code> ולחץ <strong>Join Server</strong>.',copied:'כתובת השרת הועתקה. הדבק אותה ב־Multiplayer → Direct Connection.',failed:'לא הצלחנו להעתיק אוטומטית. סמן והעתק את הכתובת שמופיעה למעלה.',switch:'English',opening:'Trying to open Minecraft…',opened:'We tried to open Minecraft and copied the server address. If it did not connect, use Multiplayer → Direct Connection.',openFailed:'We tried to open Minecraft. If no confirmation appeared, copy the address and join through Multiplayer → Direct Connection.'},
-        en:{back:'← Back to EddyWEB',title:'Connect to <span>Eddydev</span>',intro:'Click to try opening Minecraft Java Edition. The server address will also be copied as a fallback.',open:'Open Minecraft',copy:'Copy server address',address:'Server address',noteTitle:'Good to know',noteText:'Minecraft Java Edition has no official reliable browser link for joining a server automatically. This button tries to open Minecraft if the protocol is registered on your computer, and copies the server address as a fallback.',stepsTitle:'If the game opens but does not connect',one:'Open <strong>Multiplayer</strong> in Minecraft.',two:'Choose <strong>Direct Connection</strong>.',three:'Paste <code>eddydev.ddns.net:25565</code> and select <strong>Join Server</strong>.',copied:'Server address copied. Paste it into Multiplayer → Direct Connection.',failed:'Could not copy automatically. Select and copy the address shown above.',switch:'עברית',opening:'מנסה לפתוח את Minecraft…',opened:'ניסינו לפתוח את Minecraft וכתובת השרת הועתקה. אם לא נפתח חלון אישור או שהמשחק לא התחבר, פתח Multiplayer → Direct Connection והדבק את הכתובת.',openFailed:'ניסינו לפתוח את Minecraft. אם לא נפתח חלון אישור, העתק את הכתובת והתחבר דרך Multiplayer → Direct Connection.'}
+        he:{back:'→ חזרה ל-EddyDev',title:'מתחברים ל־<span>Eddydev</span>',intro:'לחץ כדי לנסות לפתוח את Minecraft Java Edition. כתובת השרת תועתק אוטומטית כגיבוי, למקרה שהמשחק לא יתחבר ישירות.',open:'פתח את Minecraft',copy:'העתק כתובת שרת',address:'כתובת השרת',noteTitle:'חשוב לדעת',noteText:'ב־Minecraft Java Edition אין קישור דפדפן רשמי ואמין שמחבר אוטומטית לשרת. הכפתור מנסה לפתוח את Minecraft אם הפרוטוקול מוגדר במחשב, ומעתיק את כתובת השרת כגיבוי. ייתכן שיהיה צורך לאשר פתיחת אפליקציה בדפדפן.',stepsTitle:'אם המשחק נפתח אבל לא התחבר',one:'פתח ב־Minecraft את <strong>Multiplayer</strong>.',two:'בחר <strong>Direct Connection</strong>.',three:'הדבק <code>eddydev.ddns.net:25565</code> ולחץ <strong>Join Server</strong>.',copied:'כתובת השרת הועתקה. הדבק אותה ב־Multiplayer → Direct Connection.',failed:'לא הצלחנו להעתיק אוטומטית. סמן והעתק את הכתובת שמופיעה למעלה.',switch:'English',opening:'Trying to open Minecraft…',opened:'We tried to open Minecraft and copied the server address. If it did not connect, use Multiplayer → Direct Connection.',openFailed:'We tried to open Minecraft. If no confirmation appeared, copy the address and join through Multiplayer → Direct Connection.'},
+        en:{back:'← Back to EddyDev',title:'Connect to <span>Eddydev</span>',intro:'Click to try opening Minecraft Java Edition. The server address will also be copied as a fallback.',open:'Open Minecraft',copy:'Copy server address',address:'Server address',noteTitle:'Good to know',noteText:'Minecraft Java Edition has no official reliable browser link for joining a server automatically. This button tries to open Minecraft if the protocol is registered on your computer, and copies the server address as a fallback.',stepsTitle:'If the game opens but does not connect',one:'Open <strong>Multiplayer</strong> in Minecraft.',two:'Choose <strong>Direct Connection</strong>.',three:'Paste <code>eddydev.ddns.net:25565</code> and select <strong>Join Server</strong>.',copied:'Server address copied. Paste it into Multiplayer → Direct Connection.',failed:'Could not copy automatically. Select and copy the address shown above.',switch:'עברית',opening:'מנסה לפתוח את Minecraft…',opened:'ניסינו לפתוח את Minecraft וכתובת השרת הועתקה. אם לא נפתח חלון אישור או שהמשחק לא התחבר, פתח Multiplayer → Direct Connection והדבק את הכתובת.',openFailed:'ניסינו לפתוח את Minecraft. אם לא נפתח חלון אישור, העתק את הכתובת והתחבר דרך Multiplayer → Direct Connection.'}
       };
       function applyLanguage(){
         const x=tr[lang]; document.documentElement.lang=lang; document.documentElement.dir=lang==='he'?'rtl':'ltr';
-        document.title=lang==='he'?'EddyWEB | התחברות לשרת':'EddyWEB | Connect to Server';
+        document.title=lang==='he'?'EddyDev | התחברות לשרת':'EddyDev | Connect to Server';
         document.getElementById('language-toggle').textContent=x.switch;
         document.getElementById('connect-back').textContent=x.back;
         document.getElementById('connect-title').innerHTML=x.title;
