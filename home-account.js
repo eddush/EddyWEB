@@ -161,7 +161,7 @@
       avatar.hidden = true;
       avatar.removeAttribute('src');
       if (icon) icon.hidden = false;
-      console.warn('[EddyWEB] Unable to load Minecraft avatar for this account.');
+      console.warn('[EddyDev] Unable to load Minecraft avatar for this account.');
     };
     avatar.alt = (currentMinecraftUsername || currentDisplayName || 'Minecraft') + ' Minecraft profile head';
     avatar.referrerPolicy = 'no-referrer';
@@ -175,7 +175,7 @@
 
   if (!window.supabase?.createClient) {
     showAccountProfileMirrorOrSignedOut();
-    console.error('[EddyWEB] Supabase client did not load on the homepage.');
+    console.error('[EddyDev] Supabase client did not load on the homepage.');
     return;
   }
 
@@ -203,7 +203,7 @@
     })
     .catch((error) => {
       showAccountProfileMirrorOrSignedOut();
-      console.error('[EddyWEB] Could not read the homepage sign-in session:', error);
+      console.error('[EddyDev] Could not read the homepage sign-in session:', error);
     });
 
   client.auth.onAuthStateChange((_event, session) => {
