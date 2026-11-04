@@ -1110,25 +1110,48 @@ app.get('/api/player-profile', async (req, res) => {
         const playerName = String(player.username || username);
         let group = String(player.primary_group || 'default').trim();
 
-        // LuckPerms can leave primary_group as "default" while assigning
-        // another group directly (for example: group.owner) in user permissions.
-        // Prefer a non-default direct group assignment when primary_group is default.
-        if (!group || group.toLowerCase() === 'default') {
-            const permissionRows = await conn.execute(
-                'SELECT permission FROM ' + prefix + 'user_permissions WHERE uuid = ? AND value = 1 AND permission LIKE ? ORDER BY id DESC',
-                [uuid, 'group.%']
-            );
+        // Always inspect direct LuckPerms group assignments, not only when
+        // primary_group is default. A player may have primary_group=staff while
+        // also holding group.owner; display the highest active group.
+        const { data: groupPermissions, error: groupPermissionsError } = await supabaseClient
+            .from('luckperms_user_permissions')
+            .select('permission,value,expiry,id')
+            .eq('uuid', uuid)
+            .ilike('permission', 'group.%')
+            .eq('value', true)
+            .order('id', { ascending: false });
+        if (groupPermissionsError) throw groupPermissionsError;
 
-            const assignedGroups = (Array.isArray(permissionRows) ? permissionRows : [])
-                .map(row => String(row.permission || '').trim())
-                .filter(permission => /^group\.[A-Za-z0-9_-]+$/i.test(permission))
-                .map(permission => permission.slice('group.'.length))
-                .filter(name => name && name.toLowerCase() !== 'default');
+        const rankPriority = name => {
+            const n = String(name || '').toLowerCase();
+            if (n === 'owner' || n === 'founder') return 1000;
+            if (n === 'manager' || n === 'admin' || n === 'administrator') return 900;
+            if (n === 'developer' || n === 'dev') return 800;
+            if (n === 'moderator' || n === 'mod') return 700;
+            if (n === 'helper' || n === 'support') return 600;
+            if (n === 'staff') return 500;
+            if (n === 'vip' || n === 'mvp' || n === 'premium') return 300;
+            if (n === 'default') return 0;
+            return 100;
+        };
 
-            if (assignedGroups.length) {
-                group = assignedGroups[0];
+        let highestRank = group && group.toLowerCase() !== 'default' ? group : 'default';
+        let highestPriority = rankPriority(highestRank);
+        const now = Math.floor(Date.now() / 1000);
+        for (const row of (groupPermissions || [])) {
+            const permission = String(row.permission || '').trim();
+            const match = permission.match(/^group\.([A-Za-z0-9_-]+)$/i);
+            const expiry = Number(row.expiry || 0);
+            if (!match || (expiry > 0 && expiry <= now)) continue;
+
+            const candidate = match[1];
+            const candidatePriority = rankPriority(candidate);
+            if (candidatePriority > highestPriority) {
+                highestRank = candidate;
+                highestPriority = candidatePriority;
             }
         }
+        group = highestRank;
 
         let money = null;
         let playtime = null;
