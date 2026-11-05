@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 if (document.getElementById('eddy-support-launcher')) return;
-const css=document.createElement('link');css.rel='stylesheet';css.href='/support-widget.css';document.head.appendChild(css);
+const css=document.createElement('link');css.rel='stylesheet';css.href='/support-widget.css?v=2';document.head.appendChild(css);
 const addSupabase=()=>new Promise(resolve=>{if(window.supabase?.createClient)return resolve();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';s.onload=resolve;s.onerror=resolve;document.head.appendChild(s);});
 const root=document.createElement('div');root.id='eddy-support-widget';root.innerHTML=
 '<button id="eddy-support-launcher" type="button" aria-label="Support"><i class="fa-solid fa-comments"></i></button>'+
