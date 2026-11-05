@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071014">
+  <title>EddyDev | תמיכה</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/support.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+<body>
+  <div class="grid"></div>
+  <main class="info-page support-page">
+    <a class="info-back" href="/index.html" id="support-back">← חזרה ל-EddyDev</a>
+    <section class="info-hero">
+      <div class="badge"><i class="fa-solid fa-headset"></i> <span id="support-badge">מרכז התמיכה של EddyDev</span></div>
+      <h1 id="support-title">איך אפשר לעזור?</h1>
+      <p id="support-intro">שלחו לנו הודעה ונציג צוות יחזור אליכם דרך הצ׳אט הזה.</p>
+      <div class="page-lang"><button class="btn" id="support-language" type="button">English</button></div>
+    </section>
+
+    <section class="info-card support-card" id="support-login" hidden>
+      <h2 id="support-login-title">צריך להתחבר כדי לקבל תמיכה</h2>
+      <p id="support-login-text">התחברו לחשבון EddyDev כדי לפתוח שיחה פרטית עם הצוות.</p>
+      <a class="btn primary" href="/account.html" id="support-login-button">התחברות / יצירת חשבון</a>
+    </section>
+
+    <section class="info-card support-card" id="support-start" hidden>
+      <div class="support-intro-row"><div class="support-icon"><i class="fa-solid fa-comments"></i></div><div><h2 id="support-start-title">פתיחת שיחת תמיכה</h2><p id="support-start-desc">השיחה תיפתח כטיקט פרטי בשרת Discord של EddyDev.</p></div></div>
+      <form id="support-new-form">
+        <label for="support-subject" id="support-subject-label">נושא הפנייה</label>
+        <input id="support-subject" maxlength="100" required placeholder="לדוגמה: בעיה בהתחברות">
+        <label for="support-first-message" id="support-message-label">איך נוכל לעזור?</label>
+        <textarea id="support-first-message" maxlength="4000" rows="5" required placeholder="כתבו כאן את השאלה או הבעיה..."></textarea>
+        <button class="btn primary" id="support-open-button" type="submit"><i class="fa-solid fa-paper-plane"></i> פתיחת שיחה</button>
+      </form>
+      <p class="support-status" id="support-start-status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="info-card support-card" id="support-chat" hidden>
+      <div class="support-chat-heading">
+        <div><span class="support-live-dot"></span><strong id="support-open-label">שיחה פתוחה</strong><h2 id="support-chat-subject"></h2></div>
+        <button class="btn support-close-button" id="support-close-button" type="button"><i class="fa-solid fa-lock"></i> <span id="support-close-label">סגירת שיחה</span></button>
+      </div>
+      <div class="support-messages" id="support-messages" aria-live="polite" aria-label="Conversation messages"></div>
+      <form class="support-reply-form" id="support-reply-form">
+        <textarea id="support-reply" maxlength="4000" rows="2" required placeholder="כתבו הודעה..."></textarea>
+        <button class="btn primary" id="support-send-button" type="submit" aria-label="שליחת הודעה"><i class="fa-solid fa-paper-plane"></i></button>
+      </form>
+      <p class="support-status" id="support-chat-status" role="status" aria-live="polite"></p>
+    </section>
+    <p class="support-footer-note" id="support-footer-note">הודעות הצ׳אט מועברות לצוות דרך Discord. אין צורך לפתוח Discord כדי לקבל תשובה.</p>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/support.js"></script>
+  <script src="/theme.js"></script>
+</body>
+</html>
