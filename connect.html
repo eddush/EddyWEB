@@ -1,111 +1,166 @@
 <!doctype html>
-<html lang="he" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="shortcut icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/logo.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#071014">
-  <title>EddyDev | התחברות לשרת</title>
+  <meta name="theme-color" content="#f5f5f5">
+  <title>EddyDev | How to Play</title>
   <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Rubik:wght@400;500;600;700;800&display=swap"></noscript>
-<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" media="print" onload="this.media='all'">
-  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"></noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
   <style>
-    .connect-page{width:min(100%,900px);margin:0 auto;padding:34px 18px 70px;position:relative;z-index:2}
-    .connect-panel{padding:clamp(22px,5vw,42px);text-align:center;background:linear-gradient(145deg,#0d181deF,#0a1115F2);border:1px solid #ffffff18;border-radius:22px;box-shadow:0 18px 60px #0008}
-    .connect-icon{width:76px;height:76px;margin:0 auto 18px;display:grid;place-items:center;border-radius:20px;background:#31e7ca18;border:1px solid #31e7ca55;color:#5fffe4;font-size:36px}
-    .connect-panel h1{font-size:clamp(25px,5vw,44px);margin:12px 0}
-    .connect-panel>p{color:#a9babc;line-height:1.8;max-width:640px;margin:0 auto 22px}
-    .server-address{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;direction:ltr;padding:16px;margin:20px auto;max-width:560px;border:1px solid #31e7ca55;background:#061014a8;border-radius:14px;font:700 clamp(16px,3vw,22px) monospace;overflow-wrap:anywhere}
-    .connect-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:22px 0}
-    .connect-actions .btn{min-height:48px}
-    .connect-status{min-height:28px;margin:14px auto 0;color:#5fffe4}
-    .connect-note{text-align:start;margin:24px auto 0;max-width:650px;padding:16px 18px;border-radius:12px;border:1px solid #ffffff16;background:#060b0e88;color:#a9babc;line-height:1.85}
-    .connect-note strong{color:#fff}
-    .connect-steps{text-align:start;max-width:650px;margin:20px auto 0;padding-inline-start:24px;color:#c5d4d6;line-height:2}
-    body[data-theme="light"] .connect-panel{background:#ffffffd9;border-color:#1b344022}
-    body[data-theme="light"] .connect-panel>p,body[data-theme="light"] .connect-note,body[data-theme="light"] .connect-steps{color:#30444a}
-    body[data-theme="light"] .server-address{background:#ffffffb8;color:#13282e}
-    body[data-theme="light"] .connect-note{background:#ffffffa8;border-color:#1b344022}
-    body[data-theme="light"] .connect-note strong{color:#10252a}
+    .connect-page{width:min(100%,1120px);margin:0 auto;padding:54px 28px 84px;position:relative;z-index:2;color:var(--connect-text,#171717)}
+    .connect-heading{text-align:center;font-size:clamp(34px,5.8vw,64px);line-height:1.12;font-weight:800;letter-spacing:-1.8px;margin:18px 0 66px;color:var(--connect-heading,#090909)}
+    .connect-heading span{color:#f0a900}
+    .connect-steps{display:grid;gap:34px;max-width:1000px;margin:0 auto}
+    .connect-step{display:grid;grid-template-columns:84px minmax(0,1fr);align-items:start;gap:28px}
+    .connect-number{width:84px;height:84px;display:grid;place-items:center;background:#ffbd08;color:#111;border-radius:12px;font-size:48px;font-weight:800;line-height:1}
+    .connect-step-content{min-width:0;padding-top:12px;font-size:clamp(20px,2.6vw,34px);line-height:1.5;color:var(--connect-muted,#444)}
+    .connect-step-content strong{color:var(--connect-heading,#090909);font-weight:800}
+    .connect-step-content a{color:#e58b00;text-decoration:none;font-weight:800}
+    .connect-step-content a:hover{text-decoration:underline}
+    .connect-address-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;direction:ltr;margin-top:16px}
+    .connect-address{display:inline-flex;align-items:center;gap:12px;padding:8px 15px;background:var(--connect-address-bg,#e8e8e8);border-bottom:4px solid #ffbd08;color:var(--connect-heading,#111);font:800 clamp(19px,2.5vw,30px)/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}
+    .connect-copy{width:48px;height:48px;border:0;border-radius:10px;background:#ffbd08;color:#171717;font-size:20px;cursor:pointer;transition:transform .15s,filter .15s}
+    .connect-copy:hover{transform:translateY(-2px);filter:brightness(1.05)}
+    .connect-open{display:inline-flex;align-items:center;gap:10px;margin-top:14px;padding:12px 18px;border-radius:10px;background:#ffbd08;color:#171717!important;font-size:17px;text-decoration:none!important;font-weight:800}
+    .connect-status{min-height:26px;margin:24px 0 0 112px;font-size:15px;color:var(--connect-muted,#555)}
+    .connect-back{display:inline-flex;align-items:center;gap:8px;margin-bottom:24px;color:var(--connect-muted,#555);text-decoration:none;font-size:15px;font-weight:600}
+    .connect-back:hover{color:#e58b00}
+    .connect-tip{max-width:900px;margin:46px auto 0;padding:18px 22px;border-inline-start:5px solid #ffbd08;background:var(--connect-tip-bg,#ffffff80);border-radius:8px;color:var(--connect-muted,#555);line-height:1.7;font-size:16px}
+    .connect-tip strong{color:var(--connect-heading,#111)}
+    body[data-theme="dark"] .connect-page{--connect-text:#f2f2f2;--connect-heading:#fff;--connect-muted:#c5c5c5;--connect-address-bg:#24282b;--connect-tip-bg:#111a20b8}
+    body[data-theme="light"] .connect-page{--connect-text:#171717;--connect-heading:#090909;--connect-muted:#444;--connect-address-bg:#e8e8e8;--connect-tip-bg:#ffffffa8}
+    @media(max-width:600px){
+      .connect-page{padding:34px 18px 60px}
+      .connect-heading{margin:20px 0 42px;letter-spacing:-.8px}
+      .connect-steps{gap:28px}
+      .connect-step{grid-template-columns:58px minmax(0,1fr);gap:15px}
+      .connect-number{width:58px;height:58px;font-size:34px;border-radius:9px}
+      .connect-step-content{padding-top:3px;font-size:19px;line-height:1.55}
+      .connect-address{font-size:16px;padding:8px 10px}
+      .connect-copy{width:42px;height:42px}
+      .connect-status{margin-inline-start:0}
+      .connect-tip{margin-top:34px}
+    }
   </style>
 </head>
 <body>
-  <button id="language-toggle" class="lang-btn" type="button" style="position:fixed;top:16px;left:16px;z-index:20">English</button>
-  <button id="theme-toggle" class="lang-btn theme-btn theme-floating-toggle" type="button" aria-label="החלפת מצב תצוגה">☀️ מצב בהיר</button>
+  <button id="language-toggle" class="lang-btn" type="button" style="position:fixed;top:16px;left:16px;z-index:20">עברית</button>
+  <button id="theme-toggle" class="lang-btn theme-btn theme-floating-toggle" type="button" aria-label="Toggle color theme">☀️ Light mode</button>
   <div class="grid"></div>
   <main class="connect-page">
-    <a class="info-back" id="connect-back" href="index.html">→ חזרה ל-EddyDev</a>
-    <section class="connect-panel">
-      <div class="connect-icon"><i class="fa-solid fa-cube" aria-hidden="true"></i></div>
-      <div class="badge"><i class="fa-brands fa-java" aria-hidden="true"></i> MINECRAFT JAVA EDITION</div>
-      <h1 id="connect-title">מתחברים ל־<span>Eddydev</span></h1>
-      <p id="connect-intro">העתק את כתובת השרת והתחבר אליו דרך תפריט Multiplayer בתוך Minecraft Java Edition.</p>
-      <div class="server-address" id="server-address" aria-label="כתובת השרת"><span>eddydev.ddns.net:25565</span></div>
-      <div class="connect-actions">
-        <button id="open-minecraft" class="btn primary" type="button"><i class="fa-solid fa-play" aria-hidden="true"></i> <span id="open-label">פתח את Minecraft</span></button>
-        <button id="copy-server" class="btn" type="button"><i class="fa-regular fa-copy" aria-hidden="true"></i> <span id="copy-label">העתק כתובת שרת</span></button>
-      </div>
-      <p id="connect-status" class="connect-status" role="status" aria-live="polite"></p>
-      <div class="connect-note">
-        <strong><i class="fa-solid fa-circle-info" aria-hidden="true"></i> <span id="note-title">חשוב לדעת</span></strong>
-        <p id="note-text">ב־Minecraft Java Edition מתחברים ידנית דרך תפריט Multiplayer. האתר אינו מנסה לפתוח את המשחק.</p>
-      </div>
-      <h2 id="steps-title">איך מתחברים לשרת</h2>
-      <ol class="connect-steps">
-        <li id="step-one">פתח ב־Minecraft את <strong>Multiplayer</strong>.</li>
-        <li id="step-two">בחר <strong>Direct Connection</strong>.</li>
-        <li id="step-three">הדבק <code>eddydev.ddns.net:25565</code> ולחץ <strong>Join Server</strong>.</li>
-      </ol>
+    <a class="connect-back" id="connect-back" href="index.html">← Back to EddyDev</a>
+    <h1 class="connect-heading" id="connect-title">How to Play on <span>EddyDev?</span></h1>
+    <section class="connect-steps" aria-label="How to join the server">
+      <article class="connect-step">
+        <div class="connect-number">1</div>
+        <div class="connect-step-content" id="step-one">If you don't have Minecraft, <a href="https://www.minecraft.net/download" target="_blank" rel="noopener noreferrer">download it here</a>.</div>
+      </article>
+      <article class="connect-step">
+        <div class="connect-number">2</div>
+        <div class="connect-step-content" id="step-two">Run Minecraft <strong>Java Edition</strong>, choose <strong>Multiplayer</strong>, then click <strong>Add Server</strong>.</div>
+      </article>
+      <article class="connect-step">
+        <div class="connect-number">3</div>
+        <div class="connect-step-content" id="step-three">Enter our Server Address:
+          <div class="connect-address-row">
+            <span class="connect-address">eddydev.ddns.net:25565</span>
+            <button class="connect-copy" id="copy-server" type="button" aria-label="Copy server address" title="Copy server address"><i class="fa-regular fa-copy" aria-hidden="true"></i></button>
+          </div>
+        </div>
+      </article>
+      <article class="connect-step">
+        <div class="connect-number">4</div>
+        <div class="connect-step-content" id="step-four">Click <strong>Done</strong>, select <strong>EddyDev</strong> in your server list, and click <strong>Join Server</strong> to start playing!
+          <div><a class="connect-open" id="open-minecraft" href="minecraft://"><i class="fa-solid fa-gamepad" aria-hidden="true"></i><span id="open-label">Try to open Minecraft</span></a></div>
+        </div>
+      </article>
     </section>
+    <p class="connect-status" id="connect-status" role="status" aria-live="polite"></p>
+    <aside class="connect-tip"><strong id="tip-title">Need help?</strong> <span id="tip-text">Make sure you are using Minecraft Java Edition and that the server address is typed correctly.</span></aside>
   </main>
   <script src="theme.js" defer></script>
   <script>
     (() => {
-      const address='eddydev.ddns.net:25565', status=document.getElementById('connect-status');
-      let lang=localStorage.getItem('eddy-language')||'en';
-      const tr={
-        he:{back:'→ חזרה ל-EddyDev',title:'מתחברים ל־<span>Eddydev</span>',intro:'לחץ כדי לנסות לפתוח את Minecraft Java Edition. כתובת השרת תועתק אוטומטית כגיבוי, למקרה שהמשחק לא יתחבר ישירות.',open:'פתח את Minecraft',copy:'העתק כתובת שרת',address:'כתובת השרת',noteTitle:'חשוב לדעת',noteText:'ב־Minecraft Java Edition אין קישור דפדפן רשמי ואמין שמחבר אוטומטית לשרת. הכפתור מנסה לפתוח את Minecraft אם הפרוטוקול מוגדר במחשב, ומעתיק את כתובת השרת כגיבוי. ייתכן שיהיה צורך לאשר פתיחת אפליקציה בדפדפן.',stepsTitle:'אם המשחק נפתח אבל לא התחבר',one:'פתח ב־Minecraft את <strong>Multiplayer</strong>.',two:'בחר <strong>Direct Connection</strong>.',three:'הדבק <code>eddydev.ddns.net:25565</code> ולחץ <strong>Join Server</strong>.',copied:'כתובת השרת הועתקה. הדבק אותה ב־Multiplayer → Direct Connection.',failed:'לא הצלחנו להעתיק אוטומטית. סמן והעתק את הכתובת שמופיעה למעלה.',switch:'English',opening:'Trying to open Minecraft…',opened:'We tried to open Minecraft and copied the server address. If it did not connect, use Multiplayer → Direct Connection.',openFailed:'We tried to open Minecraft. If no confirmation appeared, copy the address and join through Multiplayer → Direct Connection.'},
-        en:{back:'← Back to EddyDev',title:'Connect to <span>Eddydev</span>',intro:'Click to try opening Minecraft Java Edition. The server address will also be copied as a fallback.',open:'Open Minecraft',copy:'Copy server address',address:'Server address',noteTitle:'Good to know',noteText:'Minecraft Java Edition has no official reliable browser link for joining a server automatically. This button tries to open Minecraft if the protocol is registered on your computer, and copies the server address as a fallback.',stepsTitle:'If the game opens but does not connect',one:'Open <strong>Multiplayer</strong> in Minecraft.',two:'Choose <strong>Direct Connection</strong>.',three:'Paste <code>eddydev.ddns.net:25565</code> and select <strong>Join Server</strong>.',copied:'Server address copied. Paste it into Multiplayer → Direct Connection.',failed:'Could not copy automatically. Select and copy the address shown above.',switch:'עברית',opening:'מנסה לפתוח את Minecraft…',opened:'ניסינו לפתוח את Minecraft וכתובת השרת הועתקה. אם לא נפתח חלון אישור או שהמשחק לא התחבר, פתח Multiplayer → Direct Connection והדבק את הכתובת.',openFailed:'ניסינו לפתוח את Minecraft. אם לא נפתח חלון אישור, העתק את הכתובת והתחבר דרך Multiplayer → Direct Connection.'}
+      const address='eddydev.ddns.net:25565';
+      const status=document.getElementById('connect-status');
+      let lang='en';
+      try { lang=localStorage.getItem('eddy-language')||'en'; } catch (_) {}
+      const translations={
+        en:{
+          back:'← Back to EddyDev',title:'How to Play on <span>EddyDev?</span>',
+          one:'If you don\'t have Minecraft, <a href="https://www.minecraft.net/download" target="_blank" rel="noopener noreferrer">download it here</a>.',
+          two:'Run Minecraft <strong>Java Edition</strong>, choose <strong>Multiplayer</strong>, then click <strong>Add Server</strong>.',
+          three:'Enter our Server Address:',four:'Click <strong>Done</strong>, select <strong>EddyDev</strong> in your server list, and click <strong>Join Server</strong> to start playing!',
+          open:'Try to open Minecraft',tipTitle:'Need help?',tipText:'Make sure you are using Minecraft Java Edition and that the server address is typed correctly.',
+          copied:'Server address copied!',failed:'Could not copy automatically. Please copy the address manually.',
+          opened:'Trying to open Minecraft… If it does not open, launch the game manually.',
+          switch:'עברית',copyLabel:'Copy server address'
+        },
+        he:{
+          back:'חזרה ל-EddyDev →',title:'איך משחקים בשרת <span>EddyDev?</span>',
+          one:'אם עדיין אין לך Minecraft, <a href="https://www.minecraft.net/download" target="_blank" rel="noopener noreferrer">אפשר להוריד אותו כאן</a>.',
+          two:'הפעל את <strong>Minecraft Java Edition</strong>, היכנס ל־<strong>Multiplayer</strong> ולחץ על <strong>Add Server</strong>.',
+          three:'הזן את כתובת השרת שלנו:',
+          four:'לחץ על <strong>Done</strong>, בחר את <strong>EddyDev</strong> מרשימת השרתים ולחץ על <strong>Join Server</strong> כדי להתחיל לשחק!',
+          open:'נסה לפתוח את Minecraft',tipTitle:'צריך עזרה?',tipText:'ודא שאתה משתמש ב־Minecraft Java Edition ושהזנת את כתובת השרת בצורה נכונה.',
+          copied:'כתובת השרת הועתקה!',failed:'לא הצלחנו להעתיק אוטומטית. אפשר להעתיק את הכתובת ידנית.',
+          opened:'מנסים לפתוח את Minecraft… אם המשחק לא נפתח, הפעל אותו ידנית.',
+          switch:'English',copyLabel:'העתק כתובת שרת'
+        }
       };
       function applyLanguage(){
-        const x=tr[lang]; document.documentElement.lang=lang; document.documentElement.dir=lang==='he'?'rtl':'ltr';
-        document.title=lang==='he'?'EddyDev | התחברות לשרת':'EddyDev | Connect to Server';
-        document.getElementById('language-toggle').textContent=x.switch;
-        document.getElementById('connect-back').textContent=x.back;
-        document.getElementById('connect-title').innerHTML=x.title;
-        document.getElementById('connect-intro').textContent=x.intro;
-        document.getElementById('open-label').textContent=x.open; document.getElementById('copy-label').textContent=x.copy;
-        document.getElementById('server-address').setAttribute('aria-label',x.address);
-        document.getElementById('note-title').textContent=x.noteTitle;
-        document.getElementById('note-text').textContent=x.noteText;
-        document.getElementById('steps-title').textContent=x.stepsTitle;
-        document.getElementById('step-one').innerHTML=x.one;
-        document.getElementById('step-two').innerHTML=x.two;
-        document.getElementById('step-three').innerHTML=x.three;
+        const t=translations[lang];
+        document.documentElement.lang=lang;
+        document.documentElement.dir=lang==='he'?'rtl':'ltr';
+        document.title=lang==='he'?'EddyDev | איך מתחברים לשרת':'EddyDev | How to Play';
+        document.getElementById('language-toggle').textContent=t.switch;
+        document.getElementById('connect-back').textContent=t.back;
+        document.getElementById('connect-title').innerHTML=t.title;
+        document.getElementById('step-one').innerHTML=t.one;
+        document.getElementById('step-two').innerHTML=t.two;
+        document.getElementById('step-three').childNodes[0].textContent=t.three;
+        document.getElementById('step-four').childNodes[0].textContent=t.four;
+        document.getElementById('open-label').textContent=t.open;
+        document.getElementById('tip-title').textContent=t.tipTitle;
+        document.getElementById('tip-text').textContent=t.tipText;
+        document.getElementById('copy-server').setAttribute('aria-label',t.copyLabel);
+        document.getElementById('copy-server').title=t.copyLabel;
       }
-      document.getElementById('language-toggle').addEventListener('click',()=>{lang=lang==='he'?'en':'he';try{localStorage.setItem('eddy-language',lang)}catch(_){}applyLanguage()});
+      document.getElementById('language-toggle').addEventListener('click',()=>{
+        lang=lang==='he'?'en':'he';
+        try { localStorage.setItem('eddy-language',lang); } catch (_) {}
+        applyLanguage();
+      });
       async function copyAddress(){
-        try {
+        try{
           if(navigator.clipboard&&window.isSecureContext) await navigator.clipboard.writeText(address);
-          else {
-            const field=document.createElement('textarea'); field.value=address; field.readOnly=true;
-            field.style.position='fixed'; field.style.opacity='0'; document.body.appendChild(field);
-            field.select(); const ok=document.execCommand('copy'); field.remove();
+          else{
+            const field=document.createElement('textarea');
+            field.value=address;field.readOnly=true;field.style.position='fixed';field.style.opacity='0';
+            document.body.appendChild(field);field.select();
+            const ok=document.execCommand('copy');field.remove();
             if(!ok) throw new Error('copy failed');
           }
           return true;
-        } catch(_){ return false; }
+        }catch(_){return false;}
       }
-      document.getElementById('copy-server').addEventListener('click',async()=>{const x=tr[lang];status.textContent=await copyAddress()?x.copied:x.failed;});
-      document.getElementById('open-minecraft').addEventListener('click',()=>{const x=tr[lang],copyTask=copyAddress();status.textContent=x.opening;window.location.href='minecraft://';copyTask.then(copied=>{status.textContent=copied?x.opened:x.openFailed;});});
+      document.getElementById('copy-server').addEventListener('click',async()=>{
+        const ok=await copyAddress();
+        status.textContent=ok?translations[lang].copied:translations[lang].failed;
+      });
+      document.getElementById('open-minecraft').addEventListener('click',()=>{
+        status.textContent=translations[lang].opened;
+      });
       applyLanguage();
     })();
-  </script></body>
+  </script>
+</body>
 </html>
