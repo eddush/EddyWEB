@@ -50,4 +50,4 @@
 })();
 
 // Load the floating EddyWEB support chat on every page.
-(function(){function load(){if(document.getElementById('eddy-support-widget-script'))return;var s=document.createElement('script');s.id='eddy-support-widget-script';s.src='/support-widget.js?v=1';s.defer=true;document.body.appendChild(s);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();})();
+(function(){function load(){if(document.getElementById('eddy-support-widget-script'))return;var s=document.createElement('script');s.id='eddy-support-widget-script';s.src='/support-widget.js?v=2';s.defer=true;document.body.appendChild(s);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();})();
