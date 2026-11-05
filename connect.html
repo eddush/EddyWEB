@@ -77,7 +77,7 @@
       </article>
       <article class="connect-step">
         <div class="connect-number">3</div>
-        <div class="connect-step-content" id="step-three">Enter our Server Address:
+        <div class="connect-step-content" id="step-three"><span id="step-three-label">Enter our Server Address:</span>
           <div class="connect-address-row">
             <span class="connect-address">eddydev.ddns.net:25565</span>
             <button class="connect-copy" id="copy-server" type="button" aria-label="Copy server address" title="Copy server address"><i class="fa-regular fa-copy" aria-hidden="true"></i></button>
@@ -86,7 +86,7 @@
       </article>
       <article class="connect-step">
         <div class="connect-number">4</div>
-        <div class="connect-step-content" id="step-four">Click <strong>Done</strong>, select <strong>EddyDev</strong> in your server list, and click <strong>Join Server</strong> to start playing!
+        <div class="connect-step-content" id="step-four"><span id="step-four-text">Click <strong>Done</strong>, select <strong>EddyDev</strong> in your server list, and click <strong>Join Server</strong> to start playing!</span>
           <div><a class="connect-open" id="open-minecraft" href="minecraft://"><i class="fa-solid fa-gamepad" aria-hidden="true"></i><span id="open-label">Try to open Minecraft</span></a></div>
         </div>
       </article>
@@ -134,8 +134,8 @@
         document.getElementById('connect-title').innerHTML=t.title;
         document.getElementById('step-one').innerHTML=t.one;
         document.getElementById('step-two').innerHTML=t.two;
-        document.getElementById('step-three').childNodes[0].textContent=t.three;
-        document.getElementById('step-four').childNodes[0].textContent=t.four;
+        document.getElementById('step-three-label').textContent=t.three;
+        document.getElementById('step-four-text').innerHTML=t.four;
         document.getElementById('open-label').textContent=t.open;
         document.getElementById('tip-title').textContent=t.tipTitle;
         document.getElementById('tip-text').textContent=t.tipText;
