@@ -64,6 +64,10 @@
     {
       "src": "support.css",
       "use": "@vercel/static"
+    },
+    {
+      "src": "support-widget.js",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
