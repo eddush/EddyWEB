@@ -57,6 +57,20 @@
       .connect-copy{width:40px;height:40px}
       .connect-tip{margin-top:22px;padding:15px}
     }
+
+    .download-modal{position:fixed;inset:0;z-index:1000;display:none;place-items:center;padding:20px;background:#03090bc9;backdrop-filter:blur(7px)}
+    .download-modal.is-open{display:grid}
+    .download-modal-card{width:min(100%,480px);padding:28px;border:1px solid #31e7ca66;border-radius:18px;background:linear-gradient(145deg,#102126,#091317);box-shadow:0 24px 80px #0009;color:#e9ffff;text-align:center}
+    .download-modal-card h2{margin:0 0 10px;font-size:25px;color:#e9ffff}
+    .download-modal-card p{margin:0 0 22px;color:#a9babc;line-height:1.6}
+    .download-modal-actions{display:grid;gap:12px}
+    .download-option{display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:12px 16px;border:0;border-radius:10px;background:#31e7ca;color:#04110f;text-decoration:none;font-weight:800;font-size:16px;cursor:pointer}
+    .download-option.secondary{background:#b965ff;color:#10051b}
+    .download-modal-close{margin-top:16px;border:0;background:transparent;color:#a9babc;text-decoration:underline;cursor:pointer;font:inherit}
+    body[data-theme="light"] .download-modal-card{background:#f8fffe;color:#14282d}
+    body[data-theme="light"] .download-modal-card h2{color:#14282d}
+    body[data-theme="light"] .download-modal-card p{color:#40565b}
+    body[data-theme="light"] .download-modal-close{color:#40565b}
   </style>
 </head>
 <body>
@@ -94,6 +108,18 @@
     <p class="connect-status" id="connect-status" role="status" aria-live="polite"></p>
     <aside class="connect-tip"><strong id="tip-title">Need help?</strong> <span id="tip-text">Make sure you are using Minecraft Java Edition and that the server address is typed correctly.</span></aside>
   </main>
+
+  <div class="download-modal" id="download-modal" role="dialog" aria-modal="true" aria-labelledby="download-modal-title" aria-hidden="true">
+    <div class="download-modal-card">
+      <h2 id="download-modal-title">Which version do you need?</h2>
+      <p id="download-modal-description">Choose the option that matches your Minecraft copy.</p>
+      <div class="download-modal-actions">
+        <a class="download-option" id="paid-download" href="https://www.minecraft.net/download" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-crown" aria-hidden="true"></i><span id="paid-download-label">I purchased Minecraft</span></a>
+        <a class="download-option secondary" id="free-download" href="https://llaun.ch/en" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-download" aria-hidden="true"></i><span id="free-download-label">I need the free launcher</span></a>
+      </div>
+      <button class="download-modal-close" id="download-modal-close" type="button">Cancel</button>
+    </div>
+  </div>
   <script src="theme.js" defer></script>
   <script>
     (() => {
@@ -110,18 +136,18 @@
           open:'Try to open Minecraft',tipTitle:'Need help?',tipText:'Make sure you are using Minecraft Java Edition and that the server address is typed correctly.',
           copied:'Server address copied!',failed:'Could not copy automatically. Please copy the address manually.',
           opened:'Trying to open Minecraft… If it does not open, launch the game manually.',
-          switch:'עברית',copyLabel:'Copy server address'
+          switch:'עברית',copyLabel:'Copy server address',downloadTitle:'Which version do you need?',downloadDescription:'Choose the option that matches your Minecraft copy.',paidDownload:'I purchased Minecraft',freeDownload:'I need the free launcher',cancel:'Cancel'
         },
         he:{
           back:'חזרה ל-EddyDev →',title:'איך משחקים בשרת <span>EddyDev?</span>',
-          one:'אם עדיין אין לך Minecraft, <a href="https://www.minecraft.net/download" target="_blank" rel="noopener noreferrer">אפשר להוריד אותו כאן</a>.',
+          one:'אם עדיין אין לך Minecraft, <a href="#" id="download-choice-link">אפשר להוריד אותו כאן</a>.',
           two:'הפעל את <strong>Minecraft Java Edition</strong>, היכנס ל־<strong>Multiplayer</strong> ולחץ על <strong>Add Server</strong>.',
           three:'הזן את כתובת השרת שלנו:',
           four:'לחץ על <strong>Done</strong>, בחר את <strong>EddyDev</strong> מרשימת השרתים ולחץ על <strong>Join Server</strong> כדי להתחיל לשחק!',
           open:'נסה לפתוח את Minecraft',tipTitle:'צריך עזרה?',tipText:'ודא שאתה משתמש ב־Minecraft Java Edition ושהזנת את כתובת השרת בצורה נכונה.',
           copied:'כתובת השרת הועתקה!',failed:'לא הצלחנו להעתיק אוטומטית. אפשר להעתיק את הכתובת ידנית.',
           opened:'מנסים לפתוח את Minecraft… אם המשחק לא נפתח, הפעל אותו ידנית.',
-          switch:'English',copyLabel:'העתק כתובת שרת'
+          switch:'English',copyLabel:'העתק כתובת שרת',downloadTitle:'איזו גרסה מתאימה לך?',downloadDescription:'בחר את האפשרות שמתאימה לעותק Minecraft שלך.',paidDownload:'רכשתי Minecraft',freeDownload:'אני רוצה להשתמש בלאנצ׳ר החינמי',cancel:'ביטול'
         }
       };
       function applyLanguage(){
@@ -141,7 +167,28 @@
         document.getElementById('tip-text').textContent=t.tipText;
         document.getElementById('copy-server').setAttribute('aria-label',t.copyLabel);
         document.getElementById('copy-server').title=t.copyLabel;
+        document.getElementById('download-modal-title').textContent=t.downloadTitle;
+        document.getElementById('download-modal-description').textContent=t.downloadDescription;
+        document.getElementById('paid-download-label').textContent=t.paidDownload;
+        document.getElementById('free-download-label').textContent=t.freeDownload;
+        document.getElementById('download-modal-close').textContent=t.cancel;
       }
+      const downloadModal=document.getElementById('download-modal');
+      function closeDownloadModal(){
+        downloadModal.classList.remove('is-open');
+        downloadModal.setAttribute('aria-hidden','true');
+      }
+      document.addEventListener('click',(event)=>{
+        if(event.target.closest('#download-choice-link')){
+          event.preventDefault();
+          downloadModal.classList.add('is-open');
+          downloadModal.setAttribute('aria-hidden','false');
+          document.getElementById('download-modal-close').focus();
+        }
+      });
+      document.getElementById('download-modal-close').addEventListener('click',closeDownloadModal);
+      downloadModal.addEventListener('click',(event)=>{if(event.target===downloadModal) closeDownloadModal();});
+      document.addEventListener('keydown',(event)=>{if(event.key==='Escape'&&downloadModal.classList.contains('is-open')) closeDownloadModal();});
       document.getElementById('language-toggle').addEventListener('click',()=>{
         lang=lang==='he'?'en':'he';
         try { localStorage.setItem('eddy-language',lang); } catch (_) {}
