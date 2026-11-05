@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const app = express();
 
 // Accept normal JSON and also the JSON-string body produced by some Minecraft/SkJson clients.
@@ -1328,6 +1329,361 @@ app.get('/api/player-profile', async (req, res) => {
         });
     }
 });
+
+
+
+// EddyWEB live support chat — website accounts are authenticated with Supabase,
+// while all Discord bridge calls stay server-to-server.
+function supportText(value, maxLength = 4000) {
+    return String(value ?? '').replace(/\u0000/g, '').trim().slice(0, maxLength);
+}
+
+function validSupportSecret(req) {
+    const expected = String(process.env.EDDYWEB_SUPPORT_SHARED_SECRET || '');
+    const supplied = String(req.headers['x-eddyweb-support-secret'] || '');
+    if (!expected || !supplied) return false;
+    const a = Buffer.from(expected);
+    const b = Buffer.from(supplied);
+    return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+async function callEddyBotSupport(endpoint, payload) {
+    const baseUrl = String(process.env.EDDYBOT_API_URL || '').trim().replace(/\/+$/, '');
+    const secret = String(process.env.EDDYWEB_SUPPORT_SHARED_SECRET || '');
+    if (!baseUrl || !secret) {
+        const error = new Error('EddyBot support bridge is not configured');
+        error.code = 'SUPPORT_BRIDGE_NOT_CONFIGURED';
+        throw error;
+    }
+
+    const response = await fetch(baseUrl + endpoint, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-eddyweb-support-secret': secret
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15000)
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result?.success === false) {
+        const error = new Error(result?.message || result?.error || 'EddyBot support bridge request failed');
+        error.status = response.status;
+        throw error;
+    }
+    return result;
+}
+
+async function getSupportAuthenticatedUser(req, res) {
+    const { conn, user } = await getAuthenticatedSupabaseUser(req);
+    if (!conn) {
+        res.status(503).json({ success: false, message: 'חיבור מסד הנתונים אינו זמין כרגע.' });
+        return null;
+    }
+    if (!user) {
+        res.status(401).json({ success: false, message: 'יש להתחבר לחשבון EddyDev כדי להשתמש בצ׳אט.' });
+        return null;
+    }
+    return user;
+}
+
+function getSupportDisplayName(user) {
+    const metadata = user?.user_metadata || {};
+    return supportText(
+        metadata.display_name || metadata.displayName || metadata.minecraft_username ||
+        metadata.full_name || user?.email?.split('@')[0] || 'EddyDev user',
+        64
+    );
+}
+
+async function getOwnedSupportTicket(ticketId, userId) {
+    const { data, error } = await supabaseClient
+        .from('support_tickets')
+        .select('id,user_id,display_name,subject,status,discord_channel_id,created_at,updated_at,closed_at')
+        .eq('id', ticketId)
+        .eq('user_id', userId)
+        .maybeSingle();
+    if (error) throw error;
+    return data || null;
+}
+
+async function getSupportMessages(ticketId) {
+    const { data, error } = await supabaseClient
+        .from('support_messages')
+        .select('id,ticket_id,sender_type,sender_id,sender_name,body,created_at')
+        .eq('ticket_id', ticketId)
+        .order('created_at', { ascending: true })
+        .limit(500);
+    if (error) throw error;
+    return data || [];
+}
+
+app.get('/api/support/ticket', async (req, res) => {
+    try {
+        const user = await getSupportAuthenticatedUser(req, res);
+        if (!user) return;
+        const { data: tickets, error } = await supabaseClient
+            .from('support_tickets')
+            .select('id,display_name,subject,status,created_at,updated_at,closed_at')
+            .eq('user_id', user.id)
+            .eq('status', 'open')
+            .order('created_at', { ascending: false })
+            .limit(1);
+        if (error) throw error;
+        const ticket = tickets?.[0] || null;
+        const messages = ticket ? await getSupportMessages(ticket.id) : [];
+        return res.set('Cache-Control', 'no-store').json({ success: true, ticket, messages });
+    } catch (error) {
+        console.error('Support ticket load error:', error?.message || error);
+        return res.status(503).json({ success: false, message: 'לא הצלחנו לטעון את שיחת התמיכה.' });
+    }
+});
+
+app.post('/api/support/tickets', async (req, res) => {
+    try {
+        const user = await getSupportAuthenticatedUser(req, res);
+        if (!user) return;
+
+        const subject = supportText(req.body?.subject, 100);
+        const firstMessage = supportText(req.body?.message, 4000);
+        if (subject.length < 2 || firstMessage.length < 2) {
+            return res.status(400).json({ success: false, message: 'יש למלא נושא והודעה (לפחות 2 תווים).' });
+        }
+
+        const { data: activeTickets, error: activeError } = await supabaseClient
+            .from('support_tickets')
+            .select('id,display_name,subject,status,created_at,updated_at')
+            .eq('user_id', user.id)
+            .eq('status', 'open')
+            .order('created_at', { ascending: false })
+            .limit(1);
+        if (activeError) throw activeError;
+        if (activeTickets?.length) {
+            const messages = await getSupportMessages(activeTickets[0].id);
+            return res.status(409).json({ success: false, message: 'כבר קיימת שיחת תמיכה פתוחה.', ticket: activeTickets[0], messages });
+        }
+
+        const ticketId = crypto.randomUUID();
+        const displayName = getSupportDisplayName(user);
+        const botResult = await callEddyBotSupport('/api/support/tickets', {
+            ticketId,
+            userId: user.id,
+            displayName,
+            subject,
+            firstMessage,
+            siteUrl: 'https://eddy-web-seven.vercel.app'
+        });
+        const channelId = supportText(botResult?.channelId, 32);
+        if (!channelId) throw new Error('EddyBot did not return a Discord channel ID');
+
+        const { data: ticket, error: ticketError } = await supabaseClient
+            .from('support_tickets')
+            .insert({
+                id: ticketId,
+                user_id: user.id,
+                display_name: displayName,
+                subject,
+                status: 'open',
+                discord_channel_id: channelId
+            })
+            .select('id,display_name,subject,status,created_at,updated_at')
+            .single();
+        if (ticketError) {
+            // Avoid leaving an inaccessible Discord channel if the database insert fails.
+            await callEddyBotSupport('/api/support/tickets/' + encodeURIComponent(ticketId) + '/close', {
+                ticketId,
+                reason: 'Database save failed'
+            }).catch(() => {});
+            throw ticketError;
+        }
+
+        const { error: messageError } = await supabaseClient
+            .from('support_messages')
+            .insert({
+                id: crypto.randomUUID(),
+                ticket_id: ticketId,
+                sender_type: 'user',
+                sender_id: user.id,
+                sender_name: displayName,
+                body: firstMessage
+            });
+        if (messageError) throw messageError;
+
+        const messages = await getSupportMessages(ticketId);
+        return res.status(201).set('Cache-Control', 'no-store').json({ success: true, ticket, messages });
+    } catch (error) {
+        console.error('Support ticket create error:', error?.message || error);
+        const notConfigured = error?.code === 'SUPPORT_BRIDGE_NOT_CONFIGURED';
+        return res.status(notConfigured ? 503 : 502).json({
+            success: false,
+            code: notConfigured ? 'SUPPORT_BRIDGE_NOT_CONFIGURED' : 'SUPPORT_BRIDGE_ERROR',
+            message: notConfigured
+                ? 'חיבור הבוט עדיין לא הוגדר בשרת. יש להגדיר את כתובת EddyBot ואת מפתח החיבור.'
+                : 'לא הצלחנו לפתוח טיקט בדיסקורד. נסה שוב בעוד רגע.'
+        });
+    }
+});
+
+app.get('/api/support/tickets/:ticketId', async (req, res) => {
+    try {
+        const user = await getSupportAuthenticatedUser(req, res);
+        if (!user) return;
+        const ticket = await getOwnedSupportTicket(req.params.ticketId, user.id);
+        if (!ticket) return res.status(404).json({ success: false, message: 'שיחת התמיכה לא נמצאה.' });
+        const messages = await getSupportMessages(ticket.id);
+        return res.set('Cache-Control', 'no-store').json({
+            success: true,
+            ticket: {
+                id: ticket.id,
+                display_name: ticket.display_name,
+                subject: ticket.subject,
+                status: ticket.status,
+                created_at: ticket.created_at,
+                updated_at: ticket.updated_at,
+                closed_at: ticket.closed_at
+            },
+            messages
+        });
+    } catch (error) {
+        console.error('Support conversation load error:', error?.message || error);
+        return res.status(503).json({ success: false, message: 'לא הצלחנו לטעון את השיחה.' });
+    }
+});
+
+app.post('/api/support/tickets/:ticketId/messages', async (req, res) => {
+    try {
+        const user = await getSupportAuthenticatedUser(req, res);
+        if (!user) return;
+        const ticket = await getOwnedSupportTicket(req.params.ticketId, user.id);
+        if (!ticket) return res.status(404).json({ success: false, message: 'שיחת התמיכה לא נמצאה.' });
+        if (ticket.status !== 'open') return res.status(409).json({ success: false, message: 'השיחה סגורה. פתח שיחה חדשה כדי להמשיך.' });
+
+        const body = supportText(req.body?.message, 4000);
+        if (body.length < 1) return res.status(400).json({ success: false, message: 'לא ניתן לשלוח הודעה ריקה.' });
+
+        const messageId = crypto.randomUUID();
+        const senderName = getSupportDisplayName(user);
+        const botResult = await callEddyBotSupport(
+            '/api/support/tickets/' + encodeURIComponent(ticket.id) + '/messages',
+            { ticketId: ticket.id, messageId, senderName, content: body }
+        );
+        const discordMessageId = supportText(botResult?.discordMessageId, 32);
+        if (!discordMessageId) throw new Error('EddyBot did not return a Discord message ID');
+
+        const { data: message, error } = await supabaseClient
+            .from('support_messages')
+            .insert({
+                id: messageId,
+                ticket_id: ticket.id,
+                sender_type: 'user',
+                sender_id: user.id,
+                sender_name: senderName,
+                body,
+                discord_message_id: discordMessageId
+            })
+            .select('id,ticket_id,sender_type,sender_id,sender_name,body,created_at')
+            .single();
+        if (error) throw error;
+        await supabaseClient.from('support_tickets')
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', ticket.id);
+        return res.status(201).set('Cache-Control', 'no-store').json({ success: true, message });
+    } catch (error) {
+        console.error('Support message send error:', error?.message || error);
+        return res.status(502).json({ success: false, message: 'לא הצלחנו לשלוח את ההודעה. נסה שוב.' });
+    }
+});
+
+app.post('/api/support/tickets/:ticketId/close', async (req, res) => {
+    try {
+        const user = await getSupportAuthenticatedUser(req, res);
+        if (!user) return;
+        const ticket = await getOwnedSupportTicket(req.params.ticketId, user.id);
+        if (!ticket) return res.status(404).json({ success: false, message: 'שיחת התמיכה לא נמצאה.' });
+        if (ticket.status === 'closed') return res.json({ success: true, ticket });
+
+        await callEddyBotSupport(
+            '/api/support/tickets/' + encodeURIComponent(ticket.id) + '/close',
+            { ticketId: ticket.id, reason: 'Closed by website user' }
+        );
+        const { data: updated, error } = await supabaseClient
+            .from('support_tickets')
+            .update({ status: 'closed', closed_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+            .eq('id', ticket.id)
+            .eq('user_id', user.id)
+            .select('id,display_name,subject,status,created_at,updated_at,closed_at')
+            .single();
+        if (error) throw error;
+        return res.json({ success: true, ticket: updated });
+    } catch (error) {
+        console.error('Support ticket close error:', error?.message || error);
+        return res.status(502).json({ success: false, message: 'לא הצלחנו לסגור את השיחה.' });
+    }
+});
+
+// Discord staff replies arrive here. This endpoint accepts only the private bot secret,
+// and it verifies the ticket/channel pair before saving the message.
+app.post('/api/support/internal/discord-message', async (req, res) => {
+    if (!process.env.EDDYWEB_SUPPORT_SHARED_SECRET) {
+        return res.status(503).json({ success: false, message: 'Support bridge secret is not configured' });
+    }
+    if (!validSupportSecret(req)) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+    try {
+        const ticketId = supportText(req.body?.ticketId, 36);
+        const channelId = supportText(req.body?.channelId, 32);
+        const discordMessageId = supportText(req.body?.discordMessageId, 32);
+        const senderId = supportText(req.body?.senderId, 32);
+        const senderName = supportText(req.body?.senderName, 80) || 'EddyDev Staff';
+        const body = supportText(req.body?.content, 4000);
+        if (!/^[0-9a-f-]{36}$/i.test(ticketId) || !/^\d{17,20}$/.test(channelId) ||
+            !/^\d{17,20}$/.test(discordMessageId) || body.length < 1) {
+            return res.status(400).json({ success: false, message: 'Invalid support message payload' });
+        }
+
+        const { data: ticket, error: ticketError } = await supabaseClient
+            .from('support_tickets')
+            .select('id,discord_channel_id,status')
+            .eq('id', ticketId)
+            .maybeSingle();
+        if (ticketError) throw ticketError;
+        if (!ticket || ticket.discord_channel_id !== channelId || ticket.status !== 'open') {
+            return res.status(404).json({ success: false, message: 'Ticket not found or closed' });
+        }
+
+        const { data: existing, error: existingError } = await supabaseClient
+            .from('support_messages')
+            .select('id')
+            .eq('discord_message_id', discordMessageId)
+            .limit(1);
+        if (existingError) throw existingError;
+        if (existing?.length) return res.json({ success: true, duplicate: true });
+
+        const { error: insertError } = await supabaseClient
+            .from('support_messages')
+            .insert({
+                id: crypto.randomUUID(),
+                ticket_id: ticketId,
+                sender_type: 'staff',
+                sender_id: senderId || null,
+                sender_name: senderName,
+                body,
+                discord_message_id: discordMessageId
+            });
+        if (insertError) {
+            if (insertError.code === '23505') return res.json({ success: true, duplicate: true });
+            throw insertError;
+        }
+        await supabaseClient.from('support_tickets')
+            .update({ updated_at: new Date().toISOString() })
+            .eq('id', ticketId);
+        return res.json({ success: true });
+    } catch (error) {
+        console.error('Discord support reply sync error:', error?.message || error);
+        return res.status(500).json({ success: false, message: 'Could not save Discord reply' });
+    }
+});
+
 
 // Vercel imports the Express app as a serverless function. Keep local/Render support too.
 if (require.main === module) {
