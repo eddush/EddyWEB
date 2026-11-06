@@ -41,6 +41,9 @@
       discordConnectError: 'לא ניתן לחבר את Discord כרגע. בדוק שהחיבור מוגדר ב-Supabase ונסה שוב.',
       discordDisconnectConfirm: 'לנתק את חשבון Discord מחשבון EddyWEB?',
       discordDisconnected: 'חשבון Discord נותק בהצלחה.',
+      discordLogin: 'התחברות / הרשמה דרך Discord',
+      discordLoginLoading: 'מעביר אותך ל-Discord…',
+      discordLoginError: 'לא ניתן להתחבר דרך Discord. בדוק שהספק מופעל ב-Supabase.',
       language: 'English',
       login: 'התחברות',
       signup: 'יצירת חשבון',
@@ -200,7 +203,10 @@
       discordConnected: 'Discord account connected:',
       discordConnectError: 'Could not connect Discord. Check that the provider is configured in Supabase and try again.',
       discordDisconnectConfirm: 'Disconnect your Discord account from EddyWEB?',
-      discordDisconnected: 'Discord account disconnected successfully.'
+      discordDisconnected: 'Discord account disconnected successfully.',
+      discordLogin: 'Sign in / Sign up with Discord',
+      discordLoginLoading: 'Redirecting to Discord…',
+      discordLoginError: 'Could not sign in with Discord. Check that the provider is enabled in Supabase.'
     }
   };
 
@@ -488,6 +494,28 @@
 
   $('tab-login').addEventListener('click', () => { mode = 'login'; setStatus('auth-status', ''); renderMode(); });
   $('tab-signup').addEventListener('click', () => { mode = 'signup'; setStatus('auth-status', ''); renderMode(); });
+
+  $('discord-login-start').addEventListener('click', async () => {
+    const button = $('discord-login-start');
+    button.disabled = true;
+    setStatus('auth-status', t().discordLoginLoading, 'loading');
+    try {
+      const { data, error } = await client.auth.signInWithOAuth({
+        provider: 'discord',
+        options: {
+          redirectTo: loginUrl,
+          scopes: 'identify email'
+        }
+      });
+      if (error) throw error;
+      if (data?.url) window.location.assign(data.url);
+      else throw new Error('Discord authorization URL was not returned');
+    } catch (error) {
+      console.warn('Discord sign-in failed:', error);
+      setStatus('auth-status', t().discordLoginError, 'error');
+      button.disabled = false;
+    }
+  });
 
   $('auth-form').addEventListener('submit', async (event) => {
     event.preventDefault();
