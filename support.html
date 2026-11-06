@@ -45,14 +45,20 @@
     <section class="info-card support-card" id="support-chat" hidden>
       <div class="support-chat-heading">
         <div><span class="support-live-dot"></span><strong id="support-open-label">שיחה פתוחה</strong><h2 id="support-chat-subject"></h2></div>
-        <button class="btn support-close-button" id="support-close-button" type="button"><i class="fa-solid fa-lock"></i> <span id="support-close-label">סגירת שיחה</span></button>
+        <div class="support-chat-actions">
+          <label class="support-ai-switch" for="support-ai-mode">
+            <span class="support-ai-switch-copy"><strong id="support-ai-mode-title">מצב AI</strong><small id="support-ai-mode-description">כשהמצב פעיל, ה-AI יענה אוטומטית להודעות שלך</small></span>
+            <input id="support-ai-mode" type="checkbox" role="switch" aria-label="מצב AI">
+            <span class="support-ai-switch-track" aria-hidden="true"><span></span></span>
+          </label>
+          <button class="btn support-close-button" id="support-close-button" type="button"><i class="fa-solid fa-lock"></i> <span id="support-close-label">סגירת שיחה</span></button>
+        </div>
       </div>
       <div class="support-messages" id="support-messages" aria-live="polite" aria-label="Conversation messages"></div>
       <form class="support-reply-form" id="support-reply-form">
         <textarea id="support-reply" maxlength="4000" rows="2" required placeholder="כתבו הודעה..."></textarea>
         <button class="btn primary" id="support-send-button" type="submit" aria-label="שליחת הודעה"><i class="fa-solid fa-paper-plane"></i></button>
       </form>
-      <button class="btn support-ai-button" id="support-ai-button" type="button"><i class="fa-solid fa-wand-magic-sparkles"></i> <span id="support-ai-label">קבל תשובה מה-AI</span></button>
       <p class="support-status" id="support-chat-status" role="status" aria-live="polite"></p>
     </section>
     <p class="support-footer-note" id="support-footer-note">הודעות הצ׳אט מועברות לצוות דרך Discord. אין צורך לפתוח Discord כדי לקבל תשובה.</p>
