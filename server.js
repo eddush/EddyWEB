@@ -1612,9 +1612,6 @@ app.post('/api/support/tickets', async (req, res) => {
             });
         if (messageError) throw messageError;
 
-        // Groq answers immediately; the same conversation remains visible to the human staff team.
-        await saveSupportAIReply(ticketId, firstMessage);
-
         const messages = await getSupportMessages(ticketId);
         return res.status(201).set('Cache-Control', 'no-store').json({ success: true, ticket, messages });
     } catch (error) {
@@ -1694,13 +1691,40 @@ app.post('/api/support/tickets/:ticketId/messages', async (req, res) => {
             .update({ updated_at: new Date().toISOString() })
             .eq('id', ticket.id);
 
-        // Generate an AI response after saving the user's message. If Groq is unavailable,
-        // the human Discord support flow continues to work unchanged.
-        const aiMessage = await saveSupportAIReply(ticket.id, body);
-        return res.status(201).set('Cache-Control', 'no-store').json({ success: true, message, aiMessage });
+        // AI replies are generated only when the user explicitly requests one.
+        return res.status(201).set('Cache-Control', 'no-store').json({ success: true, message });
     } catch (error) {
         console.error('Support message send error:', error?.message || error);
         return res.status(502).json({ success: false, message: 'לא הצלחנו לשלוח את ההודעה. נסה שוב.' });
+    }
+});
+
+app.post('/api/support/tickets/:ticketId/ai-reply', async (req, res) => {
+    try {
+        const user = await getSupportAuthenticatedUser(req, res);
+        if (!user) return;
+        const ticket = await getOwnedSupportTicket(req.params.ticketId, user.id);
+        if (!ticket) return res.status(404).json({ success: false, message: 'שיחת התמיכה לא נמצאה.' });
+        if (ticket.status !== 'open') return res.status(409).json({ success: false, message: 'השיחה סגורה.' });
+        if (!process.env.GROQ_API_KEY) {
+            return res.status(503).json({ success: false, message: 'שירות ה-AI אינו מוגדר כרגע.' });
+        }
+
+        const history = await getSupportMessages(ticket.id);
+        const lastUserMessage = [...history].reverse().find(item => item.sender_type === 'user');
+        if (!lastUserMessage) {
+            return res.status(400).json({ success: false, message: 'שלחו הודעה לפני שמבקשים תשובת AI.' });
+        }
+
+        const aiMessage = await saveSupportAIReply(ticket.id, lastUserMessage.body);
+        if (!aiMessage) {
+            return res.status(502).json({ success: false, message: 'לא הצלחנו לקבל תשובה מה-AI. נסו שוב.' });
+        }
+
+        return res.set('Cache-Control', 'no-store').json({ success: true, message: aiMessage });
+    } catch (error) {
+        console.error('Manual support AI reply error:', error?.message || error);
+        return res.status(500).json({ success: false, message: 'אירעה שגיאה ביצירת תשובת AI.' });
     }
 });
 
