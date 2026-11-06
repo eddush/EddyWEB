@@ -1483,10 +1483,11 @@ async function generateSupportAIReply(ticketId, userMessage) {
 async function saveSupportAIReply(ticketId, userMessage) {
     const answer = await generateSupportAIReply(ticketId, userMessage);
     if (!answer) return null;
+    const messageId = crypto.randomUUID();
     const { data, error } = await supabaseClient
         .from('support_messages')
         .insert({
-            id: crypto.randomUUID(),
+            id: messageId,
             ticket_id: ticketId,
             sender_type: 'staff',
             sender_name: 'EddyDev AI',
@@ -1498,10 +1499,34 @@ async function saveSupportAIReply(ticketId, userMessage) {
         console.error('Could not save EddyDev AI reply:', error?.message || error);
         return null;
     }
+
+    // Mirror the exact AI answer into the linked Discord ticket through EddyBot.
+    let discordSynced = false;
+    try {
+        const botResult = await callEddyBotSupport(
+            '/api/support/tickets/' + encodeURIComponent(ticketId) + '/messages',
+            { ticketId, messageId, senderName: 'EddyDev AI', content: answer }
+        );
+        const discordMessageId = supportText(botResult?.discordMessageId, 32);
+        if (discordMessageId) {
+            const { error: syncError } = await supabaseClient
+                .from('support_messages')
+                .update({ discord_message_id: discordMessageId })
+                .eq('id', messageId)
+                .eq('ticket_id', ticketId);
+            if (syncError) throw syncError;
+            discordSynced = true;
+        } else {
+            throw new Error('EddyBot did not return a Discord message ID');
+        }
+    } catch (discordError) {
+        console.error('Could not mirror EddyDev AI reply to Discord:', discordError?.message || discordError);
+    }
+
     await supabaseClient.from('support_tickets')
         .update({ updated_at: new Date().toISOString() })
         .eq('id', ticketId);
-    return data;
+    return { ...data, discord_synced: discordSynced };
 }
 
 app.get('/api/support/ticket', async (req, res) => {
