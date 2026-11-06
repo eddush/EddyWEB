@@ -231,6 +231,7 @@
       'account-title': x.title,
       'account-intro': x.intro,
       'minecraft-login-label': x.minecraftLogin,
+      'discord-login-label': x.discordLogin,
       'minecraft-login-instructions': x.minecraftLoginInstructions,
       'minecraft-login-or': x.minecraftLoginOr,
       'link-email-heading': x.linkEmailHeading,
