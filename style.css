@@ -2058,3 +2058,9 @@ html[lang="he"] :is(nav a, p, small, label, input, textarea, select, button, .ba
 html[dir="rtl"] :is(nav a, p, small, label, input, textarea, select, button, .badge, .staff-row, .news-date, .news-author, .textbtn, .news-btn, footer) {
   font-family: 'Rubik', Arial, sans-serif !important;
 }
+
+/* Match the visible size of Hebrew pixel lettering to the English Press Start 2P text. */
+html[lang="he"] :is(h1, h2, h3, .logo, .btn),
+html[dir="rtl"] :is(h1, h2, h3, .logo, .btn) {
+  font-size-adjust: 0.72;
+}
