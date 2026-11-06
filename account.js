@@ -33,6 +33,14 @@
       linkEmailSending: 'שולח הודעת אימות…',
       linkEmailSent: 'נשלח קישור אימות לכתובת הדוא״ל. פתח אותו כדי להשלים את החיבור.',
       linkEmailError: 'לא ניתן לחבר את כתובת הדוא״ל כרגע. נסה שוב.',
+      discordHeading: 'חיבור חשבון Discord',
+      discordDescription: 'חבר את חשבון Discord שלך כדי להציג אותו בפרופיל EddyWEB.',
+      discordConnect: 'חבר חשבון Discord',
+      discordDisconnect: 'נתק חשבון Discord',
+      discordConnected: 'חשבון Discord מחובר:',
+      discordConnectError: 'לא ניתן לחבר את Discord כרגע. בדוק שהחיבור מוגדר ב-Supabase ונסה שוב.',
+      discordDisconnectConfirm: 'לנתק את חשבון Discord מחשבון EddyWEB?',
+      discordDisconnected: 'חשבון Discord נותק בהצלחה.',
       language: 'English',
       login: 'התחברות',
       signup: 'יצירת חשבון',
@@ -184,7 +192,15 @@
       deletingAccount: 'Deleting account...',
       accountDeleted: 'Your account has been deleted.',
       disconnectError: 'Could not disconnect Minecraft right now. Please try again.',
-      deleteAccountError: 'Could not delete the account right now. Please try again.'
+      deleteAccountError: 'Could not delete the account right now. Please try again.',
+      discordHeading: 'Connect Discord account',
+      discordDescription: 'Connect your Discord account to display it on your EddyWEB profile.',
+      discordConnect: 'Connect Discord account',
+      discordDisconnect: 'Disconnect Discord account',
+      discordConnected: 'Discord account connected:',
+      discordConnectError: 'Could not connect Discord. Check that the provider is configured in Supabase and try again.',
+      discordDisconnectConfirm: 'Disconnect your Discord account from EddyWEB?',
+      discordDisconnected: 'Discord account disconnected successfully.'
     }
   };
 
@@ -351,6 +367,7 @@
     $('profile-minecraft').value = metadata.minecraft_username || '';
     setStatus('profile-status', statusText, statusText ? 'success' : '');
     renderMinecraftLink(user);
+    renderDiscordLink(user);
     loadLinkedMinecraftPlayer(user);
   }
 
@@ -654,6 +671,75 @@
       console.warn('Email linking failed:', error);
       const message = String(error?.message || '').trim();
       setStatus('link-email-status', message && message !== 'Email link failed' && message !== 'No active session' ? message : t().linkEmailError, 'error');
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  function renderDiscordLink(user) {
+    const identity = (user?.identities || []).find(item => item.provider === 'discord');
+    const connectButton = $('discord-connect');
+    const disconnectButton = $('discord-disconnect');
+    const status = $('discord-linked-status');
+    if (!connectButton || !disconnectButton || !status) return;
+    if (identity) {
+      const profile = identity.identity_data || {};
+      const display = profile.global_name || profile.username || profile.full_name || profile.name || identity.id || 'Discord';
+      status.textContent = t().discordConnected + ' ' + display;
+      status.dataset.kind = 'success';
+      connectButton.hidden = true;
+      disconnectButton.hidden = false;
+    } else {
+      status.textContent = t().discordDescription;
+      status.dataset.kind = '';
+      connectButton.hidden = false;
+      disconnectButton.hidden = true;
+    }
+    connectButton.textContent = t().discordConnect;
+    disconnectButton.textContent = t().discordDisconnect;
+  }
+
+  $('discord-connect').addEventListener('click', async () => {
+    if (!currentUser) return;
+    const button = $('discord-connect');
+    button.disabled = true;
+    setStatus('discord-linked-status', language === 'he' ? 'מעביר אותך לאישור ב-Discord…' : 'Redirecting to Discord for authorization…', 'loading');
+    try {
+      const { data, error } = await client.auth.linkIdentity({
+        provider: 'discord',
+        options: {
+          redirectTo: new URL('/account.html', window.location.origin).href,
+          scopes: 'identify'
+        }
+      });
+      if (error) throw error;
+      if (!data?.url) throw new Error('Discord authorization URL was not returned');
+      window.location.assign(data.url);
+    } catch (error) {
+      console.warn('Discord identity linking failed:', error);
+      setStatus('discord-linked-status', t().discordConnectError, 'error');
+      button.disabled = false;
+    }
+  });
+
+  $('discord-disconnect').addEventListener('click', async () => {
+    if (!currentUser) return;
+    if (!window.confirm(t().discordDisconnectConfirm)) return;
+    const button = $('discord-disconnect');
+    button.disabled = true;
+    try {
+      const { data, error } = await client.auth.getUser();
+      if (error) throw error;
+      const identity = (data.user?.identities || []).find(item => item.provider === 'discord');
+      if (!identity) throw new Error('Discord identity is not linked');
+      const { error: unlinkError } = await client.auth.unlinkIdentity(identity);
+      if (unlinkError) throw unlinkError;
+      const { data: refreshed, error: refreshError } = await client.auth.getUser();
+      if (refreshError) throw refreshError;
+      showProfile(refreshed.user, t().discordDisconnected);
+    } catch (error) {
+      console.warn('Discord identity unlinking failed:', error);
+      setStatus('discord-linked-status', t().discordConnectError, 'error');
     } finally {
       button.disabled = false;
     }
