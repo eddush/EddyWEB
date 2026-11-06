@@ -379,6 +379,10 @@ function getDatabaseConnection() {
     };
 }
 
+// Initialize the shared Supabase client before any support route uses supabaseClient.
+// Without this, Discord replies reach this server but fail with `null.from(...)`.
+getDatabaseConnection();
+
 // Public staff list. Use the same LuckPerms user-permission source as the player profile lookup.
 // Only a direct, enabled group.staff node counts; expired assignments are ignored.
 async function getOnlineMinecraftNames() {
