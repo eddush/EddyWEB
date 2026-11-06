@@ -1506,13 +1506,28 @@ app.get('/api/support/ticket', async (req, res) => {
         if (!user) return;
         const { data: tickets, error } = await supabaseClient
             .from('support_tickets')
-            .select('id,display_name,subject,status,created_at,updated_at,closed_at')
+            .select('id,display_name,subject,status,discord_channel_id,discord_user_id,created_at,updated_at,closed_at')
             .eq('user_id', user.id)
             .eq('status', 'open')
             .order('created_at', { ascending: false })
             .limit(1);
         if (error) throw error;
         const ticket = tickets?.[0] || null;
+        const linkedDiscordId = getSupportDiscordId(user);
+        if (ticket && linkedDiscordId && ticket.discord_channel_id && ticket.discord_user_id !== linkedDiscordId) {
+            await callEddyBotSupport('/api/support/tickets', {
+                ticketId: ticket.id,
+                userId: user.id,
+                discordUserId: linkedDiscordId,
+                displayName: ticket.display_name,
+                subject: ticket.subject,
+                firstMessage: 'המשתמש חיבר Discord לטיקט הקיים.'
+            });
+            const { error: linkError } = await supabaseClient.from('support_tickets')
+                .update({ discord_user_id: linkedDiscordId, updated_at: new Date().toISOString() })
+                .eq('id', ticket.id).eq('user_id', user.id);
+            if (linkError) throw linkError;
+        }
         const messages = ticket ? await getSupportMessages(ticket.id) : [];
         return res.set('Cache-Control', 'no-store').json({ success: true, ticket, messages });
     } catch (error) {
