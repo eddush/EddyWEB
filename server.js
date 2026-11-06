@@ -1387,6 +1387,13 @@ async function getSupportAuthenticatedUser(req, res) {
     return user;
 }
 
+function getSupportDiscordId(user) {
+    const identity = (Array.isArray(user?.identities) ? user.identities : [])
+        .find(item => String(item?.provider || '').toLowerCase() === 'discord');
+    const id = String(identity?.provider_id || identity?.identity_data?.id || identity?.identity_data?.sub || '').trim();
+    return /^\d{17,20}$/.test(id) ? id : null;
+}
+
 function getSupportDisplayName(user) {
     const metadata = user?.user_metadata || {};
     return supportText(
@@ -1399,7 +1406,7 @@ function getSupportDisplayName(user) {
 async function getOwnedSupportTicket(ticketId, userId) {
     const { data, error } = await supabaseClient
         .from('support_tickets')
-        .select('id,user_id,display_name,subject,status,discord_channel_id,created_at,updated_at,closed_at')
+        .select('id,user_id,display_name,subject,status,discord_channel_id,discord_user_id,created_at,updated_at,closed_at')
         .eq('id', ticketId)
         .eq('user_id', userId)
         .maybeSingle();
@@ -1543,6 +1550,7 @@ app.post('/api/support/tickets', async (req, res) => {
         const botResult = await callEddyBotSupport('/api/support/tickets', {
             ticketId,
             userId: user.id,
+            discordUserId: getSupportDiscordId(user),
             displayName,
             subject,
             firstMessage,
@@ -1559,7 +1567,8 @@ app.post('/api/support/tickets', async (req, res) => {
                 display_name: displayName,
                 subject,
                 status: 'open',
-                discord_channel_id: channelId
+                discord_channel_id: channelId,
+                discord_user_id: getSupportDiscordId(user)
             })
             .select('id,display_name,subject,status,created_at,updated_at')
             .single();
@@ -1717,6 +1726,7 @@ app.post('/api/support/internal/discord-message', async (req, res) => {
         const discordMessageId = supportText(req.body?.discordMessageId, 32);
         const senderId = supportText(req.body?.senderId, 32);
         const senderName = supportText(req.body?.senderName, 80) || 'EddyDev Staff';
+        const senderType = req.body?.senderType === 'user' ? 'user' : 'staff';
         const body = supportText(req.body?.content, 4000);
         if (!/^[0-9a-f-]{36}$/i.test(ticketId) || !/^\d{17,20}$/.test(channelId) ||
             !/^\d{17,20}$/.test(discordMessageId) || body.length < 1) {
@@ -1725,12 +1735,15 @@ app.post('/api/support/internal/discord-message', async (req, res) => {
 
         const { data: ticket, error: ticketError } = await supabaseClient
             .from('support_tickets')
-            .select('id,discord_channel_id,status')
+            .select('id,discord_channel_id,discord_user_id,status')
             .eq('id', ticketId)
             .maybeSingle();
         if (ticketError) throw ticketError;
         if (!ticket || ticket.discord_channel_id !== channelId || ticket.status !== 'open') {
             return res.status(404).json({ success: false, message: 'Ticket not found or closed' });
+        }
+        if (senderType === 'user' && (!ticket.discord_user_id || ticket.discord_user_id !== senderId)) {
+            return res.status(403).json({ success: false, message: 'Discord user is not the owner of this ticket' });
         }
 
         const { data: existing, error: existingError } = await supabaseClient
@@ -1746,7 +1759,7 @@ app.post('/api/support/internal/discord-message', async (req, res) => {
             .insert({
                 id: crypto.randomUUID(),
                 ticket_id: ticketId,
-                sender_type: 'staff',
+                sender_type: senderType,
                 sender_id: senderId || null,
                 sender_name: senderName,
                 body,
