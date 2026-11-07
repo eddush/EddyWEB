@@ -3,7 +3,7 @@ const DISCORD_API = 'https://eddy-bot-lyvo.onrender.com/api/discord';
 
 const translations = {
   en: {
-    navServer: 'Server', navDiscord: 'Discord', navContact: 'Contact', navNews: 'News', navPlayer: 'Player Info', navStaff: 'Staff', navRules: 'Rules', navAccount: 'Sign in / Log in', lang: 'עברית',
+    navServer: 'Server', navDiscord: 'Discord', navContact: 'Contact', navNews: 'News', navPlayer: 'Player Info', navStaff: 'Staff', navRules: 'Rules', navAccount: 'Sign in / Log in', lang: 'HE',
     badge: 'MINECRAFT COMMUNITY', heroTitle: 'Welcome to <span>EddyDev</span>',
     heroText: 'The home of our Minecraft community. Join, play, and become part of the community.',
     copy: 'Copy IP', copied: '✓ IP copied!', join: 'Join Server', statusTitle: 'Server Status', online: 'Online', offline: 'Offline',
@@ -20,7 +20,7 @@ const translations = {
     available: (o, t) => `${o} / ${t} available`, staffFail: 'Unable to check staff availability'
   },
   he: {
-    navServer: 'השרת', navDiscord: 'Discord', navContact: 'צור קשר', navNews: 'חדשות', navPlayer: 'מידע על השחקן', navStaff: 'צוות', navRules: 'חוקים', navAccount: 'התחברות / כניסה', lang: 'English',
+    navServer: 'השרת', navDiscord: 'Discord', navContact: 'צור קשר', navNews: 'חדשות', navPlayer: 'מידע על השחקן', navStaff: 'צוות', navRules: 'חוקים', navAccount: 'התחברות / כניסה', lang: 'EN',
     badge: 'קהילת MINECRAFT', heroTitle: 'ברוכים הבאים ל־<span>EddyDev</span>',
     heroText: 'הבית של קהילת Minecraft שלנו. היכנסו, שחקו והצטרפו לקהילה.',
     copy: 'העתק IP', copied: '✓ ה־IP הועתק!', join: 'כניסה לשרת', statusTitle: 'סטטוס השרת', online: 'מחובר', offline: 'לא מחובר',
@@ -97,7 +97,7 @@ function applyLanguage() {
     accountLabel.textContent = x.navAccount;
   }
   window.eddyHomeAccount?.syncLanguage?.();
-  document.getElementById('lang-toggle').textContent = x.lang;
+  const languageButton = document.getElementById('lang-toggle');\n  languageButton.textContent = x.lang;\n  languageButton.setAttribute('aria-label', language === 'he' ? 'Switch language to English' : 'החלפת שפה לעברית');\n  languageButton.title = languageButton.getAttribute('aria-label');
   document.querySelector('.badge').lastChild.textContent = x.badge;
   document.querySelector('.hero h1').innerHTML = x.heroTitle; document.querySelector('.hero p').textContent = x.heroText;
   document.querySelector('.ip button').textContent = x.copy; document.querySelector('.btn.primary').textContent = x.join;
