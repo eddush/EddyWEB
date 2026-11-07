@@ -2255,3 +2255,33 @@ html[dir="rtl"] :is(h1, h2, h3, .logo, .btn) {
   .card, .news-card, .large-news-card { padding: 15px !important; }
   .actions .btn { flex: 1 1 130px; }
 }
+
+
+/* Theme toggle stays fixed in the viewport's top-right corner, outside page controls. */
+html[data-theme] body > #theme-toggle,
+html[data-theme] body > .theme-floating-toggle {
+  position: fixed !important;
+  top: max(14px, env(safe-area-inset-top)) !important;
+  right: max(14px, env(safe-area-inset-right)) !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 2147483000 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 116px !important;
+  min-height: 44px !important;
+  margin: 0 !important;
+  pointer-events: auto !important;
+  isolation: isolate;
+}
+@media (max-width: 640px) {
+  html[data-theme] body > #theme-toggle,
+  html[data-theme] body > .theme-floating-toggle {
+    top: max(10px, env(safe-area-inset-top)) !important;
+    right: max(10px, env(safe-area-inset-right)) !important;
+    min-width: 104px !important;
+    min-height: 40px !important;
+    padding: 8px 11px !important;
+  }
+}
