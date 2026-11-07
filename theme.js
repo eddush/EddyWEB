@@ -20,22 +20,6 @@
     button.classList.add('theme-floating-toggle');
     button.type = 'button';
 
-    // Keep the language/navigation controls clear of the fixed theme button.
-    if (!document.getElementById('theme-layout-spacing')) {
-      const spacing = document.createElement('style');
-      spacing.id = 'theme-layout-spacing';
-      spacing.textContent = `
-        @media (min-width: 641px) {
-          header { padding-right: 174px !important; }
-        }
-        @media (max-width: 640px) {
-          header { padding-top: calc(62px + env(safe-area-inset-top)) !important; }
-          header nav { margin-top: 0 !important; }
-        }
-      `;
-      document.head.appendChild(spacing);
-    }
-
     const he = (() => {
       try { return localStorage.getItem('eddy-language') === 'he'; }
       catch (_) { return document.documentElement.lang === 'he'; }
