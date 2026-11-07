@@ -15,7 +15,7 @@
     document.body.dataset.theme = selected;
     document.documentElement.style.colorScheme = selected;
     const button = document.getElementById('theme-toggle') || createButton();
-    button.classList.add('theme-floating-toggle');
+    // Keep the theme control outside the header/navigation so it cannot overlap other buttons.\n    if (button.parentElement !== document.body) document.body.appendChild(button);\n    button.classList.add('theme-floating-toggle');
     button.type = 'button';
     const he = (() => { try { return localStorage.getItem('eddy-language') === 'he'; } catch (_) { return document.documentElement.lang === 'he'; } })();
     const labels = he ? { dark: 'מצב כהה', light: 'מצב בהיר', toLight: 'החלפה למצב בהיר', toDark: 'החלפה למצב כהה' } : { dark: 'Dark mode', light: 'Light mode', toLight: 'Switch to light mode', toDark: 'Switch to dark mode' };
