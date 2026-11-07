@@ -2329,3 +2329,143 @@ html[data-theme] body > .theme-floating-toggle i {
     font-size: 14px !important;
   }
 }
+
+
+/* Tablet layouts: portrait and landscape (iPad and Android tablets). */
+@media (min-width: 641px) and (max-width: 1180px) {
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  header {
+    width: 100%;
+    max-width: 100%;
+    padding: 78px 22px 18px !important;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  header .logo {
+    font-size: clamp(14px, 2vw, 18px);
+  }
+
+  header nav,
+  nav {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+  }
+
+  nav a, nav .lang-btn {
+    min-height: 42px;
+    padding: 9px 12px;
+  }
+
+  main, .top-container, .cards, .hero, .info-hero,
+  .player-page, .staff-page, .rules-page, .account-page,
+  .admin-container, .article-container, .large-news-container {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .hero {
+    padding-inline: 22px;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    padding-inline: 18px;
+  }
+
+  .card, .news-card, .large-news-card, .player-info-card,
+  .info-card, .rule-item, .staff-member, .login-box {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .top-container,
+  html[dir="rtl"] .top-container {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "hero" "news";
+    gap: 24px;
+  }
+
+  .top-container .news-section {
+    max-width: 760px;
+    margin-inline: auto;
+  }
+
+  .ip {
+    max-width: min(620px, 100%);
+  }
+
+  table {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Tablet portrait: prioritize vertical flow and comfortable touch targets. */
+@media (min-width: 641px) and (max-width: 900px) and (orientation: portrait) {
+  header {
+    padding-top: 82px !important;
+  }
+
+  .cards {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 760px;
+    margin-inline: auto;
+  }
+
+  .hero {
+    margin-top: 28px;
+    margin-bottom: 42px;
+  }
+
+  .hero h1, h1 {
+    font-size: clamp(28px, 5vw, 46px);
+  }
+
+  .large-news-card {
+    padding: 24px;
+  }
+}
+
+/* Tablet landscape: use the extra width without allowing navigation collisions. */
+@media (min-width: 901px) and (max-width: 1180px) and (orientation: landscape) {
+  header {
+    padding: 78px 28px 18px !important;
+  }
+
+  header nav, nav {
+    flex: 1 1 auto;
+    width: auto;
+    justify-content: flex-end;
+  }
+
+  .cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .top-container,
+  html[dir="rtl"] .top-container {
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+    grid-template-areas: "news hero";
+    gap: 20px;
+  }
+
+  html[dir="rtl"] .top-container {
+    grid-template-areas: "hero news";
+  }
+}
