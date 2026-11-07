@@ -97,7 +97,12 @@ function applyLanguage() {
     accountLabel.textContent = x.navAccount;
   }
   window.eddyHomeAccount?.syncLanguage?.();
-  const languageButton = document.getElementById('lang-toggle');\n  languageButton.textContent = x.lang;\n  languageButton.setAttribute('aria-label', language === 'he' ? 'Switch language to English' : 'החלפת שפה לעברית');\n  languageButton.title = languageButton.getAttribute('aria-label');
+  const languageButton = document.getElementById('lang-toggle');
+  if (languageButton) {
+    languageButton.textContent = x.lang;
+    languageButton.setAttribute('aria-label', language === 'he' ? 'Switch language to English' : 'החלפת שפה לעברית');
+    languageButton.title = languageButton.getAttribute('aria-label');
+  }
   document.querySelector('.badge').lastChild.textContent = x.badge;
   document.querySelector('.hero h1').innerHTML = x.heroTitle; document.querySelector('.hero p').textContent = x.heroText;
   document.querySelector('.ip button').textContent = x.copy; document.querySelector('.btn.primary').textContent = x.join;
