@@ -15,7 +15,7 @@
     document.body.dataset.theme = selected;
     document.documentElement.style.colorScheme = selected;
     const button = document.getElementById('theme-toggle') || createButton();
-    // Keep the theme control outside the header/navigation so it cannot overlap other buttons.\n    if (button.parentElement !== document.body) document.body.appendChild(button);\n    button.classList.add('theme-floating-toggle');
+    // Keep the theme control separate from navigation controls.\n    if (button.parentElement !== document.body) document.body.appendChild(button);\n    button.classList.add('theme-floating-toggle');\n    if (!document.getElementById('theme-layout-spacing')) {\n      const spacing = document.createElement('style');\n      spacing.id = 'theme-layout-spacing';\n      spacing.textContent = '@media (min-width: 641px) { header { padding-right: 174px !important; } } @media (max-width: 640px) { header { padding-top: calc(62px + env(safe-area-inset-top)) !important; } header nav { margin-top: 0 !important; } }';\n      document.head.appendChild(spacing);\n    }
     button.type = 'button';
     const he = (() => { try { return localStorage.getItem('eddy-language') === 'he'; } catch (_) { return document.documentElement.lang === 'he'; } })();
     const labels = he ? { dark: 'מצב כהה', light: 'מצב בהיר', toLight: 'החלפה למצב בהיר', toDark: 'החלפה למצב כהה' } : { dark: 'Dark mode', light: 'Light mode', toLight: 'Switch to light mode', toDark: 'Switch to dark mode' };
