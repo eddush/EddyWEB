@@ -14,12 +14,39 @@
     document.documentElement.dataset.theme = selected;
     document.body.dataset.theme = selected;
     document.documentElement.style.colorScheme = selected;
+
     const button = document.getElementById('theme-toggle') || createButton();
-    // Keep the theme control separate from navigation controls.\n    if (button.parentElement !== document.body) document.body.appendChild(button);\n    button.classList.add('theme-floating-toggle');\n    if (!document.getElementById('theme-layout-spacing')) {\n      const spacing = document.createElement('style');\n      spacing.id = 'theme-layout-spacing';\n      spacing.textContent = '@media (min-width: 641px) { header { padding-right: 174px !important; } } @media (max-width: 640px) { header { padding-top: calc(62px + env(safe-area-inset-top)) !important; } header nav { margin-top: 0 !important; } }';\n      document.head.appendChild(spacing);\n    }
+    if (button.parentElement !== document.body) document.body.appendChild(button);
+    button.classList.add('theme-floating-toggle');
     button.type = 'button';
-    const he = (() => { try { return localStorage.getItem('eddy-language') === 'he'; } catch (_) { return document.documentElement.lang === 'he'; } })();
-    const labels = he ? { dark: 'מצב כהה', light: 'מצב בהיר', toLight: 'החלפה למצב בהיר', toDark: 'החלפה למצב כהה' } : { dark: 'Dark mode', light: 'Light mode', toLight: 'Switch to light mode', toDark: 'Switch to dark mode' };
-    button.innerHTML = selected === DARK ? '<i class="fa-solid fa-moon" aria-hidden="true"></i> ' + labels.dark : '<i class="fa-solid fa-sun" aria-hidden="true"></i> ' + labels.light;
+
+    // Keep the language/navigation controls clear of the fixed theme button.
+    if (!document.getElementById('theme-layout-spacing')) {
+      const spacing = document.createElement('style');
+      spacing.id = 'theme-layout-spacing';
+      spacing.textContent = `
+        @media (min-width: 641px) {
+          header { padding-right: 174px !important; }
+        }
+        @media (max-width: 640px) {
+          header { padding-top: calc(62px + env(safe-area-inset-top)) !important; }
+          header nav { margin-top: 0 !important; }
+        }
+      `;
+      document.head.appendChild(spacing);
+    }
+
+    const he = (() => {
+      try { return localStorage.getItem('eddy-language') === 'he'; }
+      catch (_) { return document.documentElement.lang === 'he'; }
+    })();
+    const labels = he
+      ? { dark: 'מצב כהה', light: 'מצב בהיר', toLight: 'החלפה למצב בהיר', toDark: 'החלפה למצב כהה' }
+      : { dark: 'Dark mode', light: 'Light mode', toLight: 'Switch to light mode', toDark: 'Switch to dark mode' };
+
+    button.innerHTML = selected === DARK
+      ? '<i class="fa-solid fa-moon" aria-hidden="true"></i> ' + labels.dark
+      : '<i class="fa-solid fa-sun" aria-hidden="true"></i> ' + labels.light;
     button.setAttribute('aria-label', selected === DARK ? labels.toLight : labels.toDark);
     button.setAttribute('aria-pressed', String(selected === DARK));
     button.onclick = (event) => {
@@ -45,9 +72,27 @@
     if (!document.body) return;
     applyTheme(readTheme());
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
-  else init();
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
 })();
 
 // Load the floating EddyWEB support chat on every page.
-(function(){function load(){if(document.getElementById('eddy-support-widget-script'))return;var s=document.createElement('script');s.id='eddy-support-widget-script';s.src='/support-widget.js?v=2';s.defer=true;document.body.appendChild(s);}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',load,{once:true});else load();})();
+(function () {
+  function load() {
+    if (document.getElementById('eddy-support-widget-script')) return;
+    const script = document.createElement('script');
+    script.id = 'eddy-support-widget-script';
+    script.src = '/support-widget.js?v=2';
+    script.defer = true;
+    document.body.appendChild(script);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', load, { once: true });
+  } else {
+    load();
+  }
+})();
