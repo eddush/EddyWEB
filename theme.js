@@ -41,13 +41,14 @@
       catch (_) { return document.documentElement.lang === 'he'; }
     })();
     const labels = he
-      ? { dark: 'מצב כהה', light: 'מצב בהיר', toLight: 'החלפה למצב בהיר', toDark: 'החלפה למצב כהה' }
-      : { dark: 'Dark mode', light: 'Light mode', toLight: 'Switch to light mode', toDark: 'Switch to dark mode' };
+      ? { toLight: 'החלפה למצב בהיר', toDark: 'החלפה למצב כהה' }
+      : { toLight: 'Switch to light mode', toDark: 'Switch to dark mode' };
 
     button.innerHTML = selected === DARK
-      ? '<i class="fa-solid fa-moon" aria-hidden="true"></i> ' + labels.dark
-      : '<i class="fa-solid fa-sun" aria-hidden="true"></i> ' + labels.light;
+      ? '<i class="fa-solid fa-moon" aria-hidden="true"></i>'
+      : '<i class="fa-solid fa-sun" aria-hidden="true"></i>';
     button.setAttribute('aria-label', selected === DARK ? labels.toLight : labels.toDark);
+    button.title = selected === DARK ? labels.toLight : labels.toDark;
     button.setAttribute('aria-pressed', String(selected === DARK));
     button.onclick = (event) => {
       event.preventDefault();
