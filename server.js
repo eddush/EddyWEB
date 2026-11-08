@@ -594,7 +594,7 @@ app.post('/api/account/link-email', async (req, res) => {
         try {
             redirect = new URL(emailRedirectTo);
             if (redirect.protocol !== 'https:' && redirect.hostname !== 'localhost') throw new Error('Invalid protocol');
-            if (!['eddy-web-seven.vercel.app', 'localhost', '127.0.0.1'].includes(redirect.hostname)) {
+            if (!['eddy-web-seven.vercel.app', 'eddydev.ddns.net', 'localhost', '127.0.0.1'].includes(redirect.hostname)) {
                 throw new Error('Invalid redirect host');
             }
         } catch {
