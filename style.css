@@ -3102,3 +3102,39 @@ body[data-theme="dark"] .site-preferences .theme-floating-toggle {
     flex-basis: 76px !important;
   }
 }
+
+/* Final fix: the legacy #lang-toggle fixed-position rule was more specific
+   than the dock styles, so the language button escaped the preferences dock
+   and snapped to the top-right when clicked. Keep it in the dock permanently. */
+#site-preferences #lang-toggle,
+body #site-preferences #lang-toggle {
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: auto !important;
+  float: none !important;
+  transform: none !important;
+  margin: 0 !important;
+  width: 82px !important;
+  min-width: 82px !important;
+  max-width: 82px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  max-height: 40px !important;
+  flex: 0 0 82px !important;
+}
+@media (max-width: 640px) {
+  #site-preferences #lang-toggle,
+  body #site-preferences #lang-toggle {
+    width: 76px !important;
+    min-width: 76px !important;
+    max-width: 76px !important;
+    flex-basis: 76px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+  }
+}
