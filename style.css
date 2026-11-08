@@ -3063,3 +3063,42 @@ body[data-theme="dark"] .site-preferences .theme-floating-toggle {
     padding: 8px !important;
   }
 }
+
+
+/* Prevent the language control and its dock from jumping when its label changes. */
+.site-preferences {
+  width: max-content;
+  min-width: 0;
+  box-sizing: border-box;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+.site-preferences .lang-btn {
+  width: 82px !important;
+  min-width: 82px !important;
+  max-width: 82px !important;
+  flex: 0 0 82px !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  transform: none !important;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease !important;
+  animation: none !important;
+}
+.site-preferences .lang-btn:hover,
+.site-preferences .lang-btn:focus,
+.site-preferences .lang-btn:active {
+  transform: none !important;
+}
+.site-preferences .theme-floating-toggle {
+  flex: 0 0 42px !important;
+}
+@media (max-width: 640px) {
+  .site-preferences .lang-btn {
+    width: 76px !important;
+    min-width: 76px !important;
+    max-width: 76px !important;
+    flex-basis: 76px !important;
+  }
+}
