@@ -101,7 +101,8 @@
       "dest": "/$1.html"
     },
     {
-      "src": "^/(.*)$",
+      "handle": "error",
+      "src": "/.*",
       "dest": "/404.html",
       "status": 404
     }
