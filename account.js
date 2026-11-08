@@ -295,7 +295,7 @@
       'linked-player-money-label': x.playerMoney,
       'linked-player-playtime-label': x.playerPlaytime,
       'linked-player-discord-label': x.playerDiscord,
-      'linked-player-full-profile-label': x.fullPlayerProfile,
+      'linked-player-full-profile': x.fullPlayerProfile,
       'minecraft-link-heading': x.minecraftHeading,
       'account-settings-heading': x.accountSettings,
       'account-settings-description': x.accountSettingsDescription
