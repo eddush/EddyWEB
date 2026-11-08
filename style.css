@@ -3138,3 +3138,137 @@ body #site-preferences #lang-toggle {
     max-height: 38px !important;
   }
 }
+
+/* Definitive preferences dock layout.
+   Several older global theme rules target #theme-toggle with higher specificity;
+   these scoped rules intentionally override every legacy fixed-position/size rule. */
+html[data-theme] body #site-preferences {
+  position: fixed !important;
+  top: max(14px, env(safe-area-inset-top)) !important;
+  right: max(14px, env(safe-area-inset-right)) !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 2147483640 !important;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  width: max-content !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: calc(100vw - 28px) !important;
+  padding: 5px !important;
+  margin: 0 !important;
+  border: 1px solid rgba(45, 105, 120, .22) !important;
+  border-radius: 15px !important;
+  background: rgba(246, 252, 255, .88) !important;
+  box-shadow: 0 5px 22px rgba(20, 55, 70, .12) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  backdrop-filter: blur(14px) !important;
+  transform: none !important;
+  transition: none !important;
+}
+html[data-theme] body #site-preferences #theme-toggle,
+html[data-theme] body #site-preferences .theme-floating-toggle {
+  position: static !important;
+  inset: auto !important;
+  float: none !important;
+  display: inline-flex !important;
+  flex: 0 0 42px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 42px !important;
+  min-width: 42px !important;
+  max-width: 42px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 11px !important;
+  font-size: 0 !important;
+  line-height: 1 !important;
+  transform: none !important;
+  transition: background-color .18s ease, border-color .18s ease !important;
+  box-shadow: none !important;
+  z-index: auto !important;
+}
+html[data-theme] body #site-preferences #theme-toggle i,
+html[data-theme] body #site-preferences .theme-floating-toggle i {
+  display: block !important;
+  margin: 0 !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+html[data-theme] body #site-preferences #lang-toggle {
+  position: static !important;
+  inset: auto !important;
+  float: none !important;
+  display: inline-flex !important;
+  flex: 0 0 54px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 54px !important;
+  min-width: 54px !important;
+  max-width: 54px !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  max-height: 42px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 11px !important;
+  font: 800 13px/1 'Rubik', Arial, sans-serif !important;
+  letter-spacing: .02em !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  transform: none !important;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease !important;
+  box-shadow: none !important;
+  z-index: auto !important;
+}
+html[data-theme] body #site-preferences #theme-toggle:hover,
+html[data-theme] body #site-preferences #lang-toggle:hover {
+  transform: none !important;
+  filter: brightness(1.03);
+}
+html[data-theme="light"] body #site-preferences #theme-toggle,
+html[data-theme="light"] body #site-preferences #lang-toggle {
+  background: rgba(255,255,255,.88) !important;
+  color: #17363b !important;
+  border: 1px solid rgba(35, 95, 110, .2) !important;
+}
+html[data-theme="dark"] body #site-preferences #theme-toggle,
+html[data-theme="dark"] body #site-preferences #lang-toggle {
+  background: rgba(17, 31, 42, .94) !important;
+  color: #eaffff !important;
+  border: 1px solid rgba(255,255,255,.15) !important;
+}
+@media (max-width: 640px) {
+  html[data-theme] body #site-preferences {
+    top: max(10px, env(safe-area-inset-top)) !important;
+    right: max(10px, env(safe-area-inset-right)) !important;
+    gap: 5px !important;
+    padding: 4px !important;
+  }
+  html[data-theme] body #site-preferences #theme-toggle,
+  html[data-theme] body #site-preferences .theme-floating-toggle {
+    flex-basis: 38px !important;
+    width: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+  }
+  html[data-theme] body #site-preferences #lang-toggle {
+    flex-basis: 50px !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: 38px !important;
+  }
+}
