@@ -298,7 +298,16 @@
       'linked-player-full-profile': x.fullPlayerProfile,
       'minecraft-link-heading': x.minecraftHeading,
       'account-settings-heading': x.accountSettings,
-      'account-settings-description': x.accountSettingsDescription
+      'account-settings-description': x.accountSettingsDescription,
+      'discord-link-heading': x.discordHeading,
+      'discord-link-description': x.discordDescription,
+      'discord-connect': x.discordConnect,
+      'discord-disconnect': x.discordDisconnect,
+      'minecraft-link-description': x.minecraftLinkDescription,
+      'minecraft-link-instructions': x.minecraftLinkInstructions,
+      'minecraft-link-start': x.linkMinecraft,
+      'minecraft-link-copy': x.minecraftCopyCommand,
+      'minecraft-login-copy': x.minecraftCopyCommand
     };
 
     Object.entries(textMap).forEach(([id, text]) => {
