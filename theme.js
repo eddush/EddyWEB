@@ -17,13 +17,17 @@
 
     const controls = getControls();
     const button = document.getElementById('theme-toggle') || createButton();
-    const languageButton = document.getElementById('lang-toggle');
+    const languageButton = getLanguageButton();
     if (button.parentElement !== controls) controls.appendChild(button);
     if (languageButton && languageButton.parentElement !== controls) controls.appendChild(languageButton);
     controls.classList.add('site-preferences');
+    controls.setAttribute('aria-label', 'Language and appearance settings');
     button.classList.add('theme-floating-toggle');
     button.type = 'button';
-    if (languageButton) languageButton.classList.add('language-floating-toggle');
+    if (languageButton) {
+      languageButton.classList.add('language-floating-toggle');
+      languageButton.type = 'button';
+    }
 
     const he = (() => {
       try { return localStorage.getItem('eddy-language') === 'he'; }
@@ -46,6 +50,24 @@
       try { localStorage.setItem(KEY, next); } catch (_) {}
       applyTheme(next);
     };
+  }
+
+  function getLanguageButton() {
+    const ids = [
+      'lang-toggle',
+      'language-toggle',
+      'staff-lang',
+      'account-language',
+      'rules-lang',
+      'admin-language-toggle',
+      'article-language',
+      'support-language'
+    ];
+    for (const id of ids) {
+      const candidate = document.getElementById(id);
+      if (candidate) return candidate;
+    }
+    return null;
   }
 
   function getControls() {
