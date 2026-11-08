@@ -99,9 +99,6 @@
     {
       "src": "^/([^/.]+)$",
       "dest": "/$1.html"
-    },
-    {
-      "handle": "filesystem"
     }
   ]
 }
