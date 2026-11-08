@@ -1848,6 +1848,10 @@ app.post('/api/support/internal/discord-message', async (req, res) => {
 });
 
 
+app.use((req, res) => {
+    return res.status(404).sendFile(path.join(__dirname, '404.html'));
+});
+
 // Vercel imports the Express app as a serverless function. Keep local/Render support too.
 if (require.main === module) {
     const PORT = process.env.PORT || 3000;
