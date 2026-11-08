@@ -2980,3 +2980,86 @@ body:has(> main) {
   overflow-y: auto !important;
   overscroll-behavior-y: auto;
 }
+
+
+/* Unified language + appearance controls */
+.site-preferences {
+  position: fixed;
+  top: 18px;
+  right: max(18px, env(safe-area-inset-right));
+  z-index: 2147483000;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 16px;
+  background: rgba(8,17,24,.76);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 10px 32px rgba(0,0,0,.22);
+}
+.site-preferences .lang-btn,
+.site-preferences .theme-floating-toggle {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 42px;
+  min-height: 40px !important;
+  margin: 0 !important;
+  padding: 9px 13px !important;
+  border-radius: 10px !important;
+  font: 600 13px/1.2 'Rubik', Arial, sans-serif !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+.site-preferences .theme-floating-toggle {
+  width: 42px;
+  padding: 9px !important;
+  font-size: 16px !important;
+}
+.site-preferences .lang-btn:hover,
+.site-preferences .theme-floating-toggle:hover {
+  transform: translateY(-1px) !important;
+}
+body[data-theme="dark"] .site-preferences {
+  background: rgba(8,17,24,.82);
+  border-color: rgba(255,255,255,.14);
+}
+body[data-theme="light"] .site-preferences {
+  background: rgba(245,252,255,.86);
+  border-color: rgba(20,70,80,.18);
+  box-shadow: 0 10px 30px rgba(15,50,60,.14);
+}
+body[data-theme="light"] .site-preferences .lang-btn,
+body[data-theme="light"] .site-preferences .theme-floating-toggle {
+  background: rgba(255,255,255,.72) !important;
+  color: #17363b !important;
+  border: 1px solid rgba(20,100,100,.18) !important;
+}
+body[data-theme="dark"] .site-preferences .lang-btn,
+body[data-theme="dark"] .site-preferences .theme-floating-toggle {
+  background: rgba(255,255,255,.07) !important;
+  color: #effcff !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+}
+@media (max-width: 640px) {
+  .site-preferences {
+    top: max(12px, env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+    gap: 6px;
+    padding: 5px;
+    border-radius: 14px;
+  }
+  .site-preferences .lang-btn,
+  .site-preferences .theme-floating-toggle {
+    min-height: 38px !important;
+    padding: 8px 11px !important;
+    font-size: 12px !important;
+  }
+  .site-preferences .theme-floating-toggle {
+    width: 38px;
+    padding: 8px !important;
+  }
+}
