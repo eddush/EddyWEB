@@ -3461,3 +3461,194 @@ html[data-theme="dark"] body #site-preferences #lang-toggle {
   }
   .site-scroll-progress { display: none !important; }
 }
+
+/* ===================================================
+   EddyWEB — consistent buttons and polished scroll reveals
+   =================================================== */
+:root {
+  --eddy-control-radius: 12px;
+  --eddy-control-motion: 220ms cubic-bezier(.2,.75,.25,1);
+}
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+.btn,
+.lang-btn,
+.news-btn,
+.account-tab,
+.account-link,
+.btn-danger,
+.btn-ai {
+  border-radius: var(--eddy-control-radius);
+  font-family: 'Rubik', Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: .01em;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition:
+    transform var(--eddy-control-motion),
+    box-shadow var(--eddy-control-motion),
+    background-color var(--eddy-control-motion),
+    border-color var(--eddy-control-motion),
+    color var(--eddy-control-motion),
+    filter var(--eddy-control-motion);
+}
+.btn,
+.lang-btn,
+.news-btn,
+.account-tab,
+.account-link,
+.btn-danger,
+.btn-ai,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 16px;
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  border: 1px solid rgba(49, 231, 202, .28);
+  cursor: pointer;
+}
+.btn:not(.primary),
+.lang-btn,
+.account-tab:not(.is-active),
+.account-link,
+.news-btn {
+  background: rgba(12, 27, 34, .72);
+  color: #eaffff;
+  border-color: rgba(180, 220, 225, .2);
+}
+.btn.primary,
+.btn.primary:visited,
+.account-tab.is-active,
+input[type="submit"],
+.ip button,
+#admin-save-button {
+  background: linear-gradient(135deg, #31e7ca, #55dcca);
+  color: #041513;
+  border: 1px solid rgba(49, 231, 202, .55);
+  box-shadow: 0 5px 18px rgba(49, 231, 202, .14);
+}
+.btn-danger {
+  background: rgba(255, 86, 112, .12);
+  color: #ff8296;
+  border: 1px solid rgba(255, 86, 112, .34);
+}
+button:disabled,
+input:disabled,
+.btn.disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed !important;
+  opacity: .55;
+  filter: saturate(.65);
+}
+button:focus-visible,
+input[type="button"]:focus-visible,
+input[type="submit"]:focus-visible,
+input[type="reset"]:focus-visible,
+.btn:focus-visible,
+.lang-btn:focus-visible,
+.news-btn:focus-visible,
+.account-tab:focus-visible,
+.account-link:focus-visible,
+.btn-danger:focus-visible,
+.btn-ai:focus-visible {
+  outline: 3px solid rgba(49, 231, 202, .72);
+  outline-offset: 3px;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  button:not(#site-preferences button):not(:disabled):hover,
+  input[type="button"]:not(:disabled):hover,
+  input[type="submit"]:not(:disabled):hover,
+  input[type="reset"]:not(:disabled):hover,
+  .btn:not(.disabled):hover,
+  .lang-btn:hover,
+  .news-btn:hover,
+  .account-tab:hover,
+  .account-link:hover,
+  .btn-danger:hover,
+  .btn-ai:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 9px 24px rgba(49, 231, 202, .14);
+    filter: brightness(1.04);
+  }
+  .btn-danger:hover {
+    box-shadow: 0 9px 24px rgba(255, 86, 112, .12);
+  }
+}
+button:active:not(:disabled),
+input[type="button"]:active:not(:disabled),
+input[type="submit"]:active:not(:disabled),
+input[type="reset"]:active:not(:disabled),
+.btn:active:not(.disabled),
+.lang-btn:active,
+.news-btn:active,
+.account-tab:active {
+  transform: scale(.975);
+}
+html[data-theme="light"] body :is(.btn:not(.primary), .lang-btn, .news-btn, .account-tab:not(.is-active), .account-link) {
+  color: #17363b;
+  background: rgba(255, 255, 255, .78);
+  border-color: rgba(20, 100, 110, .2);
+}
+html[data-theme="light"] body :is(.btn.primary, .account-tab.is-active, input[type="submit"], .ip button) {
+  color: #041513;
+  background: linear-gradient(135deg, #27d8bd, #68e8d5);
+}
+
+/* Scroll-in transitions for content blocks and cards on every page. */
+.animations-enabled .scroll-animate {
+  opacity: 0;
+  transform: translate3d(0, 30px, 0);
+  transition:
+    opacity 620ms cubic-bezier(.2,.75,.25,1) var(--scroll-delay, 0ms),
+    transform 620ms cubic-bezier(.2,.75,.25,1) var(--scroll-delay, 0ms);
+  will-change: opacity, transform;
+}
+.animations-enabled .scroll-animate--card {
+  transform: translate3d(0, 24px, 0) scale(.985);
+}
+.animations-enabled .scroll-animate.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .animations-enabled .scroll-animate--card.is-visible:hover {
+    transform: translate3d(0, -4px, 0) scale(1);
+  }
+}
+/* Never animate or move the fixed language/theme control dock. */
+.animations-enabled #site-preferences,
+.animations-enabled #site-preferences *,
+.animations-enabled #site-preferences *:hover,
+.animations-enabled #site-preferences *:active {
+  animation: none !important;
+  transform: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animations-enabled .scroll-animate,
+  .animations-enabled .scroll-animate--card,
+  .animations-enabled .scroll-animate.is-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    will-change: auto !important;
+  }
+  button, .btn, .lang-btn, .news-btn, .account-tab, .account-link {
+    transition: none !important;
+  }
+}
+@media (max-width: 640px) {
+  .btn, .news-btn, .account-tab, .account-link, .btn-danger, .btn-ai,
+  input[type="button"], input[type="submit"], input[type="reset"] {
+    min-height: 44px;
+    padding: 11px 14px;
+  }
+}
