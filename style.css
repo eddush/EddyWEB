@@ -2963,3 +2963,20 @@ html[data-theme] body > .theme-floating-toggle i {
   .hero h1, h1 { font-size:clamp(26px,4vw,38px) !important; }
   .cards, .news-grid, .large-news-grid { gap:12px !important; }
 }
+
+
+/* Homepage spacing and native scrolling fix (Nov 2026). */
+@media (min-width: 1181px) {
+  body > header { padding-top: 64px !important; }
+}
+@media (min-width: 641px) and (max-width: 1180px) {
+  body > header { padding-top: 76px !important; }
+}
+@media (max-width: 640px) {
+  body > header { padding-top: calc(70px + env(safe-area-inset-top)) !important; }
+}
+/* Keep homepage scrolling native and predictable; no elements are hidden pending reveal observers. */
+body:has(> main) {
+  overflow-y: auto !important;
+  overscroll-behavior-y: auto;
+}
