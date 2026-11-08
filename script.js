@@ -99,8 +99,9 @@ function applyLanguage() {
   window.eddyHomeAccount?.syncLanguage?.();
   const languageButton = document.getElementById('lang-toggle');
   if (languageButton) {
-    // Keep the compact language switch independent from the responsive navigation.
-    if (languageButton.parentElement !== document.body) document.body.appendChild(languageButton);
+    // Do not re-parent the language button here. theme.js places it inside
+    // #site-preferences; moving it to body on every language change makes its
+    // fixed-position CSS snap it to the top-right corner.
     languageButton.textContent = x.lang;
     languageButton.setAttribute('aria-label', language === 'he' ? 'Switch language to English' : 'החלפת שפה לעברית');
     languageButton.title = languageButton.getAttribute('aria-label');
