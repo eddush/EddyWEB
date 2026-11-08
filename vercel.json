@@ -102,7 +102,8 @@
     },
     {
       "src": "/.*",
-      "dest": "/server.js"
+      "dest": "/404.html",
+      "status": 404
     }
   ]
 }
