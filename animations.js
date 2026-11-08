@@ -5,6 +5,7 @@
     'header',
     '.hero',
     '.news-section',
+    '.section-heading',
     '.news-card',
     '.cards .card',
     '.large-news-container',
@@ -18,7 +19,21 @@
     '.news-editor .item-card',
     '.player-search-panel',
     '.player-hero-card',
-    '.player-info-card'
+    '.player-info-card',
+    '.player-stat-card',
+    '.staff-card',
+    '.staff-member',
+    '.rule-item',
+    '.rules-section',
+    '.info-card',
+    '.login-box',
+    '.account-container',
+    '.account-card',
+    '.connect-container',
+    '.connect-card',
+    '.server-card',
+    '.profile-card',
+    'main > section'
   ];
 
   const CARD_SELECTORS = [
@@ -26,10 +41,22 @@
     '.cards .card',
     '.large-news-card',
     '.article-content > *',
-    '.news-editor .item-card'
+    '.news-editor .item-card',
+    '.player-info-card',
+    '.player-stat-card',
+    '.staff-card',
+    '.staff-member',
+    '.rule-item',
+    '.info-card',
+    '.account-card',
+    '.connect-card',
+    '.server-card',
+    '.profile-card'
   ];
 
-  let observer;
+  let revealObserver = null;
+  let mutationObserver = null;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function addScrollElements(root = document) {
     const nodes = root.querySelectorAll(SELECTORS.join(','));
@@ -37,7 +64,6 @@
 
     nodes.forEach((element) => {
       if (!(element instanceof HTMLElement) || element.dataset.scrollAnimated === 'true') return;
-
       element.dataset.scrollAnimated = 'true';
       element.classList.add('scroll-animate');
 
@@ -45,47 +71,48 @@
         element.classList.add('scroll-animate--card');
       }
 
-      element.style.setProperty('--scroll-delay', Math.min(index, 7) * 70 + 'ms');
+      element.style.setProperty('--scroll-delay', Math.min(index, 5) * 65 + 'ms');
       index += 1;
     });
   }
 
-  function setupRevealObserver() {
-    const elements = document.querySelectorAll('.scroll-animate');
+  function revealAll() {
+    document.querySelectorAll('.scroll-animate').forEach((element) => {
+      element.classList.add('is-visible');
+      element.dataset.observed = 'true';
+    });
+  }
 
-    if (!('IntersectionObserver' in window)) {
-      elements.forEach((element) => element.classList.add('is-visible'));
+  function observeElements(root = document) {
+    if (!revealObserver) return;
+    root.querySelectorAll('.scroll-animate:not([data-observed])').forEach((element) => {
+      element.dataset.observed = 'true';
+      revealObserver.observe(element);
+    });
+  }
+
+  function setupRevealObserver() {
+    if (reducedMotion || !('IntersectionObserver' in window)) {
+      revealAll();
       return;
     }
 
-    observer = new IntersectionObserver((entries, instance) => {
+    revealObserver = new IntersectionObserver((entries, observer) => {
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
         entry.target.classList.add('is-visible');
-        instance.unobserve(entry.target);
+        observer.unobserve(entry.target);
       });
     }, {
-      threshold: 0.12,
-      rootMargin: '0px 0px -7% 0px'
+      threshold: 0.08,
+      rootMargin: '0px 0px -5% 0px'
     });
 
-    elements.forEach((element) => {
-      element.dataset.observed = 'true';
-      observer.observe(element);
-    });
-  }
-
-  function observeNewElements() {
-    if (!observer) return;
-
-    document.querySelectorAll('.scroll-animate:not([data-observed])').forEach((element) => {
-      element.dataset.observed = 'true';
-      observer.observe(element);
-    });
+    observeElements();
   }
 
   function addProgressBar() {
-    if (document.querySelector('.site-scroll-progress')) return;
+    if (reducedMotion || document.querySelector('.site-scroll-progress')) return;
 
     const progress = document.createElement('div');
     progress.className = 'site-scroll-progress';
@@ -94,12 +121,18 @@
     document.body.appendChild(progress);
 
     const fill = progress.firstElementChild;
+    let scheduled = false;
 
     const update = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
-      const percentage = scrollable > 0 ? (scrollTop / scrollable) * 100 : 0;
-      fill.style.width = percentage + '%';
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(() => {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        const percentage = scrollable > 0 ? Math.min(100, Math.max(0, scrollTop / scrollable * 100)) : 0;
+        fill.style.width = percentage + '%';
+        scheduled = false;
+      });
     };
 
     window.addEventListener('scroll', update, { passive: true });
@@ -108,14 +141,25 @@
   }
 
   function init() {
-    document.documentElement.classList.add('animations-enabled');
-    addProgressBar();
+    if (document.documentElement.dataset.motionReady === 'true') return;
+
     addScrollElements();
     setupRevealObserver();
+    addProgressBar();
 
-    const mutationObserver = new MutationObserver(() => {
+    // Enable reveal styles only after every initial element is observed.
+    // This avoids leaving content invisible if a script fails part-way through.
+    document.documentElement.classList.add('animations-enabled');
+    document.documentElement.dataset.motionReady = 'true';
+
+    mutationObserver = new MutationObserver((records) => {
+      let hasAddedNodes = false;
+      records.forEach((record) => {
+        if (record.addedNodes.length) hasAddedNodes = true;
+      });
+      if (!hasAddedNodes) return;
       addScrollElements();
-      observeNewElements();
+      observeElements();
     });
 
     mutationObserver.observe(document.body, { childList: true, subtree: true });
