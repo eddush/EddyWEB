@@ -33,7 +33,28 @@
     '.connect-card',
     '.server-card',
     '.profile-card',
-    'main > section'
+    'main > section',
+    '.staff-grid > *',
+    '.staff-list > *',
+    '.rules-list > *',
+    '.rule-group',
+    '.support-container > *',
+    '.support-page > *',
+    '.account-layout > *',
+    '.account-form',
+    '.connect-panel',
+    '.connect-steps > *',
+    '.page-content > *',
+    '.content-card',
+    '.settings-card',
+    '.dashboard-card',
+    '.form-section',
+    '.section-card',
+    '.faq-item',
+    'main > article',
+    'main > .container',
+    'main > .page-content',
+    'main > .content-wrapper'
   ];
 
   const CARD_SELECTORS = [
@@ -51,7 +72,13 @@
     '.account-card',
     '.connect-card',
     '.server-card',
-    '.profile-card'
+    '.profile-card',
+    '.rule-group',
+    '.faq-item',
+    '.content-card',
+    '.settings-card',
+    '.dashboard-card',
+    '.section-card'
   ];
 
   let revealObserver = null;
