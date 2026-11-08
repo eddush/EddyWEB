@@ -3779,3 +3779,82 @@ html[data-theme] body #site-preferences > button:active {
     max-width: 50px !important;
   }
 }
+
+
+/* Homepage server IP — animated EddyWEB gradient hover */
+@keyframes eddy-ip-gradient-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+@keyframes eddy-ip-border-glow {
+  0%, 100% { box-shadow: 0 0 18px rgba(49,231,202,.10), 0 0 0 1px rgba(49,231,202,.16); }
+  50% { box-shadow: 0 0 28px rgba(185,101,255,.20), 0 0 0 1px rgba(185,101,255,.35); }
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  body:has(#ip) .ip {
+    position: relative;
+    isolation: isolate;
+    transition: border-color 260ms ease, box-shadow 260ms ease, transform 260ms ease, background-color 260ms ease;
+  }
+  body:has(#ip) .ip::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(110deg, #31e7ca, #b965ff, #31e7ca, #b965ff);
+    background-size: 200% 100%;
+    opacity: 0;
+    transition: opacity 260ms ease;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  body:has(#ip) .ip:hover,
+  body:has(#ip) .ip:focus-within {
+    border-color: transparent;
+    background-color: rgba(13, 23, 27, .96);
+    animation: eddy-ip-border-glow 2.8s ease-in-out infinite;
+    transform: translateY(-2px);
+  }
+  body:has(#ip) .ip:hover::before,
+  body:has(#ip) .ip:focus-within::before {
+    opacity: 1;
+    animation: eddy-ip-gradient-flow 3.5s linear infinite;
+  }
+  body:has(#ip) .ip:hover > i,
+  body:has(#ip) .ip:focus-within > i {
+    color: #b965ff;
+    filter: drop-shadow(0 0 8px rgba(185,101,255,.65));
+    transition: color 260ms ease, filter 260ms ease;
+  }
+  body:has(#ip) .ip:hover strong,
+  body:has(#ip) .ip:focus-within strong {
+    color: transparent;
+    background: linear-gradient(90deg, #31e7ca, #b965ff, #31e7ca);
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-stroke: .45px transparent;
+    animation: eddy-ip-gradient-flow 3s linear infinite;
+    filter: drop-shadow(0 0 7px rgba(49,231,202,.22));
+  }
+  body:has(#ip) .ip:hover button,
+  body:has(#ip) .ip:focus-within button {
+    background: linear-gradient(110deg, #31e7ca, #b965ff, #31e7ca);
+    background-size: 200% auto;
+    animation: eddy-ip-gradient-flow 3s linear infinite;
+    box-shadow: 0 0 18px rgba(49,231,202,.22);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body:has(#ip) .ip,
+  body:has(#ip) .ip::before,
+  body:has(#ip) .ip strong,
+  body:has(#ip) .ip button {
+    animation: none !important;
+    transition: none !important;
+  }
+}
