@@ -3272,3 +3272,192 @@ html[data-theme="dark"] body #site-preferences #lang-toggle {
     max-height: 38px !important;
   }
 }
+
+/* ===================================================
+   EddyWEB — site-wide motion and interaction polish
+   =================================================== */
+@keyframes eddy-grid-drift {
+  from { background-position: 0 0, 0 0; }
+  to { background-position: 48px 24px, -24px 48px; }
+}
+@keyframes eddy-title-glow {
+  0%, 100% { text-shadow: 0 0 18px rgba(169, 95, 255, .28); }
+  50% { text-shadow: 0 0 34px rgba(49, 231, 202, .34), 0 0 52px rgba(169, 95, 255, .22); }
+}
+@keyframes eddy-badge-pulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(49, 231, 202, 0); }
+  50% { box-shadow: 0 0 22px rgba(49, 231, 202, .12); }
+}
+@keyframes eddy-soft-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes eddy-shine {
+  from { transform: translateX(-130%) skewX(-18deg); }
+  to { transform: translateX(240%) skewX(-18deg); }
+}
+
+.animations-enabled .grid {
+  animation: eddy-grid-drift 55s linear infinite alternate;
+}
+.animations-enabled .hero h1 span {
+  animation: eddy-title-glow 4.5s ease-in-out infinite;
+}
+.animations-enabled .badge {
+  animation: eddy-badge-pulse 5s ease-in-out infinite;
+}
+.animations-enabled .hero .badge {
+  animation-delay: .35s;
+}
+.animations-enabled .icon {
+  transition: transform 260ms cubic-bezier(.2,.8,.2,1), filter 260ms ease;
+}
+.animations-enabled .card:hover .icon {
+  transform: translateY(-3px) scale(1.08);
+  filter: drop-shadow(0 0 10px rgba(49,231,202,.35));
+}
+.animations-enabled .logo,
+.animations-enabled .textbtn,
+.animations-enabled .player-back {
+  transition: color 220ms ease, text-shadow 220ms ease, transform 220ms ease;
+}
+.animations-enabled .logo:hover {
+  color: #5fffe4;
+  text-shadow: 0 0 18px rgba(49,231,202,.3);
+}
+.animations-enabled nav a {
+  position: relative;
+  text-decoration: none;
+}
+.animations-enabled nav a:not(#account-nav-link)::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -5px;
+  height: 2px;
+  border-radius: 9px;
+  background: linear-gradient(90deg, #31e7ca, #b965ff);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 220ms ease;
+}
+.animations-enabled nav a:not(#account-nav-link):hover::after,
+.animations-enabled nav a:not(#account-nav-link):focus-visible::after {
+  transform: scaleX(1);
+}
+.animations-enabled .btn,
+.animations-enabled .news-btn,
+.animations-enabled .ip button,
+.animations-enabled .textbtn {
+  transition: transform 220ms ease, box-shadow 220ms ease, filter 220ms ease,
+    background-color 220ms ease, border-color 220ms ease, color 220ms ease;
+}
+.animations-enabled .btn:hover,
+.animations-enabled .news-btn:hover,
+.animations-enabled .ip button:hover {
+  box-shadow: 0 9px 24px rgba(49,231,202,.18);
+  filter: brightness(1.06);
+}
+.animations-enabled .card,
+.animations-enabled .news-card,
+.animations-enabled .large-news-card,
+.animations-enabled .player-info-card,
+.animations-enabled .info-card,
+.animations-enabled .rule-item,
+.animations-enabled .staff-member,
+.animations-enabled .account-card,
+.animations-enabled .connect-card {
+  transition: border-color 260ms ease, box-shadow 260ms ease, background-color 260ms ease;
+}
+@media (hover: hover) {
+  .animations-enabled .card:hover,
+  .animations-enabled .news-card:hover,
+  .animations-enabled .large-news-card:hover,
+  .animations-enabled .player-info-card:hover,
+  .animations-enabled .info-card:hover,
+  .animations-enabled .rule-item:hover,
+  .animations-enabled .staff-member:hover,
+  .animations-enabled .account-card:hover,
+  .animations-enabled .connect-card:hover {
+    box-shadow: 0 18px 48px rgba(0,0,0,.28), 0 0 0 1px rgba(49,231,202,.10);
+  }
+  .animations-enabled .card:hover::after,
+  .animations-enabled .news-card:hover::after,
+  .animations-enabled .large-news-card:hover::after {
+    opacity: 1;
+  }
+}
+.animations-enabled .card,
+.animations-enabled .news-card,
+.animations-enabled .large-news-card {
+  position: relative;
+  isolation: isolate;
+}
+.animations-enabled .card::after,
+.animations-enabled .news-card::after,
+.animations-enabled .large-news-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 15% 0%, rgba(49,231,202,.11), transparent 48%);
+  transition: opacity 260ms ease;
+}
+.animations-enabled input,
+.animations-enabled textarea,
+.animations-enabled select {
+  transition: border-color 200ms ease, box-shadow 200ms ease, background-color 200ms ease;
+}
+.animations-enabled input:focus,
+.animations-enabled textarea:focus,
+.animations-enabled select:focus {
+  outline: none;
+  border-color: rgba(49,231,202,.72) !important;
+  box-shadow: 0 0 0 3px rgba(49,231,202,.12);
+}
+.animations-enabled img:not(.player-skin) {
+  transition: filter 240ms ease, opacity 240ms ease;
+}
+.animations-enabled table tbody tr {
+  transition: background-color 180ms ease;
+}
+.animations-enabled table tbody tr:hover {
+  background: rgba(49,231,202,.055);
+}
+.animations-enabled button:active,
+.animations-enabled .btn:active,
+.animations-enabled .news-btn:active {
+  transform: scale(.97);
+}
+/* The floating language/theme dock must stay position-stable during interaction. */
+.animations-enabled #site-preferences,
+.animations-enabled #site-preferences button,
+.animations-enabled #site-preferences button:hover,
+.animations-enabled #site-preferences button:active {
+  transform: none !important;
+  animation: none !important;
+}
+.animations-enabled #site-preferences button {
+  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animations-enabled *,
+  .animations-enabled *::before,
+  .animations-enabled *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+  .animations-enabled .scroll-animate,
+  .animations-enabled .scroll-animate--card {
+    opacity: 1 !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+  .site-scroll-progress { display: none !important; }
+}
