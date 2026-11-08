@@ -15,10 +15,15 @@
     document.body.dataset.theme = selected;
     document.documentElement.style.colorScheme = selected;
 
+    const controls = getControls();
     const button = document.getElementById('theme-toggle') || createButton();
-    if (button.parentElement !== document.body) document.body.appendChild(button);
+    const languageButton = document.getElementById('lang-toggle');
+    if (button.parentElement !== controls) controls.appendChild(button);
+    if (languageButton && languageButton.parentElement !== controls) controls.appendChild(languageButton);
+    controls.classList.add('site-preferences');
     button.classList.add('theme-floating-toggle');
     button.type = 'button';
+    if (languageButton) languageButton.classList.add('language-floating-toggle');
 
     const he = (() => {
       try { return localStorage.getItem('eddy-language') === 'he'; }
@@ -41,6 +46,18 @@
       try { localStorage.setItem(KEY, next); } catch (_) {}
       applyTheme(next);
     };
+  }
+
+  function getControls() {
+    let controls = document.getElementById('site-preferences');
+    if (!controls) {
+      controls = document.createElement('div');
+      controls.id = 'site-preferences';
+      controls.className = 'site-preferences';
+      controls.setAttribute('aria-label', 'Language and appearance settings');
+      document.body.appendChild(controls);
+    }
+    return controls;
   }
 
   function createButton() {
