@@ -105,31 +105,31 @@
         <div class="player-info-grid account-linked-player-grid">
           <article class="player-info-card">
             <div class="icon"><i class="fa-solid fa-user" aria-hidden="true"></i></div>
-            <span>שם שחקן</span>
+            <span id="linked-player-name-label">שם שחקן</span>
             <strong id="linked-player-username">—</strong>
           </article>
           <article class="player-info-card">
             <div class="icon"><i class="fa-solid fa-ranking-star" aria-hidden="true"></i></div>
-            <span>דרגה</span>
+            <span id="linked-player-rank-label">דרגה</span>
             <strong id="linked-player-rank">—</strong>
           </article>
           <article class="player-info-card">
             <div class="icon"><i class="fa-solid fa-coins" aria-hidden="true"></i></div>
-            <span>כסף</span>
-            <strong id="linked-player-money">לא זמין</strong>
+            <span id="linked-player-money-label">כסף</span>
+            <strong id="linked-player-money" id="linked-player-money-unavailable" id="linked-player-playtime-unavailable">לא זמין</strong>
           </article>
           <article class="player-info-card">
             <div class="icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></div>
-            <span>זמן משחק</span>
+            <span id="linked-player-playtime-label">זמן משחק</span>
             <strong id="linked-player-playtime">לא זמין</strong>
           </article>
           <article class="player-info-card">
             <div class="icon"><i class="fa-brands fa-discord" aria-hidden="true"></i></div>
-            <span>Discord</span>
-            <strong id="linked-player-discord">לא מחובר</strong>
+            <span id="linked-player-discord-label">Discord</span>
+            <strong id="linked-player-discord" id="linked-player-discord-unavailable">לא מחובר</strong>
           </article>
         </div>
-        <a id="linked-player-full-profile" class="btn" href="player.html" hidden>לצפייה בפרופיל המלא</a>
+        <a id="linked-player-full-profile" class="btn" href="player.html" hidden id="linked-player-full-profile-label">לצפייה בפרופיל המלא</a>
       </section>
 
       <form id="link-email-form" class="minecraft-link-box">
@@ -179,7 +179,7 @@
       <p id="profile-status" class="account-status" role="status" aria-live="polite"></p>
       <section class="minecraft-link-box" aria-labelledby="account-settings-heading">
         <h3 id="account-settings-heading">הגדרות חשבון</h3>
-        <p>ניהול הגישה לחשבון EddyDev.</p>
+        <p id="account-settings-description">ניהול הגישה לחשבון EddyDev.</p>
         <button class="btn" id="logout-button" type="button"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> התנתקות מהחשבון</button>
       </section>
       <section class="minecraft-link-box account-danger-zone" aria-labelledby="delete-account-heading">
