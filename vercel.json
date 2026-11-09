@@ -83,7 +83,7 @@
       }
     },
     {
-      "src": "^/(.*)\\.html$",
+      "src": "^/(?!404\\.html$)(.*)\\.html$",
       "status": 308,
       "headers": {
         "Location": "/$1"
@@ -97,13 +97,13 @@
       "handle": "filesystem"
     },
     {
-      "src": "^/([^/.]+)$",
+      "src": "^/(account|admin|article|connect|player|rules|staff|support)$",
       "dest": "/$1.html"
     },
     {
       "src": "/.*",
-      "dest": "/404.html",
-      "status": 404
+      "status": 404,
+      "dest": "/404.html"
     }
   ]
 }
