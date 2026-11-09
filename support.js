@@ -14,7 +14,39 @@ function setLanguage(next){language=next;localStorage.setItem('eddy-language',la
 function authHeaders(){return {'Content-Type':'application/json','Authorization':'Bearer '+session.access_token};}
 async function api(url,options={}){const response=await fetch(url,{...options,headers:{...authHeaders(),...(options.headers||{})},cache:'no-store'});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.message||'Request failed');return data;}
 function show(which){$('support-login').hidden=which!=='login';$('support-start').hidden=which!=='start';$('support-chat').hidden=which!=='chat';}
-function addMessage(message){const node=document.createElement('article');const isAI=message.sender_name==='EddyDev AI';node.className='support-message '+(isAI?'ai':message.sender_type==='user'?'user':message.sender_type==='staff'?'staff':'system');const meta=document.createElement('div');meta.className='support-message-meta';const name=document.createElement('span');name.textContent=isAI?t().ai:message.sender_type==='user'?t().you:message.sender_type==='staff'?(message.sender_name||t().staff):(message.sender_name||t().system);const time=document.createElement('time');time.dateTime=message.created_at;time.textContent=new Date(message.created_at).toLocaleString(language==='he'?'he-IL':'en-US',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'});meta.append(name,time);const body=document.createElement('div');body.textContent=message.body;node.append(meta,body);$('support-messages').append(node);}
+function appendInlineMarkdown(parent,text){
+  const pattern=/\*\*(.+?)\*\*|__(.+?)__|\*(.+?)\*|_(.+?)_|\x60([^\x60]+)\x60/g;
+  let last=0,match;
+  while((match=pattern.exec(text))){
+    if(match.index>last)parent.append(document.createTextNode(text.slice(last,match.index)));
+    const value=match[1]||match[2]||match[3]||match[4]||match[5];
+    const node=document.createElement(match[5]?'code':(match[1]||match[2])?'strong':'em');
+    node.textContent=value;parent.append(node);last=pattern.lastIndex;
+  }
+  if(last<text.length)parent.append(document.createTextNode(text.slice(last)));
+}
+function renderFormattedText(target,raw){
+  const lines=String(raw||'').replace(/\r/g,'').split('\n');
+  let paragraph=null,list=null,listType=null;
+  const flushParagraph=()=>{paragraph=null;};
+  const flushList=()=>{list=null;listType=null;};
+  for(const line of lines){
+    const heading=line.match(/^(#{1,3})\s+(.+)$/);
+    const bullet=line.match(/^\s*[-*+]\s+(.+)$/);
+    const numbered=line.match(/^\s*\d+[.)]\s+(.+)$/);
+    if(!line.trim()){flushParagraph();flushList();continue;}
+    if(heading){flushParagraph();flushList();const h=document.createElement('h'+Math.min(heading[1].length+1,4));appendInlineMarkdown(h,heading[2]);target.append(h);continue;}
+    if(bullet||numbered){
+      flushParagraph();const type=bullet?'ul':'ol';
+      if(!list||listType!==type){flushList();list=document.createElement(type);listType=type;target.append(list);}
+      const li=document.createElement('li');appendInlineMarkdown(li,(bullet||numbered)[1]);list.append(li);continue;
+    }
+    flushList();
+    if(!paragraph){paragraph=document.createElement('p');target.append(paragraph);}else paragraph.append(document.createElement('br'));
+    appendInlineMarkdown(paragraph,line);
+  }
+}
+function addMessage(message){const node=document.createElement('article');const isAI=message.sender_name==='EddyDev AI';node.className='support-message '+(isAI?'ai':message.sender_type==='user'?'user':message.sender_type==='staff'?'staff':'system');const meta=document.createElement('div');meta.className='support-message-meta';const name=document.createElement('span');name.textContent=isAI?t().ai:message.sender_type==='user'?t().you:message.sender_type==='staff'?(message.sender_name||t().staff):(message.sender_name||t().system);const time=document.createElement('time');time.dateTime=message.created_at;time.textContent=new Date(message.created_at).toLocaleString(language==='he'?'he-IL':'en-US',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'short'});meta.append(name,time);const body=document.createElement('div');body.className='support-message-body';if(isAI)renderFormattedText(body,message.body);else body.textContent=message.body;node.append(meta,body);$('support-messages').append(node);}
 function renderMessages(messages){const box=$('support-messages');const wasBottom=box.scrollHeight-box.scrollTop-box.clientHeight<100;box.replaceChildren();if(!messages.length){const empty=document.createElement('p');empty.className='support-message system';empty.textContent=t().empty;box.append(empty);}else messages.forEach(addMessage);if(wasBottom)box.scrollTop=box.scrollHeight;lastMessageCount=messages.length;}
 async function loadTicket(){const data=await api('/api/support/ticket');currentTicket=data.ticket;if(!currentTicket){show('start');return;}show('chat');$('support-chat-subject').textContent=currentTicket.subject;renderMessages(data.messages||[]);const closed=currentTicket.status!=='open';$('support-reply-form').hidden=closed;$('support-close-button').hidden=closed;$('support-ai-mode').checked=localStorage.getItem('eddy-support-ai-'+session.user.id)==='true';$('support-ai-mode').disabled=closed;if(closed){$('support-chat-status').textContent=t().closed;$('support-open-label').textContent=t().closed;}}
 async function refreshMessages(){if(!currentTicket)return;try{const data=await api('/api/support/tickets/'+encodeURIComponent(currentTicket.id));if(data.messages?.length!==lastMessageCount)renderMessages(data.messages||[]);if(data.ticket.status!=='open'){currentTicket=data.ticket;$('support-reply-form').hidden=true;$('support-close-button').hidden=true;$('support-ai-mode').disabled=true;$('support-chat-status').textContent=t().closed;$('support-open-label').textContent=t().closed;clearInterval(pollTimer);}}catch(error){console.warn('Support refresh failed',error);}}
