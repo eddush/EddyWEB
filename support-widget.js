@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 if (document.getElementById('eddy-support-launcher')) return;
-const css=document.createElement('link');css.rel='stylesheet';css.href='/support-widget.css?v=4';document.head.appendChild(css);
+const css=document.createElement('link');css.rel='stylesheet';css.href='/support-widget.css?v=5';document.head.appendChild(css);
 const addSupabase=()=>new Promise(resolve=>{if(window.supabase?.createClient)return resolve();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';s.onload=resolve;s.onerror=resolve;document.head.appendChild(s);});
 const root=document.createElement('div');root.id='eddy-support-widget';root.innerHTML=
 '<button id="eddy-support-launcher" type="button" aria-label="Support"><i class="fa-solid fa-comments"></i></button>'+
@@ -20,7 +20,29 @@ function headers(){return {'Content-Type':'application/json','Authorization':'Be
 function aiEnabled(){if(!session?.user?.id)return false;const key='eddy-support-ai-'+session.user.id;if(localStorage.getItem(key)===null)localStorage.setItem(key,'true');return localStorage.getItem(key)==='true';}
 async function requestAI(){if(!ticket||ticket.status!=='open')return;const toggle=$('esw-ai-mode');toggle.disabled=true;$('esw-chat-status').textContent=t().aiThinking;try{await api('/api/support/tickets/'+encodeURIComponent(ticket.id)+'/ai-reply',{method:'POST',body:'{}'});await refresh();$('esw-chat-status').textContent='';}catch(e){$('esw-chat-status').textContent=e.message||t().aiError;}finally{toggle.disabled=ticket?.status!=='open';}}
 async function api(url,options={}){const r=await fetch(url,{...options,headers:{...headers(),...(options.headers||{})},cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||t().error);return d;}
-function render(messages){const box=$('esw-messages');box.replaceChildren();if(!messages.length){const p=document.createElement('p');p.className='esw-empty';p.textContent=t().empty;box.append(p);}messages.forEach(m=>{const item=document.createElement('article');item.className='esw-msg '+(m.sender_type==='user'?'mine':m.sender_type==='staff'?'theirs':'system');const meta=document.createElement('small');meta.textContent=(m.sender_type==='user'?t().you:m.sender_type==='staff'?(m.sender_name||t().staff):(m.sender_name||'System'))+' · '+new Date(m.created_at).toLocaleTimeString(lang==='he'?'he-IL':'en-US',{hour:'2-digit',minute:'2-digit'});const body=document.createElement('div');body.textContent=m.body;item.append(meta,body);box.append(item);});box.scrollTop=box.scrollHeight;lastCount=messages.length;}
+function appendInlineMarkdown(parent,text){
+  const pattern=/\*\*(.+?)\*\*|__(.+?)__|\*(.+?)\*|_(.+?)_|\x60([^\x60]+)\x60/g;
+  let last=0,match;
+  while((match=pattern.exec(text))){
+    if(match.index>last)parent.append(document.createTextNode(text.slice(last,match.index)));
+    const value=match[1]||match[2]||match[3]||match[4]||match[5];
+    const node=document.createElement(match[5]?'code':(match[1]||match[2])?'strong':'em');
+    node.textContent=value;parent.append(node);last=pattern.lastIndex;
+  }
+  if(last<text.length)parent.append(document.createTextNode(text.slice(last)));
+}
+function renderFormattedText(target,raw){
+  const lines=String(raw||'').replace(/\r/g,'').split('\n');
+  let paragraph=null,list=null,listType=null;
+  for(const line of lines){
+    const heading=line.match(/^(#{1,3})\s+(.+)$/),bullet=line.match(/^\s*[-*+]\s+(.+)$/),numbered=line.match(/^\s*\d+[.)]\s+(.+)$/);
+    if(!line.trim()){paragraph=null;list=null;listType=null;continue;}
+    if(heading){paragraph=null;list=null;listType=null;const h=document.createElement('h'+Math.min(heading[1].length+1,4));appendInlineMarkdown(h,heading[2]);target.append(h);continue;}
+    if(bullet||numbered){paragraph=null;const type=bullet?'ul':'ol';if(!list||listType!==type){list=document.createElement(type);listType=type;target.append(list);}const li=document.createElement('li');appendInlineMarkdown(li,(bullet||numbered)[1]);list.append(li);continue;}
+    list=null;listType=null;if(!paragraph){paragraph=document.createElement('p');target.append(paragraph);}else paragraph.append(document.createElement('br'));appendInlineMarkdown(paragraph,line);
+  }
+}
+function render(messages){const box=$('esw-messages');box.replaceChildren();if(!messages.length){const p=document.createElement('p');p.className='esw-empty';p.textContent=t().empty;box.append(p);}messages.forEach(m=>{const item=document.createElement('article');item.className='esw-msg '+(m.sender_type==='user'?'mine':m.sender_type==='staff'?'theirs':'system');const meta=document.createElement('small');meta.textContent=(m.sender_type==='user'?t().you:m.sender_type==='staff'?(m.sender_name||t().staff):(m.sender_name||'System'))+' · '+new Date(m.created_at).toLocaleTimeString(lang==='he'?'he-IL':'en-US',{hour:'2-digit',minute:'2-digit'});const body=document.createElement('div');body.className='esw-msg-body';const isAI=m.sender_name==='EddyDev AI';if(isAI)renderFormattedText(body,m.body);else body.textContent=m.body;if(isAI)item.classList.add('ai');item.append(meta,body);box.append(item);});box.scrollTop=box.scrollHeight;lastCount=messages.length;}
 async function load(){const d=await api('/api/support/ticket');ticket=d.ticket;if(!ticket){show('start');return;}show('chat');$('esw-subject-title').textContent=ticket.subject;$('esw-close-ticket').hidden=ticket.status!=='open';$('esw-reply').hidden=ticket.status!=='open';$('esw-ai-mode').checked=aiEnabled();$('esw-ai-mode').disabled=ticket.status!=='open';$('esw-chat-status').textContent=ticket.status==='open'?'':t().closed;render(d.messages||[]);}
 async function refresh(){if(!ticket)return;try{const d=await api('/api/support/tickets/'+encodeURIComponent(ticket.id));if((d.messages||[]).length!==lastCount)render(d.messages||[]);if(d.ticket.status!=='open'){$('esw-close-ticket').hidden=true;$('esw-reply').hidden=true;$('esw-chat-status').textContent=t().closed;$('esw-ai-mode').disabled=true;clearInterval(poll);}}catch(e){console.warn(e);}}
 $('eddy-support-launcher').addEventListener('click',async()=>{const panel=$('esw-panel');panel.hidden=!panel.hidden;if(!panel.hidden)await initialize();});
