@@ -228,3 +228,22 @@ html[data-theme="light"] #esw-content #esw-reply {
   }
   #eddy-support-launcher { display: none; }
 }
+
+/* Full-page support shortcut in the widget header. */
+#esw-expand {
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid #ffffff40;
+  border-radius: 50%;
+  background: #ffffff18;
+  color: white;
+  text-decoration: none;
+  font-size: 13px;
+  transition: background .2s, transform .2s;
+}
+#esw-expand:hover {
+  background: #ffffff30;
+  transform: translateY(-1px);
+}
