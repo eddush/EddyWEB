@@ -15,7 +15,7 @@ function authHeaders(){return {'Content-Type':'application/json','Authorization'
 async function api(url,options={}){const response=await fetch(url,{...options,headers:{...authHeaders(),...(options.headers||{})},cache:'no-store'});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.message||'Request failed');return data;}
 function show(which){$('support-login').hidden=which!=='login';$('support-start').hidden=which!=='start';$('support-chat').hidden=which!=='chat';}
 function appendInlineMarkdown(parent,text){
-  const pattern=/\\[([^\\]]+)\\]\\((https?:\\/\\/[^)\\s]+)\\)|\\*\\*(.+?)\\*\\*|__(.+?)__|\\*(.+?)\\*|_(.+?)_|\\x60([^\\x60]+)\\x60/g;
+  const pattern=/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|\*\*(.+?)\*\*|__(.+?)__|\*(.+?)\*|_(.+?)_|\x60([^\x60]+)\x60/g;
   let last=0,match;
   while((match=pattern.exec(text))){
     if(match.index>last)parent.append(document.createTextNode(text.slice(last,match.index)));
