@@ -2,3 +2,14 @@
 .support-message.ai{align-self:flex-end;background:linear-gradient(135deg,rgba(145,83,220,.24),rgba(55,130,190,.18));border:1px solid rgba(185,101,255,.5);box-shadow:0 0 18px rgba(145,83,220,.09)}.support-message.ai .support-message-meta span{color:#d8b4ff;font-weight:700}html[data-theme="light"] .support-message.ai{background:rgba(185,101,255,.12);border-color:rgba(120,65,170,.35)}
 
 .support-chat-actions{display:flex;align-items:center;justify-content:flex-end;gap:1rem;flex-wrap:wrap}.support-ai-switch{display:flex!important;align-items:center;gap:.7rem;margin:0!important;padding:.55rem .8rem;border:1px solid rgba(185,101,255,.35);border-radius:14px;background:rgba(116,65,170,.12);cursor:pointer}.support-ai-switch-copy{display:flex;flex-direction:column;gap:.15rem}.support-ai-switch-copy strong{font-size:.92rem;color:#dfc2ff}.support-ai-switch-copy small{font-size:.72rem;opacity:.72;max-width:240px;font-weight:400}.support-ai-switch input{position:absolute;opacity:0;width:1px;height:1px}.support-ai-switch-track{width:42px;height:24px;border-radius:30px;background:#68717a;padding:3px;transition:background .2s;flex:none}.support-ai-switch-track span{display:block;width:18px;height:18px;border-radius:50%;background:white;transition:transform .2s}.support-ai-switch input:checked+.support-ai-switch-track{background:#8d50cb}.support-ai-switch input:checked+.support-ai-switch-track span{transform:translateX(18px)}html[dir="rtl"] .support-ai-switch input:checked+.support-ai-switch-track span{transform:translateX(-18px)}.support-ai-switch input:focus-visible+.support-ai-switch-track{outline:2px solid #c69aff;outline-offset:3px}.support-ai-switch input:disabled+.support-ai-switch-track{opacity:.45}@media(max-width:600px){.support-chat-actions{width:100%;justify-content:space-between}.support-ai-switch{flex:1}.support-ai-switch-copy small{max-width:180px}}
+
+/* Rich formatting for AI replies */
+.support-message.ai .support-message-body p{margin:.35rem 0;line-height:1.65}
+.support-message.ai .support-message-body p:first-child{margin-top:0}
+.support-message.ai .support-message-body p:last-child{margin-bottom:0}
+.support-message.ai .support-message-body h2,.support-message.ai .support-message-body h3,.support-message.ai .support-message-body h4{margin:.75rem 0 .35rem;line-height:1.35;font-weight:800}
+.support-message.ai .support-message-body h2{font-size:1.12rem}
+.support-message.ai .support-message-body h3{font-size:1.04rem}
+.support-message.ai .support-message-body ul,.support-message.ai .support-message-body ol{margin:.4rem 0;padding-inline-start:1.5rem}
+.support-message.ai .support-message-body li{margin:.22rem 0;line-height:1.55}
+.support-message.ai .support-message-body code{padding:.12rem .35rem;border-radius:5px;background:#0002;font-family:ui-monospace,monospace;font-size:.9em}
