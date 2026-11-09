@@ -21,7 +21,7 @@ function aiEnabled(){if(!session?.user?.id)return false;const key='eddy-support-
 async function requestAI(){if(!ticket||ticket.status!=='open')return;const toggle=$('esw-ai-mode');toggle.disabled=true;$('esw-chat-status').textContent=t().aiThinking;try{await api('/api/support/tickets/'+encodeURIComponent(ticket.id)+'/ai-reply',{method:'POST',body:'{}'});await refresh();$('esw-chat-status').textContent='';}catch(e){$('esw-chat-status').textContent=e.message||t().aiError;}finally{toggle.disabled=ticket?.status!=='open';}}
 async function api(url,options={}){const r=await fetch(url,{...options,headers:{...headers(),...(options.headers||{})},cache:'no-store'});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||t().error);return d;}
 function appendInlineMarkdown(parent,text){
-  const pattern=/\\[([^\\]]+)\\]\\((https?:\\/\\/[^)\\s]+)\\)|\\*\\*(.+?)\\*\\*|__(.+?)__|\\*(.+?)\\*|_(.+?)_|\\x60([^\\x60]+)\\x60/g;
+  const pattern=/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|\*\*(.+?)\*\*|__(.+?)__|\*(.+?)\*|_(.+?)_|\x60([^\x60]+)\x60/g;
   let last=0,match;
   while((match=pattern.exec(text))){
     if(match.index>last)parent.append(document.createTextNode(text.slice(last,match.index)));
