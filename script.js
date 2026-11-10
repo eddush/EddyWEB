@@ -9,7 +9,7 @@ const translations = {
     copy: 'Copy IP', copied: '✓ IP copied!', join: 'Join Server', statusTitle: 'Server Status', online: 'Online', offline: 'Offline',
     checking: 'Checking...', discordChecking: 'Checking member count...', staffChecking: 'Checking available staff...',
     discordTitle: 'Discord', joinDiscord: 'Join Server →', voteTitle: 'Vote',
-    voteText: 'A voting link will be added here soon.', contactTitle: 'Contact',
+    voteText: 'Support EddyDev by voting for our Minecraft server!', contactTitle: 'Contact',
     contactText: 'Have a question or problem? Contact us through Discord.', contactBtn: 'Contact Us →',
     newsBadge: 'NEWS & UPDATES', newsTitle: 'Latest News', newsIntro: 'Server news, updates, events and important announcements.',
     largeNewsBadge: 'NEWS & UPDATES', largeNewsTitle: 'All Updates & News', largeNewsIntro: 'Read full updates and detailed server news.',
@@ -26,7 +26,7 @@ const translations = {
     copy: 'העתק IP', copied: '✓ ה־IP הועתק!', join: 'כניסה לשרת', statusTitle: 'סטטוס השרת', online: 'מחובר', offline: 'לא מחובר',
     checking: 'בודק...', discordChecking: 'בודק מספר חברים...', staffChecking: 'בודק צוות זמין...',
     discordTitle: 'Discord', joinDiscord: 'הצטרף לשרת →', voteTitle: 'Vote',
-    voteText: 'קישור להצבעה יתווסף כאן ברגע שתשלח אותו.', contactTitle: 'צור קשר',
+    voteText: 'תמכו בשרת EddyDev והצביעו עבורנו!', contactTitle: 'צור קשר',
     contactText: 'יש שאלה או בעיה? פנו אלינו דרך Discord.', contactBtn: 'צור קשר →',
     newsBadge: 'חדשות ועדכונים', newsTitle: 'חדשות אחרונות', newsIntro: 'חדשות השרת, עדכונים, אירועים והודעות חשובות.',
     largeNewsBadge: 'חדשות ועדכונים', largeNewsTitle: 'כל העדכונים והחדשות', largeNewsIntro: 'קראו הודעות מפורטות, יומני שינויים מלאים ועדכוני שרת.',
@@ -117,7 +117,7 @@ function applyLanguage() {
   document.querySelector('.ip button').textContent = x.copy; document.querySelector('.btn.primary').textContent = x.join;
   document.querySelector('#server h2').textContent = x.statusTitle; document.querySelector('#community h2').textContent = x.discordTitle;
   document.querySelector('#community .textbtn').textContent = x.joinDiscord; document.querySelector('#vote h2').textContent = x.voteTitle;
-  document.querySelector('#vote p').textContent = x.voteText; document.querySelector('#contact h2').textContent = x.contactTitle;
+  document.querySelector('#vote p').textContent = x.voteText; const voteButton = document.querySelector('#vote .textbtn'); if (voteButton) voteButton.textContent = language === 'he' ? 'הצביעו עכשיו ←' : 'Vote Now →'; document.querySelector('#contact h2').textContent = x.contactTitle;
   document.querySelector('#contact p').textContent = x.contactText; document.querySelector('#contact .textbtn').textContent = x.contactBtn;
   document.querySelector('footer p').textContent = x.footer;
   document.getElementById('status').textContent = x.checking; document.getElementById('discord-members').textContent = x.discordChecking;
