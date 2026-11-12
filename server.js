@@ -43,6 +43,45 @@ app.use((req, res, next) => {
 });
 app.use(express.static(__dirname));
 
+app.post('/api/recaptcha/verify', async (req, res) => {
+    const token = typeof req.body?.token === 'string' ? req.body.token : '';
+    const action = typeof req.body?.action === 'string' ? req.body.action : '';
+    const secret = process.env.RECAPTCHA_SECRET_KEY;
+
+    if (!secret) {
+        return res.status(503).json({ success: false, message: 'reCAPTCHA is not configured' });
+    }
+    if (!token || token.length > 8192 || action !== 'login') {
+        return res.status(400).json({ success: false, message: 'Invalid reCAPTCHA request' });
+    }
+
+    try {
+        const params = new URLSearchParams({ secret, response: token });
+        const googleResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params
+        });
+        if (!googleResponse.ok) throw new Error('Google reCAPTCHA verification request failed');
+        const verification = await googleResponse.json();
+
+        const allowedHosts = new Set(['eddydev.ddns.net', 'eddy-web-seven.vercel.app']);
+        const hostname = String(verification.hostname || '').toLowerCase();
+        const valid = verification.success === true &&
+            verification.action === 'login' &&
+            Number(verification.score) >= 0.5 &&
+            allowedHosts.has(hostname);
+
+        if (!valid) {
+            return res.status(403).json({ success: false, message: 'reCAPTCHA verification rejected' });
+        }
+        return res.set('Cache-Control', 'no-store').json({ success: true });
+    } catch (error) {
+        console.error('reCAPTCHA verification error:', error?.message || error);
+        return res.status(502).json({ success: false, message: 'Could not verify reCAPTCHA' });
+    }
+});
+
 app.post('/api/login', async (req, res) => {
     const access = await checkMinecraftAdmin(req);
     if (!access.ok) return res.status(access.status).json({ success: false, message: access.message });
