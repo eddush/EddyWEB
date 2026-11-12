@@ -68,6 +68,7 @@
       passwordMismatch: 'הסיסמאות אינן תואמות.',
       passwordTooShort: 'הסיסמה חייבת להכיל לפחות 8 תווים.',
       signingIn: 'מתחבר...',
+      recaptchaError: 'אימות האבטחה נכשל. נסה שוב.',
       creatingAccount: 'יוצר את החשבון...',
       sendingReset: 'שולח הודעת איפוס...',
       savingProfile: 'שומר פרטים...',
@@ -167,6 +168,7 @@
       passwordMismatch: 'The passwords do not match.',
       passwordTooShort: 'Password must contain at least 8 characters.',
       signingIn: 'Signing in...',
+      recaptchaError: 'Security verification failed. Please try again.',
       creatingAccount: 'Creating account...',
       sendingReset: 'Sending reset email...',
       savingProfile: 'Saving profile...',
@@ -524,6 +526,20 @@
     return;
   }
 
+  function getLoginRecaptchaToken() {
+    return new Promise((resolve, reject) => {
+      if (!window.grecaptcha || typeof window.grecaptcha.ready !== 'function') {
+        reject(new Error(t().recaptchaError));
+        return;
+      }
+      window.grecaptcha.ready(() => {
+        window.grecaptcha.execute('6Le22BwuAAAAAI6Ic0zO_-qv11lGI9Cc8LcQKGWS', { action: 'login' })
+          .then(resolve)
+          .catch(() => reject(new Error(t().recaptchaError)));
+      });
+    });
+  }
+
   const client = supabaseLib.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     auth: {
       persistSession: true,
@@ -610,6 +626,16 @@
           setStatus('auth-status', x.confirmation, 'success');
         }
       } else {
+        const captchaToken = await getLoginRecaptchaToken();
+        const captchaResponse = await fetch('/api/recaptcha/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: captchaToken, action: 'login' })
+        });
+        const captchaResult = await captchaResponse.json().catch(() => ({}));
+        if (!captchaResponse.ok || !captchaResult.success) {
+          throw new Error(x.recaptchaError);
+        }
         const { data, error } = await client.auth.signInWithPassword({ email, password });
         if (error) throw error;
         if (data.user) showProfile(data.user, x.signedIn);
