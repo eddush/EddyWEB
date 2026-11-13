@@ -60,6 +60,16 @@
     </div>`;
   document.body.appendChild(root);
 
+  // The launcher is static HTML; bind it only after the player exists.
+  const launcher = document.getElementById('eddy-music-launcher');
+  if (launcher) {
+    launcher.addEventListener('click', () => {
+      const isOpen = root.classList.toggle('is-open');
+      launcher.setAttribute('aria-expanded', String(isOpen));
+      launcher.setAttribute('aria-label', isOpen ? 'Close music player' : 'Open music player');
+    });
+  }
+
   const $ = (id) => root.querySelector('#' + id);
   const audio = new Audio();
   audio.preload = 'metadata';
