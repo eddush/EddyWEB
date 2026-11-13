@@ -167,8 +167,22 @@
     update();
   }
 
+  function refreshAfterNavigation() {
+    addScrollElements();
+    if (revealObserver) observeElements();
+    else revealAll();
+    addProgressBar();
+    if (mutationObserver) {
+      mutationObserver.disconnect();
+      mutationObserver.observe(document.body, { childList: true, subtree: true });
+    }
+  }
+
   function init() {
-    if (document.documentElement.dataset.motionReady === 'true') return;
+    if (document.documentElement.dataset.motionReady === 'true') {
+      refreshAfterNavigation();
+      return;
+    }
 
     addScrollElements();
     setupRevealObserver();
@@ -191,6 +205,8 @@
 
     mutationObserver.observe(document.body, { childList: true, subtree: true });
   }
+
+  document.addEventListener('turbo:load', refreshAfterNavigation);
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });
