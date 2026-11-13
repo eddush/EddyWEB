@@ -150,7 +150,7 @@
       if (!window.supabase?.createClient) {
         await loadScript('eddy-supabase-client', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0');
       }
-      await loadScript('eddy-music-player-script', '/music-player.js?v=6');
+      await loadScript('eddy-music-player-script', '/music-player.js?v=7');
     } catch (error) {
       console.error('[EddyDev Music] Could not initialize music controls:', error);
     }
@@ -169,7 +169,7 @@
     if (document.getElementById('eddy-support-widget-script')) return;
     const script = document.createElement('script');
     script.id = 'eddy-support-widget-script';
-    script.src = '/support-widget.js?v=2';
+    script.src = '/support-widget.js?v=3';
     script.defer = true;
     document.body.appendChild(script);
   }
