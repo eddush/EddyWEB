@@ -18,8 +18,12 @@
     const controls = getControls();
     const button = document.getElementById('theme-toggle') || createButton();
     const languageButton = getLanguageButton();
+    const musicButton = getOrCreateMusicButton('eddy-music-launcher', 'Turn music on', '<i class="fa-solid fa-play" aria-hidden="true"></i>');
+    const skipButton = getOrCreateMusicButton('eddy-music-next', 'Skip to next song', '<i class="fa-solid fa-forward-step" aria-hidden="true"></i>');
     if (button.parentElement !== controls) controls.appendChild(button);
     if (languageButton && languageButton.parentElement !== controls) controls.appendChild(languageButton);
+    if (musicButton.parentElement !== controls) controls.appendChild(musicButton);
+    if (skipButton.parentElement !== controls) controls.appendChild(skipButton);
     controls.classList.add('site-preferences');
     controls.setAttribute('aria-label', 'Language and appearance settings');
     button.classList.add('theme-floating-toggle');
@@ -50,6 +54,20 @@
       try { localStorage.setItem(KEY, next); } catch (_) {}
       applyTheme(next);
     };
+  }
+
+  function getOrCreateMusicButton(id, label, icon) {
+    let button = document.getElementById(id);
+    if (!button) {
+      button = document.createElement('button');
+      button.id = id;
+      button.type = 'button';
+      button.className = 'lang-btn music-control-btn';
+      button.innerHTML = icon;
+    }
+    button.setAttribute('aria-label', label);
+    button.title = label;
+    return button;
   }
 
   function getLanguageButton() {
@@ -101,6 +119,45 @@
     document.addEventListener('DOMContentLoaded', init, { once: true });
   } else {
     init();
+  }
+})();
+
+
+// Load the music controls and soundtrack on every page.
+(function () {
+  function loadScript(id, src) {
+    return new Promise((resolve, reject) => {
+      const existing = document.getElementById(id);
+      if (existing) {
+        if (existing.dataset.loaded === 'true') return resolve();
+        existing.addEventListener('load', resolve, { once: true });
+        existing.addEventListener('error', reject, { once: true });
+        return;
+      }
+      const script = document.createElement('script');
+      script.id = id;
+      script.src = src;
+      script.onload = () => { script.dataset.loaded = 'true'; resolve(); };
+      script.onerror = reject;
+      document.body.appendChild(script);
+    });
+  }
+
+  async function loadMusic() {
+    try {
+      if (!window.supabase?.createClient) {
+        await loadScript('eddy-supabase-client', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0');
+      }
+      await loadScript('eddy-music-player-script', '/music-player.js?v=5');
+    } catch (error) {
+      console.error('[EddyDev Music] Could not initialize music controls:', error);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadMusic, { once: true });
+  } else {
+    loadMusic();
   }
 })();
 
