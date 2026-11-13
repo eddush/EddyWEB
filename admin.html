@@ -182,7 +182,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0"></script>
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-    <script>
+    <script>(function () {
+
 
         let adminLang = localStorage.getItem('eddy-language') || 'he';
         function applyAdminLanguage() {
@@ -455,7 +456,19 @@
             }
         }
         applyAdminLanguage();
-    </script>
+    
+window.applyAdminLanguage = applyAdminLanguage;
+window.drawDropsAvatar = drawDropsAvatar;
+window.login = login;
+window.loadNews = loadNews;
+window.render = render;
+window.improveArticle = improveArticle;
+window.updateItem = updateItem;
+window.updateAuthor = updateAuthor;
+window.deleteItem = deleteItem;
+window.addNewsItem = addNewsItem;
+window.saveNewsToServer = saveNewsToServer;
+})();</script>
   <script src="theme.js?v=5"></script>
   <script src="animations.js?v=3"></script>
   <script src="account-nav.js"></script>
