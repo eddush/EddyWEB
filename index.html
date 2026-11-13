@@ -28,7 +28,7 @@
 </head>
 
 <body>
-  <button id="eddy-music-launcher" type="button" aria-label="Open music player" title="EddyDev Music" onclick="const p=document.getElementById('eddy-music-player'); if(p){p.classList.toggle('is-open');this.setAttribute('aria-expanded',p.classList.contains('is-open'));}"><i class="fa-solid fa-music" aria-hidden="true"></i></button>
+  <button id="eddy-music-launcher" type="button" aria-label="Open music player" aria-expanded="false" title="EddyDev Music"><i class="fa-solid fa-music" aria-hidden="true"></i></button>
   <div class="grid"></div>
   <header>
     <a class="logo" href="#">Eddy<span>Dev</span></a>
@@ -126,7 +126,7 @@
   <script src="script.js" defer></script>
   <script src="theme.js?v=4" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" defer></script>
-  <script src="music-player.js?v=1" defer></script>
+  <script src="music-player.js?v=2" defer></script>
   <script src="home-account.js?v=6" defer></script>
   <script src="animations.js?v=3" defer></script>
 </body>
