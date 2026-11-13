@@ -271,3 +271,8 @@ html[data-theme="light"] #esw-content #esw-reply {
 }
 .support-message.ai .ai-link-button:hover,
 #esw-content .esw-msg.ai .ai-link-button:hover{transform:translateY(-2px);filter:brightness(1.08)}
+
+/* Slow down the support launcher shake animation. */
+#eddy-support-launcher .fa-shake {
+  animation-duration: 1.5s;
+}
