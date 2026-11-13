@@ -1,3 +1,4 @@
+(() => {
 const IP = 'Eddydev.ddns.net';
 const DISCORD_API = 'https://eddy-bot-lyvo.onrender.com/api/discord';
 
@@ -157,3 +158,6 @@ status();
 discordStats();
 setInterval(status, 30000);
 setInterval(discordStats, 60000);
+  window.toggleLanguage = toggleLanguage;
+  window.copyIP = copyIP;
+})();
