@@ -21,14 +21,13 @@
     #account-nav-link { display:inline-flex; align-items:center; gap:.5rem; }
     #home-account-avatar { width:30px; height:30px; border-radius:8px; object-fit:cover; image-rendering:pixelated; box-shadow:0 2px 10px #0003; }
     #home-account-avatar[hidden] { display:none; }
-    #eddy-music-launcher{position:fixed!important;left:20px!important;bottom:20px!important;top:auto!important;right:auto!important;z-index:2147483647!important;display:grid!important;place-items:center!important;width:56px!important;height:56px!important;min-width:56px!important;min-height:56px!important;padding:0!important;border:1px solid rgba(116,192,252,.65)!important;border-radius:50%!important;background:linear-gradient(145deg,#16394b,#07151d)!important;color:#74c0fc!important;box-shadow:0 8px 30px rgba(0,0,0,.5)!important;font-size:21px!important;cursor:pointer!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
-    #eddy-music-launcher:hover{transform:translateY(-2px)!important;background:#214e63!important}
-    @media(max-width:600px){#eddy-music-launcher{left:12px!important;bottom:12px!important}}
+    .music-control-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:.4rem!important;min-width:38px!important;height:38px!important;padding:0 .7rem!important;cursor:pointer!important}
+    .music-control-btn i{font-size:14px!important}
+    #eddy-music-next{font-size:14px!important}
   </style>
 </head>
 
 <body>
-  <button id="eddy-music-launcher" type="button" aria-label="Open music player" aria-expanded="false" title="EddyDev Music"><i class="fa-solid fa-music" aria-hidden="true"></i></button>
   <div class="grid"></div>
   <header>
     <a class="logo" href="#">Eddy<span>Dev</span></a>
@@ -44,6 +43,8 @@
       <a href="account.html" id="account-nav-link"><i class="fa-regular fa-user" id="account-nav-icon" aria-hidden="true"></i><img id="home-account-avatar" alt="Minecraft profile head" width="30" height="30" hidden><span id="account-nav-label">התחברות / כניסה</span></a>
       <button class="lang-btn" id="lang-toggle" onclick="toggleLanguage()">עברית</button>
       <button class="lang-btn theme-btn" id="theme-toggle" type="button" aria-label="Switch color theme">☀️ Light</button>
+      <button class="lang-btn music-control-btn" id="eddy-music-launcher" type="button" aria-label="Turn music on" aria-pressed="false" title="Turn music on"><i class="fa-solid fa-play" aria-hidden="true"></i></button>
+      <button class="lang-btn music-control-btn" id="eddy-music-next" type="button" aria-label="Skip to next song" title="Next song"><i class="fa-solid fa-forward-step" aria-hidden="true"></i></button>
     </nav>
   </header>
 
@@ -121,6 +122,7 @@
   <footer>
     <b>Eddy<span>WEB</span></b>
     <p>Minecraft community • Eddydev.ddns.net</p>
+    <small class="music-attribution">Minecraft music © Mojang Studios. All rights belong to their respective owners.</small>
   </footer>
 
   <script src="script.js" defer></script>
