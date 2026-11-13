@@ -71,14 +71,20 @@
   document.body.appendChild(root);
 
   // The floating button is a simple music on/off switch; no player window is shown.
-  const launcher = document.getElementById('eddy-music-launcher');
-  const nextButton = document.getElementById('eddy-music-next');
+  // Resolve the controls dynamically: Turbo may replace or move the dock
+  // during navigation, so listeners must not depend on the original nodes.
+  function getLauncher() { return document.getElementById('eddy-music-launcher'); }
+  function getNextButton() { return document.getElementById('eddy-music-next'); }
   // Put both music controls inside the same floating dock as language/theme.
-  const preferencesDock = document.getElementById('site-preferences');
-  if (preferencesDock) {
-    if (launcher) preferencesDock.appendChild(launcher);
-    if (nextButton) preferencesDock.appendChild(nextButton);
+  function placeMusicControls() {
+    const dock = document.getElementById('site-preferences');
+    if (!dock) return;
+    const playButton = getLauncher();
+    const skipButton = getNextButton();
+    if (playButton && playButton.parentElement !== dock) dock.appendChild(playButton);
+    if (skipButton && skipButton.parentElement !== dock) dock.appendChild(skipButton);
   }
+  placeMusicControls();
 
   const $ = (id) => root.querySelector('#' + id);
   const audio = new Audio();
@@ -129,6 +135,7 @@
   }
 
   function updateLauncher() {
+    const launcher = getLauncher();
     if (!launcher) return;
     launcher.innerHTML = audio.paused
       ? '<i class="fa-solid fa-play" aria-hidden="true"></i>'
@@ -156,9 +163,25 @@
     updatePlayButton();
     updateLauncher();
   }
-  if (launcher) launcher.addEventListener('click', toggleMusic);
-  if (nextButton) nextButton.addEventListener('click', () => {
-    if (tracks.length) next();
+  // Delegated handlers keep working even if Turbo swaps the button elements.
+  document.addEventListener('click', (event) => {
+    const playButton = event.target.closest?.('#eddy-music-launcher');
+    if (playButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleMusic();
+      return;
+    }
+    const skipButton = event.target.closest?.('#eddy-music-next');
+    if (skipButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (tracks.length) next();
+    }
+  });
+  document.addEventListener('turbo:load', () => {
+    placeMusicControls();
+    updateLauncher();
   });
   function chooseNext() {
     if (!tracks.length) return -1;
