@@ -8,7 +8,7 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    #eddy-music-player{position:fixed;left:20px;bottom:20px;z-index:2147483001;width:min(340px,calc(100vw - 32px));color:var(--music-text,#f3fbff);font-family:inherit;pointer-events:none}
+    #eddy-music-player{display:none!important}
     #eddy-music-player .emp-panel{display:none;position:absolute;left:0;bottom:0;width:min(340px,calc(100vw - 32px));padding:13px 14px;border:1px solid rgba(116,192,252,.24);border-radius:17px;background:rgba(8,18,25,.96);backdrop-filter:blur(18px);box-shadow:0 12px 38px rgba(0,0,0,.32);pointer-events:auto}
     #eddy-music-player.is-open .emp-panel{display:block}
     html[data-theme="light"] #eddy-music-player .emp-panel{background:rgba(250,254,255,.94);color:#17363b;border-color:rgba(20,100,110,.18)}
@@ -60,15 +60,8 @@
     </div>`;
   document.body.appendChild(root);
 
-  // The launcher is static HTML; bind it only after the player exists.
+  // The floating button is a simple music on/off switch; no player window is shown.
   const launcher = document.getElementById('eddy-music-launcher');
-  if (launcher) {
-    launcher.addEventListener('click', () => {
-      const isOpen = root.classList.toggle('is-open');
-      launcher.setAttribute('aria-expanded', String(isOpen));
-      launcher.setAttribute('aria-label', isOpen ? 'Close music player' : 'Open music player');
-    });
-  }
 
   const $ = (id) => root.querySelector('#' + id);
   const audio = new Audio();
@@ -117,6 +110,36 @@
     $('emp-play').innerHTML = audio.paused ? '<i class="fa-solid fa-play"></i>' : '<i class="fa-solid fa-pause"></i>';
     $('emp-play').setAttribute('aria-label', audio.paused ? 'Play music' : 'Pause music');
   }
+
+  function updateLauncher() {
+    if (!launcher) return;
+    launcher.innerHTML = audio.paused
+      ? '<i class="fa-solid fa-play" aria-hidden="true"></i>'
+      : '<i class="fa-solid fa-pause" aria-hidden="true"></i>';
+    launcher.title = audio.paused ? 'Turn music on' : 'Turn music off';
+    launcher.setAttribute('aria-label', audio.paused ? 'Turn music on' : 'Turn music off');
+    launcher.setAttribute('aria-pressed', String(!audio.paused));
+  }
+  async function toggleMusic() {
+    if (audio.paused) {
+      if (!tracks.length) {
+        $('emp-message').textContent = 'Music is still loading';
+        return;
+      }
+      if (!audio.src) await playIndex(current < 0 ? Math.floor(Math.random() * tracks.length) : current, false);
+      try {
+        await audio.play();
+        $('emp-message').textContent = 'Now playing';
+      } catch (_) {
+        $('emp-message').textContent = 'Could not start music';
+      }
+    } else {
+      audio.pause();
+    }
+    updatePlayButton();
+    updateLauncher();
+  }
+  if (launcher) launcher.addEventListener('click', toggleMusic);
   function chooseNext() {
     if (!tracks.length) return -1;
     if (!shuffle) return (current + 1) % tracks.length;
@@ -197,8 +220,8 @@
   });
   audio.addEventListener('loadedmetadata', () => { $('emp-duration').textContent = formatTime(audio.duration); });
   audio.addEventListener('ended', next);
-  audio.addEventListener('play', updatePlayButton);
-  audio.addEventListener('pause', updatePlayButton);
+  audio.addEventListener('play', () => { updatePlayButton(); updateLauncher(); });
+  audio.addEventListener('pause', () => { updatePlayButton(); updateLauncher(); });
   audio.addEventListener('error', () => {
     $('emp-message').textContent = 'Could not load this track';
     setStatus('Track error');
@@ -224,7 +247,7 @@
       current = Math.floor(Math.random() * tracks.length);
       displayTrack(tracks[current]);
       setStatus(tracks.length + ' tracks');
-      $('emp-message').textContent = 'Click play to start';
+      $('emp-message').textContent = 'Click the music button to turn music on';
     } catch (error) {
       console.error('[EddyDev Music]', error);
       setStatus('Unavailable');
@@ -232,5 +255,6 @@
     }
   }
 
+  updateLauncher();
   loadTracks();
 })();
