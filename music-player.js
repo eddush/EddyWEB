@@ -62,6 +62,7 @@
 
   // The floating button is a simple music on/off switch; no player window is shown.
   const launcher = document.getElementById('eddy-music-launcher');
+  const nextButton = document.getElementById('eddy-music-next');
 
   const $ = (id) => root.querySelector('#' + id);
   const audio = new Audio();
@@ -140,6 +141,9 @@
     updateLauncher();
   }
   if (launcher) launcher.addEventListener('click', toggleMusic);
+  if (nextButton) nextButton.addEventListener('click', () => {
+    if (tracks.length) next();
+  });
   function chooseNext() {
     if (!tracks.length) return -1;
     if (!shuffle) return (current + 1) % tracks.length;
