@@ -63,6 +63,12 @@
   // The floating button is a simple music on/off switch; no player window is shown.
   const launcher = document.getElementById('eddy-music-launcher');
   const nextButton = document.getElementById('eddy-music-next');
+  // Put both music controls inside the same floating dock as language/theme.
+  const preferencesDock = document.getElementById('site-preferences');
+  if (preferencesDock) {
+    if (launcher) preferencesDock.appendChild(launcher);
+    if (nextButton) preferencesDock.appendChild(nextButton);
+  }
 
   const $ = (id) => root.querySelector('#' + id);
   const audio = new Audio();
