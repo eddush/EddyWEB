@@ -3,7 +3,7 @@
 if (document.getElementById('eddy-support-launcher')) return;
 const css=document.createElement('link');css.rel='stylesheet';css.href='/support-widget.css?v=6';document.head.appendChild(css);
 const addSupabase=()=>new Promise(resolve=>{if(window.supabase?.createClient)return resolve();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0';s.onload=resolve;s.onerror=resolve;document.head.appendChild(s);});
-const root=document.createElement('div');root.id='eddy-support-widget';root.innerHTML=
+const root=document.createElement('div');root.id='eddy-support-widget';root.setAttribute('data-turbo-permanent','');root.innerHTML=
 '<button id="eddy-support-launcher" type="button" aria-label="Support"><i class="fa-solid fa-comments"></i></button>'+
 '<section id="esw-panel" aria-label="Support chat" hidden><header class="esw-head"><div class="esw-brand"><span class="esw-avatar"><i class="fa-solid fa-headset"></i></span><div><strong data-i18n="title">תמיכה של EddyDev</strong><small data-i18n="subtitle">אנחנו כאן כדי לעזור</small></div></div><div class="esw-actions"><button id="esw-lang" type="button" aria-label="Language">EN</button><a id="esw-expand" href="https://eddydev.ddns.net/support" target="_blank" rel="noopener noreferrer" aria-label="Open full support page" title="Open full support page"><i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i></a><button id="esw-close" type="button" aria-label="Close">×</button></div></header>'+
 '<div id="esw-content"><div id="esw-login" hidden><p data-i18n="login">יש להתחבר לחשבון כדי לפנות לצוות.</p><a class="esw-primary" href="/account.html" data-i18n="signin">התחברות לחשבון</a></div>'+
