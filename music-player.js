@@ -8,8 +8,12 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    #eddy-music-player{position:fixed;left:20px;bottom:20px;z-index:9998;width:min(340px,calc(100vw - 32px));color:var(--music-text,#f3fbff);font-family:inherit}
-    #eddy-music-player .emp-panel{padding:13px 14px;border:1px solid rgba(116,192,252,.24);border-radius:17px;background:rgba(8,18,25,.92);backdrop-filter:blur(18px);box-shadow:0 12px 38px rgba(0,0,0,.32)}
+    #eddy-music-player{position:fixed;left:20px;bottom:20px;z-index:2147483001;width:min(340px,calc(100vw - 32px));color:var(--music-text,#f3fbff);font-family:inherit;pointer-events:none}
+    #eddy-music-player .emp-launcher{pointer-events:auto;width:52px;height:52px;border:1px solid rgba(116,192,252,.42);border-radius:50%;background:linear-gradient(145deg,#16394b,#0a1c27);color:#74c0fc;box-shadow:0 8px 28px rgba(0,0,0,.38);font-size:19px}
+    #eddy-music-player .emp-panel{display:none;position:absolute;left:0;bottom:64px;width:min(340px,calc(100vw - 32px));padding:13px 14px;border:1px solid rgba(116,192,252,.24);border-radius:17px;background:rgba(8,18,25,.92);backdrop-filter:blur(18px);box-shadow:0 12px 38px rgba(0,0,0,.32);pointer-events:auto}
+    #eddy-music-player.is-open .emp-panel{display:block}
+    #eddy-music-player .emp-launcher:hover{transform:translateY(-2px);background:#17384a}
+    #eddy-music-player.is-open .emp-launcher{background:#74c0fc;color:#07151d}
     html[data-theme="light"] #eddy-music-player .emp-panel{background:rgba(250,254,255,.94);color:#17363b;border-color:rgba(20,100,110,.18)}
     #eddy-music-player .emp-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
     #eddy-music-player .emp-brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:12px;letter-spacing:.04em}
@@ -27,7 +31,7 @@
     #eddy-music-player .emp-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
     #eddy-music-player .emp-volume{width:82px;accent-color:#74c0fc}
     #eddy-music-player .emp-message{font-size:10px;opacity:.6}
-    @media(max-width:600px){#eddy-music-player{left:12px;bottom:12px;width:min(320px,calc(100vw - 24px))}}
+    @media(max-width:600px){#eddy-music-player{left:12px;bottom:12px;width:min(320px,calc(100vw - 24px))}#eddy-music-player .emp-panel{width:min(320px,calc(100vw - 24px))}}
     @media(prefers-reduced-motion:reduce){#eddy-music-player button{transition:none}}
   `;
   document.head.appendChild(style);
@@ -36,6 +40,7 @@
   root.id = 'eddy-music-player';
   root.setAttribute('aria-label', 'EddyDev background music player');
   root.innerHTML = `
+    <button class="emp-launcher" id="emp-launcher" type="button" aria-label="Open music player" aria-expanded="false" title="EddyDev Music"><i class="fa-solid fa-music"></i></button>
     <div class="emp-panel">
       <div class="emp-top">
         <div class="emp-brand"><i class="fa-solid fa-music"></i><span>EddyDev Music</span></div>
@@ -146,6 +151,13 @@
       playIndex((current - 1 + tracks.length) % tracks.length);
     }
   }
+
+  $('emp-launcher').addEventListener('click', () => {
+    const isOpen = root.classList.toggle('is-open');
+    $('emp-launcher').setAttribute('aria-expanded', String(isOpen));
+    $('emp-launcher').setAttribute('aria-label', isOpen ? 'Close music player' : 'Open music player');
+    $('emp-launcher').title = isOpen ? 'Close music player' : 'EddyDev Music';
+  });
 
   $('emp-play').addEventListener('click', async () => {
     if (!tracks.length) return;
