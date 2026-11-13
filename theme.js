@@ -93,6 +93,7 @@
     if (!controls) {
       controls = document.createElement('div');
       controls.id = 'site-preferences';
+      controls.setAttribute('data-turbo-permanent', '');
       controls.className = 'site-preferences';
       controls.setAttribute('aria-label', 'Language and appearance settings');
       document.body.appendChild(controls);
@@ -145,6 +146,7 @@
 
   async function loadMusic() {
     try {
+      if (document.getElementById('eddy-music-player')) return;
       if (!window.supabase?.createClient) {
         await loadScript('eddy-supabase-client', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0');
       }
