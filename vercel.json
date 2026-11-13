@@ -30,6 +30,10 @@
       "use": "@vercel/static"
     },
     {
+      "src": "music-player.js",
+      "use": "@vercel/static"
+    },
+    {
       "src": "account.js",
       "use": "@vercel/static"
     },
