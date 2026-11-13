@@ -3858,3 +3858,16 @@ html[data-theme] body #site-preferences > button:active {
     transition: none !important;
   }
 }
+
+/* EddyDev branded text selection */
+::selection {
+  background: #31e7ca;
+  color: #082321;
+  text-shadow: none;
+}
+
+::-moz-selection {
+  background: #31e7ca;
+  color: #082321;
+  text-shadow: none;
+}
