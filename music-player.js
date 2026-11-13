@@ -1,6 +1,14 @@
 (() => {
   'use strict';
 
+  // Turbo may revisit a page while its scripts are evaluated again.
+  // The soundtrack must have exactly one controller and one Audio instance
+  // for the lifetime of this browser document.
+  if (window.__eddyMusicPlayerInitialized || document.getElementById('eddy-music-player')) {
+    return;
+  }
+  window.__eddyMusicPlayerInitialized = true;
+
   const SUPABASE_URL = 'https://vnhgkatsfpjyqpdppqrf.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_N6amZaYaWj7AdF8wQAHpEA_Qd2TAyp6';
   const BUCKET = 'music';
