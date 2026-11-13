@@ -120,3 +120,49 @@
     load();
   }
 })();
+
+
+// Add a bilingual copyright notice to the shared footer on every page.
+(function () {
+  function updateCopyright() {
+    let footer = document.querySelector('footer');
+    if (!footer) {
+      footer = document.createElement('footer');
+      document.body.appendChild(footer);
+    }
+
+    let notice = footer.querySelector('.eddy-copyright');
+    if (!notice) {
+      notice = document.createElement('p');
+      notice.className = 'eddy-copyright';
+      footer.appendChild(notice);
+    }
+
+    let isHebrew = document.documentElement.lang.toLowerCase().startsWith('he');
+    try {
+      const savedLanguage = localStorage.getItem('eddy-language');
+      if (savedLanguage === 'he') isHebrew = true;
+      else if (savedLanguage === 'en') isHebrew = false;
+    } catch (_) {}
+
+    const year = new Date().getFullYear();
+    notice.textContent = isHebrew
+      ? '© ' + year + ' EddyDev. כל הזכויות שמורות.'
+      : '© ' + year + ' EddyDev. All rights reserved.';
+    notice.setAttribute('dir', isHebrew ? 'rtl' : 'ltr');
+    notice.setAttribute('lang', isHebrew ? 'he' : 'en');
+  }
+
+  function initCopyright() {
+    if (!document.body) return;
+    updateCopyright();
+    const observer = new MutationObserver(updateCopyright);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['lang', 'dir'] });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCopyright, { once: true });
+  } else {
+    initCopyright();
+  }
+})();
