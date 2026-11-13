@@ -5,6 +5,7 @@
   const SUPABASE_KEY = 'sb_publishable_N6amZaYaWj7AdF8wQAHpEA_Qd2TAyp6';
   const BUCKET = 'music';
   const PREF_KEY = 'eddydev.music-player.v1';
+  const SESSION_KEY = 'eddydev.music-session.v1';
 
   const style = document.createElement('style');
   style.textContent = `
@@ -230,8 +231,29 @@
   });
   audio.addEventListener('loadedmetadata', () => { $('emp-duration').textContent = formatTime(audio.duration); });
   audio.addEventListener('ended', next);
-  audio.addEventListener('play', () => { updatePlayButton(); updateLauncher(); });
-  audio.addEventListener('pause', () => { updatePlayButton(); updateLauncher(); });
+  audio.addEventListener('play', () => {
+    updatePlayButton();
+    updateLauncher();
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ playing: true, track: tracks[current]?.name || '', time: audio.currentTime || 0 })); } catch (_) {}
+  });
+  audio.addEventListener('pause', () => {
+    updatePlayButton();
+    updateLauncher();
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(SESSION_KEY) || '{}');
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ...saved, playing: false, track: tracks[current]?.name || saved.track || '', time: audio.currentTime || 0 }));
+    } catch (_) {}
+  });
+  // Keep the soundtrack state across normal page navigation in the same tab.
+  window.addEventListener('pagehide', () => {
+    try {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+        playing: !audio.paused,
+        track: tracks[current]?.name || '',
+        time: Number.isFinite(audio.currentTime) ? audio.currentTime : 0
+      }));
+    } catch (_) {}
+  });
   audio.addEventListener('error', () => {
     $('emp-message').textContent = 'Could not load this track';
     setStatus('Track error');
@@ -254,10 +276,30 @@
         });
       if (!tracks.length) throw new Error('No audio files found in the music bucket');
       loadPrefs();
-      current = Math.floor(Math.random() * tracks.length);
+      let savedSession = null;
+      try { savedSession = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null'); } catch (_) {}
+      const savedIndex = savedSession?.track ? tracks.findIndex(track => track.name === savedSession.track) : -1;
+      current = savedIndex >= 0 ? savedIndex : Math.floor(Math.random() * tracks.length);
       displayTrack(tracks[current]);
       setStatus(tracks.length + ' tracks');
       $('emp-message').textContent = 'Click the music button to turn music on';
+
+      // Restore the same song and position after the next page has loaded.
+      if (savedSession?.playing && savedIndex >= 0) {
+        audio.src = tracks[current].url;
+        audio.addEventListener('loadedmetadata', async function restorePlayback() {
+          const savedTime = Number(savedSession.time);
+          if (Number.isFinite(savedTime) && savedTime > 0 && savedTime < audio.duration) audio.currentTime = savedTime;
+          try {
+            await audio.play();
+            $('emp-message').textContent = 'Now playing';
+          } catch (_) {
+            $('emp-message').textContent = 'Press the music button to resume';
+            try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ...savedSession, playing: false, time: audio.currentTime || 0 })); } catch (_) {}
+          }
+        }, { once: true });
+        audio.load();
+      }
     } catch (error) {
       console.error('[EddyDev Music]', error);
       setStatus('Unavailable');
