@@ -36,6 +36,7 @@
 
   const root = document.createElement('aside');
   root.id = 'eddy-music-player';
+  root.setAttribute('data-turbo-permanent', '');
   root.setAttribute('aria-label', 'EddyDev background music player');
   root.innerHTML = `
     <div class="emp-panel">
