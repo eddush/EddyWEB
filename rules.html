@@ -30,7 +30,8 @@
 </section>
 <section class="info-card"><div id="rules-list" class="rules-list"></div></section>
 </main>
-<script>
+<script>(function () {
+
 let lang='he';
 try { lang=localStorage.getItem('eddy-language') || 'he'; } catch (_) {}
 const data={
@@ -142,6 +143,7 @@ try{localStorage.setItem('eddy-language',lang)}catch(_){}
 applyRulesLanguage();
 });
 applyRulesLanguage();
-</script>
+
+})();</script>
 <script src="theme.js?v=5" defer></script><script src="animations.js?v=3" defer></script><script src="account-nav.js" defer></script>
 </body></html>
