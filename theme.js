@@ -150,7 +150,7 @@
       if (!window.supabase?.createClient) {
         await loadScript('eddy-supabase-client', 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0');
       }
-      await loadScript('eddy-music-player-script', '/music-player.js?v=8');
+      await loadScript('eddy-music-player-script', '/music-player.js?v=9');
     } catch (error) {
       console.error('[EddyDev Music] Could not initialize music controls:', error);
     }
