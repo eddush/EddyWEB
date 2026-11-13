@@ -206,7 +206,10 @@
     mutationObserver.observe(document.body, { childList: true, subtree: true });
   }
 
-  document.addEventListener('turbo:load', refreshAfterNavigation);
+  if (document.documentElement.dataset.turboAnimationsBound !== 'true') {
+    document.documentElement.dataset.turboAnimationsBound = 'true';
+    document.addEventListener('turbo:load', refreshAfterNavigation);
+  }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init, { once: true });
