@@ -13,8 +13,8 @@
     return data?.session?.access_token || '';
   }
   async function request(action, extra = {}) {
-    const accessToken = await token();
-    if (!accessToken) throw new Error('יש להתחבר לחשבון המנהל מחדש.');
+    const accessToken = action === 'list' ? '' : await token();
+    if (action !== 'list' && !accessToken) throw new Error('יש להתחבר לחשבון המנהל מחדש.');
     const response = await fetch('/api/polls', {
       method: action === 'list' ? 'GET' : 'POST',
       headers: { 'Content-Type': 'application/json', ...(action === 'list' ? {} : { Authorization: 'Bearer ' + accessToken }) },
