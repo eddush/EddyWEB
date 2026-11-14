@@ -137,13 +137,13 @@
       "dest": "/$1.html"
     },
     {
+      "src": "^/polls$",
+      "dest": "/polls.html"
+    },
+    {
       "src": "/.*",
       "status": 404,
       "dest": "/404.html"
-    },
-    {
-      "src": "^/polls$",
-      "dest": "/polls.html"
     }
   ]
 }
