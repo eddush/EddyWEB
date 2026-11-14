@@ -61,7 +61,18 @@ module.exports = async function handler(req, res) {
           const optionId = row.content_json?.optionId;
           if (Object.prototype.hasOwnProperty.call(counts, optionId)) counts[optionId]++;
         }
-        return { ...poll, counts, totalVotes: (votes || []).length };
+        const discordCounts = Object.fromEntries(poll.options.map(option => [
+          option.id,
+          Number(poll.discordResults?.counts?.[String(option.discordAnswerId)] ??
+            poll.discordResults?.counts?.[option.discordAnswerId] ?? 0)
+        ]));
+        return {
+          ...poll,
+          counts,
+          totalVotes: (votes || []).length,
+          discordCounts,
+          discordTotalVotes: Math.max(0, Number(poll.discordResults?.totalVoters) || 0)
+        };
       }));
       return res.status(200).json({ success: true, polls: results });
     } catch (error) {
