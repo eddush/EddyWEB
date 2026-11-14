@@ -84,6 +84,22 @@
     {
       "src": "api/polls.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "polls.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "polls.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "poll-admin.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "poll-admin.css",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
