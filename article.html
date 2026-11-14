@@ -10,7 +10,7 @@
     <title>EddyDev | מאמר</title>
   <meta name="description" content="Read the latest EddyDev Minecraft server news, community announcements, events and updates.">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
-  <link rel="canonical" href="https://eddydev.ddns.net/article">
+
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="EddyDev">
   <meta property="og:url" content="https://eddydev.ddns.net/article">
@@ -228,8 +228,10 @@
                 setMeta('meta[property="og:title"]','content',seoTitle,'meta','property');
                 setMeta('meta[property="og:description"]','content',seoDescription.slice(0,300),'meta','property');
                 setMeta('meta[property="og:url"]','content',window.location.origin + '/article?id=' + encodeURIComponent(article.id),'meta','property');
-                const canonical = document.querySelector('link[rel="canonical"]');
-                if (canonical) canonical.href = window.location.origin + '/article?id=' + encodeURIComponent(article.id);
+                let canonical = document.querySelector('link[rel="canonical"]');
+                if (!canonical) { canonical = document.createElement('link'); canonical.rel = 'canonical'; document.head.appendChild(canonical); }
+                canonical.href = window.location.origin + '/article?id=' + encodeURIComponent(article.id);
+                setMeta('meta[property="og:type"]','content','article','meta','property');
                 const oldLd = document.getElementById('article-jsonld'); if (oldLd) oldLd.remove();
                 const ld = document.createElement('script'); ld.type = 'application/ld+json'; ld.id = 'article-jsonld';
                 ld.textContent = JSON.stringify({"@context":"https://schema.org","@type":"Article","headline":seoTitle,"description":seoDescription.slice(0,300),"author":{"@type":"Person","name":article.author || "EddyDev"},"publisher":{"@type":"Organization","name":"EddyDev","logo":{"@type":"ImageObject","url":window.location.origin+"/logo.png"}},"mainEntityOfPage":window.location.href});
