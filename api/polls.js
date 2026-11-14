@@ -31,14 +31,14 @@ module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const { data: rows, error } = await db.from('site_content')
-        .select('content_key,content_json').gte('content_key', 'poll_').lt('content_key', 'poll_\\uffff').order('updated_at', { ascending: false });
+        .select('content_key,content_json').gte('content_key', 'poll_').lt('content_key', 'poll_\uffff').order('updated_at', { ascending: false });
       if (error) throw error;
       const polls = (rows || []).filter(row => /^poll_[a-f0-9]{12}$/.test(row.content_key))
         .map(row => cleanPoll(row)).filter(Boolean);
       const results = await Promise.all(polls.map(async poll => {
         const prefix = 'pv_' + poll.id + '_';
         const { data: votes, error: voteError } = await db.from('site_content')
-          .select('content_json').gte('content_key', prefix).lt('content_key', prefix + '\\uffff');
+          .select('content_json').gte('content_key', prefix).lt('content_key', prefix + '\uffff');
         if (voteError) throw voteError;
         const counts = Object.fromEntries(poll.options.map(option => [option.id, 0]));
         for (const row of votes || []) {
@@ -114,7 +114,7 @@ module.exports = async function handler(req, res) {
 
     if (!/^[a-f0-9]{12}$/.test(pollId)) return res.status(400).json({ success: false, message: 'מזהה סקר לא תקין.' });
     if (action === 'delete') {
-      const { error } = await db.from('site_content').delete().gte('content_key', 'pv_' + pollId + '_').lt('content_key', 'pv_' + pollId + '_\\uffff');
+      const { error } = await db.from('site_content').delete().gte('content_key', 'pv_' + pollId + '_').lt('content_key', 'pv_' + pollId + '_\uffff');
       if (error) throw error;
       const { error: pollDeleteError } = await db.from('site_content').delete().eq('content_key', 'poll_' + pollId);
       if (pollDeleteError) throw pollDeleteError;
