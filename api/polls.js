@@ -30,6 +30,16 @@ async function requireAdmin(req) {
   return response.ok && (await response.json().catch(() => ({}))).success === true;
 }
 
+
+async function requireBot(req) {
+  const expected = process.env.EDDYBOT_POLLS_SECRET || '';
+  const supplied = String(req.headers['x-eddybot-secret'] || '');
+  if (!expected || !supplied) return false;
+  const a = Buffer.from(expected);
+  const b = Buffer.from(supplied);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -68,6 +78,78 @@ module.exports = async function handler(req, res) {
   const body = typeof req.body === 'string' ? (() => { try { return JSON.parse(req.body); } catch (_) { return {}; } })() : (req.body || {});
   const action = String(body.action || '');
   try {
+
+    if (action === 'discord_list_open') {
+      if (!(await requireBot(req))) return res.status(403).json({ success: false, message: 'Bot authentication required.' });
+      const { data: rows, error } = await db.from('site_content')
+        .select('content_json').gte('content_key', 'poll_').lt('content_key', 'poll_\\uffff');
+      if (error) throw error;
+      const polls = (rows || []).map(row => cleanPoll(row)).filter(poll =>
+        poll && poll.status === 'open' && poll.source === 'discord' && poll.discord?.channelId && poll.discord?.messageId
+      );
+      return res.json({ success: true, polls });
+    }
+
+    if (action === 'discord_create') {
+      if (!(await requireBot(req))) return res.status(403).json({ success: false, message: 'Bot authentication required.' });
+      const question = String(body.question || '').trim().slice(0, 180);
+      const options = Array.isArray(body.options) ? body.options.map(value => String(value || '').trim().slice(0, 100)).filter(Boolean) : [];
+      const discord = body.discord && typeof body.discord === 'object' ? body.discord : {};
+      if (question.length < 1 || options.length < 2 || options.length > 10 ||
+          !/^\\d{17,20}$/.test(String(discord.channelId || '')) ||
+          !/^\\d{17,20}$/.test(String(discord.messageId || '')) ||
+          !/^\\d{17,20}$/.test(String(discord.guildId || ''))) {
+        return res.status(400).json({ success: false, message: 'Invalid Discord poll.' });
+      }
+      const { data: existingRows, error: existingError } = await db.from('site_content')
+        .select('content_json').gte('content_key', 'poll_').lt('content_key', 'poll_\\uffff');
+      if (existingError) throw existingError;
+      const duplicate = (existingRows || []).map(row => cleanPoll(row)).find(poll =>
+        poll?.source === 'discord' && poll.discord?.messageId === String(discord.messageId)
+      );
+      if (duplicate) return res.json({ success: true, poll: duplicate, existing: true });
+      const id = crypto.randomBytes(6).toString('hex');
+      const poll = {
+        id, question,
+        options: options.map((label, index) => ({ id: crypto.randomBytes(6).toString('hex'), label, discordAnswerId: Number(body.answerIds?.[index]) || null })),
+        status: 'open', createdAt: new Date().toISOString(), endAt: discord.expiresAt || null,
+        source: 'discord',
+        discord: {
+          guildId: String(discord.guildId), channelId: String(discord.channelId),
+          messageId: String(discord.messageId), allowMultiselect: !!discord.allowMultiselect,
+          expiresAt: discord.expiresAt || null, url: discord.url || null
+        }
+      };
+      const { error } = await db.from('site_content').insert({
+        content_key: 'poll_' + id, content_json: poll, updated_at: new Date().toISOString()
+      });
+      if (error) throw error;
+      return res.status(201).json({ success: true, poll });
+    }
+
+    if (action === 'discord_close') {
+      if (!(await requireBot(req))) return res.status(403).json({ success: false, message: 'Bot authentication required.' });
+      const pollId = String(body.pollId || '');
+      if (!/^[a-f0-9]{12}$/.test(pollId)) return res.status(400).json({ success: false, message: 'Invalid poll ID.' });
+      const { data: row, error: readError } = await db.from('site_content').select('content_json')
+        .eq('content_key', 'poll_' + pollId).maybeSingle();
+      if (readError) throw readError;
+      const poll = cleanPoll(row);
+      if (!poll || poll.source !== 'discord') return res.status(404).json({ success: false, message: 'Poll not found.' });
+      poll.status = 'closed';
+      poll.closedAt = new Date().toISOString();
+      poll.discordResults = {
+        totalVoters: Math.max(0, Number(body.totalVoters) || 0),
+        counts: body.counts && typeof body.counts === 'object' ? body.counts : {},
+        finalized: !!body.finalized
+      };
+      const { error: updateError } = await db.from('site_content').upsert({
+        content_key: 'poll_' + pollId, content_json: poll, updated_at: new Date().toISOString()
+      }, { onConflict: 'content_key' });
+      if (updateError) throw updateError;
+      return res.json({ success: true });
+    }
+
     if (action === 'vote') {
       const pollId = String(body.pollId || '');
       const optionId = String(body.optionId || '');
