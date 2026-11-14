@@ -156,7 +156,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.12/dist/turbo.es2017-umd.js" defer></script>
   <script src="/spa-navigation.js?v=1" defer></script>
   <meta name="robots" content="noindex, nofollow">
-</head>
+<link rel="stylesheet" href="poll-admin.css"></head>
 
 <body>
     <button id="admin-language-toggle" class="lang-btn" type="button" style="position:fixed;top:16px;left:16px;z-index:30">English</button>
@@ -178,6 +178,20 @@
             <button class="btn primary" id="admin-save-button" onclick="saveNewsToServer()" style="font-size: 16px; padding: 12px 24px;">שמור
                 מאמרים</button>
             <p id="save-status" style="margin-top: 10px; font-weight: bold;"></p>
+            <hr style="border-color:#ffffff10;margin:28px 0;">
+            <section id="poll-admin-panel" class="poll-admin-panel">
+              <h3>📊 ניהול סקרים</h3>
+              <p>יצירת סקרים לקהילה — כל אחד יכול להצביע ללא חשבון.</p>
+              <div class="form-group"><label for="poll-admin-question">שאלת הסקר</label><input id="poll-admin-question" maxlength="180" type="text" placeholder="לדוגמה: איזה Mini-game להוסיף?"></div>
+              <div id="poll-admin-options">
+                <div class="poll-admin-option"><input type="text" maxlength="100" placeholder="אפשרות 1"><button type="button" class="btn-danger poll-remove-option">הסר</button></div>
+                <div class="poll-admin-option"><input type="text" maxlength="100" placeholder="אפשרות 2"><button type="button" class="btn-danger poll-remove-option">הסר</button></div>
+              </div>
+              <button type="button" class="btn" id="poll-add-option">+ הוסף אפשרות</button>
+              <button type="button" class="btn primary" id="poll-create-button">צור סקר</button>
+              <p id="poll-admin-status" aria-live="polite"></p>
+              <h3>הסקרים הקיימים</h3><div id="poll-admin-list"></div>
+            </section>
         </div>
     </div>
 
@@ -470,6 +484,7 @@ window.deleteItem = deleteItem;
 window.addNewsItem = addNewsItem;
 window.saveNewsToServer = saveNewsToServer;
 })();</script>
+  <script src="poll-admin.js"></script>
   <script src="theme.js?v=6"></script>
   <script src="animations.js?v=3"></script>
   <script src="account-nav.js"></script>
