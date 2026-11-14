@@ -8,6 +8,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EddyDev | מאמר</title>
+  <meta name="description" content="Read the latest EddyDev Minecraft server news, community announcements, events and updates.">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://eddydev.ddns.net/article">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="EddyDev">
+  <meta property="og:url" content="https://eddydev.ddns.net/article">
+  <meta property="og:title" content="EddyDev News & Updates">
+  <meta property="og:description" content="Latest news and updates from the EddyDev Minecraft community.">
+  <meta property="og:image" content="https://eddydev.ddns.net/logo.png">
+  <meta property="og:image:alt" content="EddyDev Minecraft community logo">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="EddyDev News & Updates">
+  <meta name="twitter:description" content="Latest news and updates from the EddyDev Minecraft community.">
+  <meta name="twitter:image" content="https://eddydev.ddns.net/logo.png">
+
     <link rel="stylesheet" href="style.css?v=controls3">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
@@ -201,6 +216,24 @@
                 const article = newsList.find(item => item.id === articleId) || newsList[0];
 
                 document.getElementById('article-title').textContent = isHe ? (article.title_he || article.title_en) : (article.title_en || article.title_he);
+                const seoTitle = isHe ? (article.title_he || article.title_en) : (article.title_en || article.title_he);
+                const seoDescription = isHe ? (article.text_he || article.text_en || '') : (article.text_en || article.text_he || '');
+                document.title = seoTitle + ' | EddyDev';
+                const setMeta = (selector, attr, value, createTag, createAttr) => {
+                    let el = document.head.querySelector(selector);
+                    if (!el) { el = document.createElement(createTag); el.setAttribute(createAttr, selector.match(/["']([^"']+)["']/)?.[1] || ''); document.head.appendChild(el); }
+                    el.setAttribute(attr, value);
+                };
+                setMeta('meta[name="description"]','content',seoDescription.slice(0,300),'meta','name');
+                setMeta('meta[property="og:title"]','content',seoTitle,'meta','property');
+                setMeta('meta[property="og:description"]','content',seoDescription.slice(0,300),'meta','property');
+                setMeta('meta[property="og:url"]','content',window.location.origin + '/article?id=' + encodeURIComponent(article.id),'meta','property');
+                const canonical = document.querySelector('link[rel="canonical"]');
+                if (canonical) canonical.href = window.location.origin + '/article?id=' + encodeURIComponent(article.id);
+                const oldLd = document.getElementById('article-jsonld'); if (oldLd) oldLd.remove();
+                const ld = document.createElement('script'); ld.type = 'application/ld+json'; ld.id = 'article-jsonld';
+                ld.textContent = JSON.stringify({"@context":"https://schema.org","@type":"Article","headline":seoTitle,"description":seoDescription.slice(0,300),"author":{"@type":"Person","name":article.author || "EddyDev"},"publisher":{"@type":"Organization","name":"EddyDev","logo":{"@type":"ImageObject","url":window.location.origin+"/logo.png"}},"mainEntityOfPage":window.location.href});
+                document.head.appendChild(ld);
                 document.getElementById('article-badge').textContent = isHe ? (article.badge_he || 'עדכון') : (article.badge_en || 'UPDATE');
                 document.getElementById('article-body').innerHTML = isHe ? (article.content_he || article.content_en) : (article.content_en || article.content_he);
 
