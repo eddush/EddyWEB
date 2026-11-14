@@ -14,7 +14,13 @@ function cleanPoll(row) {
 async function requireAdmin(req) {
   const auth = req.headers.authorization || '';
   if (!/^Bearer\s+\S+/i.test(auth)) return false;
-  const origin = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `https://${req.headers.host}`;
+  // Call the same-origin login endpoint used by the existing admin panel.
+  // VERCEL_URL can point at a deployment-protected hostname, causing internal
+  // requests to receive Vercel's protection page instead of the login API.
+  const requestHost = String(req.headers.host || '').toLowerCase().split(':')[0];
+  const allowedHosts = new Set(['eddydev.ddns.net', 'eddy-web-seven.vercel.app']);
+  if (!allowedHosts.has(requestHost)) return false;
+  const origin = `https://${requestHost}`;
   const response = await fetch(origin + '/api/login', {
     method: 'POST',
     headers: { Authorization: auth, 'Content-Type': 'application/json' },
