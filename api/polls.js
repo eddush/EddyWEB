@@ -82,7 +82,7 @@ module.exports = async function handler(req, res) {
     if (action === 'discord_list_open') {
       if (!(await requireBot(req))) return res.status(403).json({ success: false, message: 'Bot authentication required.' });
       const { data: rows, error } = await db.from('site_content')
-        .select('content_json').gte('content_key', 'poll_').lt('content_key', 'poll_\\uffff');
+        .select('content_json').gte('content_key', 'poll_').lt('content_key', 'poll_\uffff');
       if (error) throw error;
       const polls = (rows || []).map(row => cleanPoll(row)).filter(poll =>
         poll && poll.status === 'open' && poll.source === 'discord' && poll.discord?.channelId && poll.discord?.messageId
@@ -96,13 +96,13 @@ module.exports = async function handler(req, res) {
       const options = Array.isArray(body.options) ? body.options.map(value => String(value || '').trim().slice(0, 100)).filter(Boolean) : [];
       const discord = body.discord && typeof body.discord === 'object' ? body.discord : {};
       if (question.length < 1 || options.length < 2 || options.length > 10 ||
-          !/^\\d{17,20}$/.test(String(discord.channelId || '')) ||
-          !/^\\d{17,20}$/.test(String(discord.messageId || '')) ||
-          !/^\\d{17,20}$/.test(String(discord.guildId || ''))) {
+          !/^\d{17,20}$/.test(String(discord.channelId || '')) ||
+          !/^\d{17,20}$/.test(String(discord.messageId || '')) ||
+          !/^\d{17,20}$/.test(String(discord.guildId || ''))) {
         return res.status(400).json({ success: false, message: 'Invalid Discord poll.' });
       }
       const { data: existingRows, error: existingError } = await db.from('site_content')
-        .select('content_json').gte('content_key', 'poll_').lt('content_key', 'poll_\\uffff');
+        .select('content_json').gte('content_key', 'poll_').lt('content_key', 'poll_\uffff');
       if (existingError) throw existingError;
       const duplicate = (existingRows || []).map(row => cleanPoll(row)).find(poll =>
         poll?.source === 'discord' && poll.discord?.messageId === String(discord.messageId)
