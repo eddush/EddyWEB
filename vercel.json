@@ -80,9 +80,17 @@
     {
       "src": "robots.txt",
       "use": "@vercel/static"
+    },
+    {
+      "src": "api/polls.js",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
+    {
+      "src": "^/api/polls/?$",
+      "dest": "/api/polls.js"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/server.js"
@@ -116,6 +124,10 @@
       "src": "/.*",
       "status": 404,
       "dest": "/404.html"
+    },
+    {
+      "src": "^/polls$",
+      "dest": "/polls.html"
     }
   ]
 }
