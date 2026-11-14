@@ -14,12 +14,12 @@
   const t = he ? {
     title:'סקרי הקהילה', intro:'הצביעו בסקרים של EddyDev — אין צורך בחשבון או בהתחברות.',
     open:'פתוח להצבעה', closed:'הסקר נסגר', votes:'הצבעות', vote:'הצבעה', voted:'ההצבעה שלך נשמרה!',
-    results:'תוצאות', empty:'אין כרגע סקרים. כדאי לחזור בקרוב!', error:'לא ניתן לטעון את הסקרים כרגע.',
+    results:'תוצאות', discordVotes:'הצבעות מ־Discord', siteVotes:'הצבעות באתר', empty:'אין כרגע סקרים. כדאי לחזור בקרוב!', error:'לא ניתן לטעון את הסקרים כרגע.',
     duplicate:'כבר הצבעת בסקר הזה מהמכשיר הזה.', sending:'שולח הצבעה…', closedLabel:'הסקר הזה הסתיים.'
   } : {
     title:'Community Polls', intro:'Vote in EddyDev community polls — no account or sign-in required.',
     open:'Open for voting', closed:'Poll closed', votes:'votes', vote:'Vote', voted:'Your vote has been saved!',
-    results:'Results', empty:'There are no polls right now. Check back soon!', error:'Could not load polls right now.',
+    results:'Results', discordVotes:'Discord votes', siteVotes:'Website votes', empty:'There are no polls right now. Check back soon!', error:'Could not load polls right now.',
     duplicate:'You have already voted in this poll on this device.', sending:'Submitting vote…', closedLabel:'This poll has ended.'
   };
   document.documentElement.lang = he ? 'he' : 'en';
@@ -48,9 +48,12 @@
             ? '<div class="poll-result"><div class="poll-result-top"><span>' + esc(option.label) + '</span><strong>' + percent + '%</strong></div><div class="poll-bar"><span style="width:' + percent + '%"></span></div><small>' + count + ' ' + esc(t.votes) + '</small></div>'
             : '<label class="poll-option"><input type="radio" name="poll-' + poll.id + '" value="' + option.id + '"><span>' + esc(option.label) + '</span></label>';
         }).join('');
-        return '<article class="poll-card"><div class="poll-card-top"><span class="poll-status ' + (poll.status === 'open' ? 'is-open' : 'is-closed') + '">' + esc(poll.status === 'open' ? t.open : t.closed) + '</span><span class="poll-total">' + total + ' ' + esc(t.votes) + '</span></div><h2>' + esc(poll.question) + '</h2><div class="poll-options">' + options + '</div>' +
+        return '<article class="poll-card"><div class="poll-card-top"><span class="poll-status ' + (poll.status === 'open' ? 'is-open' : 'is-closed') + '">' + esc(poll.status === 'open' ? t.open : t.closed) + '</span><span class="poll-total">' + total + ' ' + esc(t.siteVotes) + '</span></div><h2>' + esc(poll.question) + '</h2><div class="poll-options">' + options + '</div>' +
           (showResults ? '<p class="poll-feedback">' + esc(hasVoted ? t.voted : t.closedLabel) + '</p>' : '<button class="btn primary poll-vote-btn" data-poll="' + poll.id + '">' + esc(t.vote) + '</button><p class="poll-feedback" id="poll-feedback-' + poll.id + '" aria-live="polite"></p>') +
-          (showResults ? '<div class="poll-results-heading">' + esc(t.results) + '</div>' : '') + '</article>';
+          (showResults ? '<div class="poll-results-heading">' + esc(t.results) + '</div>' : '') +
+          (poll.source === 'discord' && poll.discordResults ? '<div class="poll-discord-results"><div class="poll-discord-heading"><i class="fa-brands fa-discord"></i> ' + esc(t.discordVotes) + ': <strong>' + Number(poll.discordTotalVotes || 0) + '</strong></div>' +
+            poll.options.map(option => '<div class="poll-discord-row"><span>' + esc(option.label) + '</span><strong>' + Number(poll.discordCounts?.[option.id] || 0) + '</strong></div>').join('') +
+            '</div>' : '') + '</article>';
       }).join('');
       list.querySelectorAll('.poll-vote-btn').forEach(button => button.addEventListener('click', () => castVote(button.dataset.poll, button)));
     } catch (error) {
