@@ -1,6 +1,7 @@
 (() => {
   const $ = id => document.getElementById(id);
   const he = (localStorage.getItem('eddy-language') || 'en') === 'he';
+  window.toggleLanguage = () => { localStorage.setItem('eddy-language', he ? 'en' : 'he'); window.location.reload(); };
   const voterKey = 'eddy-poll-voter-v1';
   let voterId = localStorage.getItem(voterKey);
   if (!/^[a-f0-9-]{36}$/i.test(voterId || '')) {
