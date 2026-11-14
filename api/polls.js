@@ -14,7 +14,7 @@ function cleanPoll(row) {
 async function requireAdmin(req) {
   const auth = req.headers.authorization || '';
   if (!/^Bearer\s+\S+/i.test(auth)) return false;
-  const origin = `https://${req.headers.host}`;
+  const origin = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : `https://${req.headers.host}`;
   const response = await fetch(origin + '/api/login', {
     method: 'POST',
     headers: { Authorization: auth, 'Content-Type': 'application/json' },
